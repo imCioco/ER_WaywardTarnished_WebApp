@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import initSqlJs, { type Database } from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
-import { AFFINITIES } from './constants';
+import { AFFINITIES, MOST_CONSUMABLES } from './constants';
 import type { ItemKind } from './types';
 
 export type CatalogItem = {
@@ -18,6 +18,8 @@ export type CatalogItem = {
   wepTypeCol?: string;
   compatibleWepTypes?: string;
   allowedAffinities?: string;
+  aiUseJudgeId?: number;
+  maxNum?: string;
   [key: string]: string | number | boolean | undefined;
 };
 
@@ -67,6 +69,40 @@ export class ItemCatalog {
     return [...this.items.values()].filter((item) => item.kind === kind && (!group || item.group === group)).sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  /** Goods the player-like AI can use: those with an `EquipParamGoods.aiUseJudgeId`. */
+  consumables(): CatalogItem[] {
+    return this.list('goods').filter((item) => Number(item.aiUseJudgeId) > 0);
+  }
+
+  /** The most of a goods item a Tarnished can carry: its stack size, at most 99. */
+  stackLimit(id: number): number {
+    const stack = Number(this.get('goods', id)?.maxNum);
+    return stack > 0 ? Math.min(MOST_CONSUMABLES, stack) : MOST_CONSUMABLES;
+  }
+
+  /** Affinity indices a weapon accepts; every affinity when the weapon is unknown. */
+  affinities(id: number): number[] {
+    const allowed = this.get('weapon', id)?.allowed_affinities;
+    if (!allowed) return AFFINITIES.map((_, index) => index);
+    const names = allowed.split('|');
+    return AFFINITIES.map((name, index) => (names.includes(name) ? index : -1)).filter((index) => index >= 0);
+  }
+
+  maxUpgrade(id: number): number {
+    return this.get('weapon', id)?.reinforcement === 'somber' ? 10 : 25;
+  }
+
+  /** Whether a weapon takes Ashes of War, and which fit its type and the given affinity. */
+  ashesFor(weaponId: number, affinity: number): { mountable: boolean; compatible: CatalogItem[]; other: CatalogItem[] } {
+    const weapon = this.get('weapon', weaponId);
+    const ashes = this.list('ash');
+    if (!weapon || weapon.aow_allowed === undefined) return { mountable: true, compatible: ashes, other: [] };
+    const type = String(weapon.wepTypeCol ?? '');
+    const fits = (ash: CatalogItem) => String(ash.compatibleWepTypes ?? '').split('|').includes(type)
+      && (!ash.allowedAffinities || ash.allowedAffinities.split('|').includes(AFFINITIES[affinity]));
+    return { mountable: weapon.aow_allowed === '1', compatible: ashes.filter(fits), other: ashes.filter((ash) => !fits(ash)) };
+  }
+
   icon(kind: ItemKind, id: number): string | undefined {
     const cacheKey = this.key(kind, id);
     if (this.iconCache.has(cacheKey)) return this.iconCache.get(cacheKey);
@@ -90,7 +126,8 @@ export class ItemCatalog {
     const bytes = new Uint8Array(data);
     let binary = '';
     for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
-    const result = `data:image/png;base64,${btoa(binary)}`;
+    const type = iconName.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+    const result = `data:image/${type};base64,${btoa(binary)}`;
     this.iconCache.set(cacheKey, result);
     return result;
   }

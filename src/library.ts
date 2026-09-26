@@ -1,6 +1,9 @@
 import { parse, stringify } from 'smol-toml';
-import { CLASSES, GEAR_FIELDS, POOL_FIELDS, ROLES, STATS } from './constants';
-import type { EquipmentPool, ItemChoice, LibraryDocument, Tarnished, ValidationResult } from './types';
+import { CLASSES, GEAR_FIELDS, MOST_CONSUMABLES, POOL_FIELDS, ROLES, STATS } from './constants';
+import type { Consumable, EquipmentPool, ItemChoice, LibraryDocument, Tarnished, ValidationResult } from './types';
+
+/** What the item catalog knows about a goods id: whether the AI can use it and its stack limit. */
+export type GoodsLookup = (id: number) => { name: string; usable: boolean; limit: number } | undefined;
 
 export function parseLibrary(text: string): LibraryDocument {
   const parsed = parse(text.replace(/^\uFEFF/, '')) as unknown as LibraryDocument;
@@ -63,7 +66,21 @@ function validateChoice(choice: unknown, path: string, errors: string[], allowEm
   if (!isWhole(choice, allowEmpty ? -1 : 0, 2147483647)) errors.push(`${path}: item ID must be a whole number.`);
 }
 
-export function validateLibrary(document: LibraryDocument, gestureNames: string[] = []): ValidationResult {
+function validateConsumables(list: unknown, owner: string, errors: string[], goods?: GoodsLookup): void {
+  if (!Array.isArray(list)) { errors.push(`${owner}: consumables must be a list.`); return; }
+  (list as Consumable[]).forEach((consumable, index) => {
+    const path = `${owner} ${index + 1}`;
+    if (typeof consumable !== 'object' || consumable === null || !isWhole(consumable.id, 0, 2147483647)) { errors.push(`${path}: goods ID must be a whole number.`); return; }
+    const known = goods?.(consumable.id);
+    const limit = known?.limit ?? MOST_CONSUMABLES;
+    if (known && !known.usable) errors.push(`${path}: ${known.name} is not an item the AI can use.`);
+    if (consumable.count !== undefined && !isWhole(consumable.count, 1, limit)) errors.push(`${path}: count must be from 1 to ${limit}.`);
+    if (consumable.level !== undefined && !isWhole(consumable.level, 0, 4294967295)) errors.push(`${path}: minimum level must be zero or higher.`);
+    if (consumable.weight !== undefined && !isWhole(consumable.weight, 0, 4294967295)) errors.push(`${path}: weight must be zero or higher.`);
+  });
+}
+
+export function validateLibrary(document: LibraryDocument, gestureNames: string[] = [], goods?: GoodsLookup): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const entries = document.tarnished ?? [];
@@ -95,6 +112,7 @@ export function validateLibrary(document: LibraryDocument, gestureNames: string[
         if (!isWhole(value, minimum, maximum)) errors.push(`${label}: ${stat} must be from ${minimum} to ${maximum}.`);
       }
     }
+    if (entry.consumables !== undefined) validateConsumables(entry.consumables, `${label} / consumable`, errors, goods);
     const hasGear = Array.isArray(entry.gear) && entry.gear.length > 0;
     const hasPool = Boolean(entry.pool);
     if (hasGear === hasPool) errors.push(`${label}: use either level loadouts or one random pool.`);
@@ -129,6 +147,11 @@ export function validateLibrary(document: LibraryDocument, gestureNames: string[
       if (validGestures.size && !validGestures.has(gesture)) errors.push(`Shared gestures: unknown ${field} gesture “${gesture}”.`);
     }
   }
+  if (document.consumables) {
+    const { kinds, pool } = document.consumables;
+    if (kinds !== undefined && !isWhole(kinds, 0, 10)) errors.push('Shared consumables: kinds must be from 0 to 10.');
+    if (pool !== undefined) validateConsumables(pool, 'Shared consumable', errors, goods);
+  } else warnings.push('Shared consumables are inherited from another library file.');
   if (!entries.length) warnings.push('This library has no Tarnished entries yet.');
   if (!document.templates?.invader) warnings.push('Templates are inherited; install this file alongside base.toml.');
   if (!document.gestures) warnings.push('Shared gestures are inherited from another library file.');

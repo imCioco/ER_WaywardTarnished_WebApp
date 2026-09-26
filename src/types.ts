@@ -9,6 +9,8 @@ export type WeightedChoice = {
 };
 
 export type ItemChoice = number | WeightedChoice;
+
+export type Consumable = { id: number; count?: number; level?: number; weight?: number };
 export type ArmorChoice = number[] | { set: number[]; level?: number; weight?: number };
 
 export type Loadout = {
@@ -50,6 +52,7 @@ export type Tarnished = {
   victories?: string[];
   faces?: number[];
   items?: [number, number][];
+  consumables?: Consumable[];
   growth?: Record<string, number>;
   attributes?: Record<string, number>;
   gear?: Loadout[];
@@ -64,6 +67,7 @@ export type LibraryDocument = {
   styles?: Record<string, number>;
   personalities?: Record<string, unknown>;
   gestures?: { greetings?: string[]; victories?: string[] };
+  consumables?: { kinds?: number; pool?: Consumable[] };
   tarnished: Tarnished[];
   [key: string]: unknown;
 };

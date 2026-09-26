@@ -6,7 +6,9 @@ A browser-based editor for creating Wayward Tarnished enemy libraries. It runs e
 
 - Fixed Tarnished builds with level-based equipment loadouts.
 - Strength-style random class pools, grouped into weapons, catalysts, complete armor presets, talismans, spells and Ashes of War.
-- Per-choice minimum level and selection weight.
+- Per-choice minimum level and selection weight (defaults: level 1, weight 10, as in the mod).
+- Consumables: the shared pool and how many different ones each Tarnished carries, plus per-entry **Use shared pool**, **Carry none** and **Own list** states. Only goods the player-like AI can use (`EquipParamGoods.aiUseJudgeId`) are offered, with counts capped at the stack size.
+- Item pickers with game icons for weapons, armor, talismans, spells, Ashes of War and consumables. Ashes of War are grouped by whether they fit the chosen weapon and affinity; affinity and upgrade limits follow the weapon.
 - Starting classes, roles, level range, selection weight, attribute growth and runtime flags.
 - Names, title patterns, AI styles and personalities.
 - Greeting and victory gestures with explicit **Inherit shared**, **Never** and **Custom selection** states.

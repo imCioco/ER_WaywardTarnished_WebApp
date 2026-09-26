@@ -2,7 +2,8 @@ import { Button, Card, Checkbox, Divider, Form, Input, InputNumber, Popconfirm, 
 import { CopyOutlined, DeleteOutlined, SwapOutlined } from '@ant-design/icons';
 import { CLASSES, ROLES, STATS } from '../constants';
 import type { ItemCatalog } from '../catalog';
-import type { EquipmentPool, Loadout, Tarnished } from '../types';
+import type { Consumable, EquipmentPool, Loadout, Tarnished } from '../types';
+import { ConsumablesEditor } from './ConsumablesEditor';
 import { GestureField } from './GestureField';
 import { LoadoutEditor } from './LoadoutEditor';
 import { PoolEditor } from './PoolEditor';
@@ -13,16 +14,17 @@ type Props = {
   catalog: ItemCatalog;
   gestureNames: string[];
   styleNames: string[];
+  sharedConsumables?: Consumable[];
   onChange: (entry: Tarnished) => void;
   onDuplicate: () => void;
   onDelete: () => void;
 };
 
-export function EnemyEditor({ entry, view, catalog, gestureNames, styleNames, onChange, onDuplicate, onDelete }: Props) {
+export function EnemyEditor({ entry, view, catalog, gestureNames, styleNames, sharedConsumables, onChange, onDuplicate, onDelete }: Props) {
   const patch = (values: Partial<Tarnished>) => onChange({ ...entry, ...values });
-  const setOptional = (field: 'greetings' | 'victories', value: string[] | undefined) => {
+  const setOptional = (field: 'greetings' | 'victories' | 'consumables', value: unknown[] | undefined) => {
     const next = structuredClone(entry);
-    if (value === undefined) delete next[field]; else next[field] = value;
+    if (value === undefined) delete next[field]; else (next as Record<string, unknown>)[field] = value;
     onChange(next);
   };
   const classes = Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : [];
@@ -48,6 +50,12 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, styleNames, on
           </Popconfirm>
         </div>
         {entry.pool ? <PoolEditor pool={entry.pool} catalog={catalog} onChange={(pool: EquipmentPool) => patch({ pool })} /> : <LoadoutEditor gear={entry.gear ?? []} catalog={catalog} onChange={(gear: Loadout[]) => patch({ gear })} />}
+        <section className="consumables-section">
+          <div className="section-heading">
+            <div><Typography.Title level={3}>Consumables</Typography.Title><Typography.Paragraph type="secondary">Pots, knives, greases and buffs the AI uses from its item slots, on top of the template’s flask. Each Tarnished draws the shared number of different consumables within its level.</Typography.Paragraph></div>
+          </div>
+          <ConsumablesEditor catalog={catalog} value={entry.consumables} shared={sharedConsumables} inheritable onChange={(value) => setOptional('consumables', value)} />
+        </section>
       </div>
     );
   }

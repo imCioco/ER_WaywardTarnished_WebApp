@@ -6,6 +6,17 @@ export const STATS = ['vigor', 'mind', 'endurance', 'strength', 'dexterity', 'in
 export const ARMOR_SLOTS = ['head', 'chest', 'arms', 'legs'];
 export const AFFINITIES = ['Standard', 'Heavy', 'Keen', 'Quality', 'Fire', 'Flame Art', 'Lightning', 'Sacred', 'Magic', 'Cold', 'Poison', 'Blood', 'Occult'];
 
+// Pool choices without `level` or `weight` use the mod's defaults (src/library.rs).
+export const DEFAULT_LEVEL = 1;
+export const DEFAULT_WEIGHT = 10;
+export const MOST_CONSUMABLES = 99;
+
+// EquipParamGoods.aiUseJudgeId: how the player-like AI uses a consumable (docs/LIBRARY.md).
+export const CONSUMABLE_USES: Record<number, string> = {
+  10000000: 'Thrown pots', 10000001: 'Knives and darts', 10000002: 'Stones and sprays',
+  20070000: 'Flasks', 30000000: 'Self-buffs', 30010000: 'Greases', 31000000: 'Drawstring greases',
+};
+
 export const POOL_FIELDS: { key: string; label: string; kind: ItemKind }[] = [
   { key: 'right', label: 'Right-hand weapons', kind: 'weapon' },
   { key: 'left', label: 'Left-hand weapons', kind: 'weapon' },

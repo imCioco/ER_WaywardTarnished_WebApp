@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Alert, App as AntApp, Badge, Breadcrumb, Button, Card, ConfigProvider, Divider, Empty,
-  Input, Layout, List, Menu, Modal, Progress, Space, Spin, Statistic, Tag, Typography,
+  Alert, App as AntApp, Badge, Breadcrumb, Button, ConfigProvider, Empty,
+  Input, Layout, List, Modal, Space, Spin, Tag, Tooltip, Typography,
 } from 'antd';
 import {
   ApartmentOutlined, CheckCircleOutlined, CodeOutlined, DatabaseOutlined, DownloadOutlined,
@@ -9,7 +9,7 @@ import {
   MenuOutlined, SettingOutlined, TeamOutlined, ThunderboltOutlined, UndoOutlined, UploadOutlined,
 } from '@ant-design/icons';
 import { ItemCatalog, loadBundledCatalog, loadCatalog } from './catalog';
-import { copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary } from './library';
+import { copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary, type GoodsLookup } from './library';
 import type { LibraryDocument, Tarnished, ValidationResult } from './types';
 import { EnemyEditor } from './components/EnemyEditor';
 import { SharedSettings } from './components/SharedSettings';
@@ -102,6 +102,10 @@ function Studio() {
   const styleNames = useMemo(() => document ? [...new Set([...Object.keys(document.styles ?? {}), ...Object.keys(document.personalities ?? {})])].sort() : [], [document]);
   const serialized = useMemo(() => document ? serializeLibrary(document) : '', [document]);
   const dirty = Boolean(document && serialized !== savedText);
+  const goodsLookup = useCallback<GoodsLookup>((id) => {
+    const item = catalog.get('goods', id);
+    return item ? { name: item.name, usable: Number(item.aiUseJudgeId) > 0, limit: catalog.stackLimit(id) } : undefined;
+  }, [catalog]);
   const randomPools = entries.filter((entry) => entry.pool).length;
   const poolChoices = entries.reduce((count, entry) => count + poolChoiceCount(entry.pool), 0);
 
@@ -159,7 +163,7 @@ function Studio() {
   };
   const download = () => {
     if (!document) return;
-    const result = validateLibrary(document, gestures);
+    const result = validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined);
     if (result.errors.length) { setValidation(result); return; }
     const blob = new Blob([serialized], { type: 'application/toml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -172,7 +176,7 @@ function Studio() {
     localStorage.removeItem(DRAFT_KEY);
     message.success('Library downloaded.');
   };
-  const showValidation = () => setValidation(document ? validateLibrary(document, gestures) : null);
+  const showValidation = () => setValidation(document ? validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined) : null);
   const openRaw = () => { setRawText(serialized); setRawOpen(true); };
   const applyRaw = () => {
     try { commit(parseLibrary(rawText)); setRawOpen(false); message.success('Advanced TOML applied.'); }
@@ -190,20 +194,23 @@ function Studio() {
 
   if (!document) return <div className="startup"><Spin size="large" /><Typography.Title level={3}>Opening Library Studio</Typography.Title><Typography.Text type="secondary">Loading the current Wayward Tarnished format…</Typography.Text></div>;
 
-  const viewItems = [
-    { key: 'overview', icon: <FormOutlined />, label: 'Overview' },
-    { key: 'equipment', icon: <ApartmentOutlined />, label: 'Equipment' },
-    { key: 'behavior', icon: <TeamOutlined />, label: 'Names & behavior' },
-    { key: 'shared', icon: <SettingOutlined />, label: 'Shared settings' },
+  const viewItems: { key: View; icon: ReactNode; label: string; hint: string }[] = [
+    { key: 'overview', icon: <FormOutlined />, label: 'Overview', hint: 'Identity, availability and growth' },
+    { key: 'equipment', icon: <ApartmentOutlined />, label: 'Equipment', hint: selectedEntry?.pool ? 'Random pool and consumables' : 'Level loadouts and consumables' },
+    { key: 'behavior', icon: <TeamOutlined />, label: 'Names & behavior', hint: 'Names, AI styles and gestures' },
+    { key: 'shared', icon: <SettingOutlined />, label: 'Shared settings', hint: 'Library-wide names, gestures, consumables' },
+  ];
+  const stats = [
+    { label: 'Tarnished', value: entries.length, icon: <TeamOutlined /> },
+    { label: 'Random pools', value: randomPools, icon: <ThunderboltOutlined /> },
+    { label: 'Pool choices', value: poolChoices, icon: <ApartmentOutlined /> },
+    { label: 'Catalog items', value: catalog.size, icon: <DatabaseOutlined /> },
   ];
   return (
     <Layout className="studio-shell">
       <Layout.Sider width={292} theme="light" className="studio-sider" breakpoint="lg" collapsedWidth={0} trigger={<MenuOutlined />}>
         <div className="brand-block"><div className="brand-mark">WT</div><div><Typography.Text strong>Library Studio</Typography.Text><Typography.Text type="secondary">Wayward Tarnished</Typography.Text></div></div>
         <Input.Search value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search Tarnished" allowClear className="sidebar-search" />
-        <Typography.Text className="sidebar-label">WORKSPACE</Typography.Text>
-        <Menu mode="inline" selectedKeys={[view]} items={viewItems} onSelect={({ key }) => setView(key as View)} />
-        <Divider />
         <div className="library-label"><Typography.Text className="sidebar-label">TARNISHED LIBRARY</Typography.Text><Badge count={entries.length} color="#171717" /></div>
         <div className="enemy-list">
           <List
@@ -225,7 +232,7 @@ function Studio() {
       </Layout.Sider>
       <Layout className="main-layout">
         <header className="command-bar">
-          <Breadcrumb items={[{ title: 'Library Studio' }, { title: view === 'shared' ? 'Shared settings' : selectedEntry?.name ?? 'Library' }]} />
+          <Breadcrumb items={view === 'shared' ? [{ title: 'Library Studio' }, { title: 'Shared settings' }] : [{ title: 'Library Studio' }, { title: selectedEntry?.name ?? 'Library' }, { title: viewItems.find((item) => item.key === view)?.label }]} />
           <Space wrap>
             <Button type="text" icon={<UndoOutlined />} disabled={!past.current.length} onClick={undo} aria-label="Undo" />
             <Button type="text" icon={<RedoOutlined />} disabled={!future.current.length} onClick={redo} aria-label="Redo" />
@@ -239,16 +246,23 @@ function Studio() {
         <Layout.Content className="content-shell">
           <section className="page-intro">
             <div><Typography.Title>Build your Tarnished library</Typography.Title><Typography.Paragraph>Design fixed enemies and random class pools, then download a valid library file for the mod.</Typography.Paragraph></div>
-            <Space><Tag color={dirty ? 'gold' : 'green'}>{dirty ? 'Unsaved browser draft' : 'Downloaded copy is current'}</Tag><Typography.Text type="secondary">{filename}</Typography.Text></Space>
+            <div className="intro-side">
+              <div className="stat-strip" aria-label="Library summary">
+                {stats.map((stat) => <Tooltip key={stat.label} title={stat.label}><div className="stat-chip">{stat.icon}<strong>{stat.value.toLocaleString()}</strong><span>{stat.label}</span></div></Tooltip>)}
+              </div>
+              <Space><Tag color={dirty ? 'gold' : 'green'}>{dirty ? 'Unsaved browser draft' : 'Downloaded copy is current'}</Tag><Typography.Text type="secondary">{filename}</Typography.Text></Space>
+            </div>
           </section>
-          <section className="summary-grid">
-            <Card><Statistic title="Tarnished" value={entries.length} prefix={<TeamOutlined />} /></Card>
-            <Card><Statistic title="Random pools" value={randomPools} prefix={<ThunderboltOutlined />} /></Card>
-            <Card><Statistic title="Pool choices" value={poolChoices} prefix={<ApartmentOutlined />} /></Card>
-            <Card><Statistic title="Catalog items" value={catalog.size} prefix={<DatabaseOutlined />} /></Card>
-          </section>
+          <nav className="workspace-tabs" role="tablist" aria-label="Workspace">
+            {viewItems.map((item) => (
+              <button key={item.key} role="tab" aria-selected={view === item.key} className={`workspace-tab ${view === item.key ? 'selected' : ''}`} onClick={() => setView(item.key)}>
+                <span className="workspace-tab-icon">{item.icon}</span>
+                <span><strong>{item.label}</strong><small>{item.hint}</small></span>
+              </button>
+            ))}
+          </nav>
           <section className="work-surface">
-            {view === 'shared' ? <SharedSettings document={document} gestures={gestures} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} styleNames={styleNames} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
+            {view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} styleNames={styleNames} sharedConsumables={document.consumables?.pool} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
           </section>
         </Layout.Content>
       </Layout>

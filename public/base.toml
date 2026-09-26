@@ -287,6 +287,30 @@ threat_evasive_art = 80
 r1_combo = -10
 jump_attack = 10
 
+# Consumables: goods the player-like AI uses from its item slots, on top of the template's flask.
+# It can use any goods with an AI usage (EquipParamGoods.aiUseJudgeId): pots, knives, darts and
+# stones it throws, meats and livers it eats, greases it rubs on its weapon, aromatics. Each Tarnished
+# draws `kinds` different ones within its level (`level` = earliest level, `weight` = relative
+# chance, `count` = how many it carries). An entry's own `consumables` list replaces this pool;
+# [] carries none.
+[consumables]
+kinds = 2
+pool = [
+    { id = 300, count = 3 },                # Fire Pot
+    { id = 1700, count = 8 },               # Throwing Dagger
+    { id = 820, count = 2, level = 10 },    # Boiled Crab
+    { id = 1720, count = 6, level = 15 },   # Poisonbone Dart
+    { id = 1400, count = 2, level = 15 },   # Fire Grease
+    { id = 320, count = 3, level = 20 },    # Lightning Pot
+    { id = 1730, count = 5, level = 25 },   # Kukri
+    { id = 1410, count = 2, level = 25 },   # Lightning Grease
+    { id = 360, count = 3, level = 30 },    # Freezing Pot
+    { id = 1830, count = 3, level = 30 },   # Explosive Stone
+    { id = 1210, count = 2, level = 35 },   # Exalted Flesh
+    { id = 302, count = 2, level = 60 },    # Giantsflame Fire Pot
+    { id = 321, count = 2, level = 80 },    # Ancient Dragonbolt Pot
+]
+
 [faces]
 male = [3100, 3102, 3104, 3106, 3108, 3110, 3112, 3114, 3116, 3118, 3120, 3122]
 female = [3101, 3103, 3105, 3107, 3109, 3111, 3113, 3115, 3117, 3119, 3121, 3123]
@@ -396,6 +420,7 @@ weight = 14
 styles = ["battlemage", "agile", "showoff"]
 victories = ["erudition", "bow", "nod_in_thought", "finger_snap"]
 growth = { vigor = 4, mind = 2, endurance = 1, strength = 1, dexterity = 1, intelligence = 4 }
+consumables = [{ id = 1420, count = 2 }, { id = 3050, count = 3, level = 10 }, { id = 660, count = 3, level = 20 }, { id = 1700, count = 8 }]   # Magic Grease, Glintstone Scrap, Magic Pot, Throwing Dagger
 
 [[tarnished.gear]]
 level = 1
@@ -446,6 +471,7 @@ styles = ["steady", "preceptor", "sentinel", "zealot"]
 greetings = ["reverential_bow", "my_lord", "bow", "hoslows_oath"]
 victories = ["golden_order_totality", "rapture", "reverential_bow", "my_thanks"]
 growth = { vigor = 4, mind = 2, endurance = 1, strength = 2, faith = 4 }
+consumables = [{ id = 350, count = 3 }, { id = 820, count = 2 }, { id = 1430, count = 2, level = 20 }, { id = 1210, count = 2, level = 35 }]   # Holy Water Pot, Boiled Crab, Holy Grease, Exalted Flesh
 
 [[tarnished.gear]]
 level = 1
@@ -495,6 +521,7 @@ weight = 10
 styles = ["kiting", "cautious", "preceptor"]
 victories = ["erudition", "bow", "nod_in_thought", "calm_down"]
 growth = { vigor = 4, mind = 3, endurance = 1, intelligence = 5 }
+consumables = [{ id = 660, count = 3 }, { id = 3050, count = 4 }, { id = 1740, count = 6, level = 30 }, { id = 3051, count = 3, level = 40 }, { id = 661, count = 2, level = 60 }]   # Magic Pot, Glintstone Scrap, Crystal Dart, Large Glintstone Scrap, Academy Magic Pot
 
 [[tarnished.gear]]
 level = 1
@@ -578,6 +605,7 @@ styles = ["relentless", "agile", "reckless", "berserker", "evasive"]
 greetings = ["beckon", "point_forwards", "bow", "by_my_sword"]
 victories = ["finger_snap", "point_downwards", "triumphant_delight", "fancy_spin"]
 growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 3, arcane = 4 }
+consumables = [{ id = 1700, count = 8 }, { id = 1730, count = 5 }, { id = 1440, count = 2, level = 15 }, { id = 3550, count = 2, level = 40 }]   # Throwing Dagger, Kukri, Blood Grease, Bloodboil Aromatic
 
 [[tarnished.gear]]
 level = 1
@@ -613,6 +641,7 @@ class = "confessor"
 weight = 8
 styles = ["brawler", "battlemage", "zealot"]
 growth = { vigor = 4, mind = 2, endurance = 1, strength = 2, dexterity = 1, faith = 4 }
+consumables = [{ id = 300, count = 3 }, { id = 320, count = 3 }, { id = 1410, count = 2, level = 25 }, { id = 321, count = 2, level = 80 }]   # Fire Pot, Lightning Pot, Lightning Grease, Ancient Dragonbolt Pot
 
 [[tarnished.gear]]
 level = 1
@@ -653,6 +682,7 @@ class = "prophet"
 weight = 8
 styles = ["kiting", "preceptor", "cautious"]
 growth = { vigor = 4, mind = 2, endurance = 1, strength = 1, dexterity = 3, faith = 4 }
+consumables = [{ id = 300, count = 3 }, { id = 1720, count = 6 }, { id = 1400, count = 2, level = 15 }, { id = 302, count = 2, level = 60 }]   # Fire Pot, Poisonbone Dart, Fire Grease, Giantsflame Fire Pot
 
 [[tarnished.gear]]
 level = 1
@@ -723,6 +753,7 @@ styles = ["sacrificial"]
 greetings = ["wave", "bow", "polite_bow", "casual_greeting", "jump_for_joy"]
 victories = ["bow", "wave"]
 growth = { vigor = 4, mind = 2, endurance = 1, dexterity = 3 }
+consumables = []   # he came to die, not to throw pots
 
 [[tarnished.gear]]
 level = 1
