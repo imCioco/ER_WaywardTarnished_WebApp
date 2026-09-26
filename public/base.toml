@@ -1,0 +1,983 @@
+# Wayward Tarnished base library. See docs/LIBRARY.md for the format.
+
+# One template per role. name_rows: NpcParam rows lent to one Tarnished each so every name tag
+# shows its own name. Teams (the game's own relation table): 27 NPC invaders fight you and 47 but
+# ignore 2 and 16; 47 (spirit summons) fights 27 beside you; 2 (white phantoms) fights the
+# invader team 16 you join while invading, and the world's enemies fight 2 but not 16.
+[templates.invader]
+npc_param = 523770000
+think_param = 523770000
+chara_init = 23770
+name_rows = [523770000, 523700000, 523710000, 523610000, 523670000, 523870000, 523880000, 523900000, 523460000, 523450000]
+custom_weapons = [1000, 1001, 1002, 1003, 1004, 1005]
+items = [[50201, 2]]
+
+[templates.hunter]
+npc_param = 523770000
+think_param = 533260000
+chara_init = 23770
+team = 47
+name_rows = [523770000, 523700000, 523710000, 523610000, 523670000, 523870000, 523880000, 523900000, 523460000, 523450000]
+custom_weapons = [1000, 1001, 1002, 1003, 1004, 1005]
+items = [[50201, 3]]
+
+[templates.host]
+npc_param = 523770000
+think_param = 523770000
+chara_init = 23770
+team = 2
+name_rows = [523770000, 523700000, 523710000, 523610000, 523670000, 523870000, 523880000, 523900000, 523460000, 523450000]
+custom_weapons = [1000, 1001, 1002, 1003, 1004, 1005]
+items = [[50201, 3]]
+
+[templates.cooperator]
+npc_param = 523770000
+think_param = 523770000
+chara_init = 23770
+team = 2
+name_rows = [523770000, 523700000, 523710000, 523610000, 523670000, 523870000, 523880000, 523900000, 523460000, 523450000]
+custom_weapons = [1000, 1001, 1002, 1003, 1004, 1005]
+items = [[50201, 2]]
+
+# AI styles: SpEffects that the game's player-like AI (battle goal 29999) reads to add a
+# personality row of NpcAiBehaviorProbability to its situational odds. Each is the one a vanilla
+# NPC carries; an entry's styles list is drawn from per spawn.
+[styles]
+reckless = 18659     # Anastasia: heavy attacks, dash, rolling and jump attacks
+agile = 18660        # Okina: dash, rolling and backstep attacks
+brawler = 18662      # Vargram: dash and rolling attacks, circles the target
+relentless = 18664   # Eleonora: dash and backstep attacks, some casting
+steady = 18657       # Tragoth: more plain light and heavy attacks
+duelist = 20018674   # Hornsent: guards and counters, backsteps, no forward or side rolls
+kiting = 18667       # Sellen: casts while circling, never dashes in
+battlemage = 18663   # Wilhelm: casts while advancing and circling, never dashes in
+preceptor = 18693    # Miriam: casts while backing away
+cautious = 5022      # Therolina, Dolores: backsteps, rolls back and retreats
+evasive = 18658      # Juno Hoslow: dodges with rolling skills, stands firm when hit
+zealot = 18656       # Vyke: buffs heavily, dash attacks, answers hits with attacks
+unyielding = 20018672 # Leda: never rolls, guard counters, skills at every range
+redmane = 20018673   # Freyja: guards projectiles, punishes guard breaks, skills; no spells, no rolls
+knight = 20018675    # Ansbach: guard counters, stands firm, sometimes two-hands
+
+# Personalities written by the mod into personality slots no vanilla NPC, event or param uses
+# (a permanent SpEffect and the NpcAiBehaviorProbability row the AI adds for it). odds are added to
+# the game's situational odds, which are mostly 10-100; -9999 rules an action out, 9999 forces it.
+# Action names are listed in docs/LIBRARY.md. Free slots: 5023/15023, 20018663/15103,
+# 20018707/15140, 20018708/15141, 20018711/15144. suppress: SpEffects removed from the Tarnished
+# while it lives.
+
+# Waits for your attack, parries it with a parrying shield and ripostes.
+[personalities.parrier]
+effect = 5023
+row = 15023
+
+[personalities.parrier.odds]
+parry = 600
+parry_window_forward_roll = -9999
+parry_window_side_roll = -9999
+parry_window_back_roll = -9999
+parry_window_backstep_attack = -9999
+riposte = 900
+parried_steady = -60
+guard_break_critical = 300
+guard_counter = 100
+threat_steady = 60
+threat_guard = 20
+threat_forward_roll = -9999
+threat_side_roll = -30
+threat_back_roll = -30
+threat_backstep = -20
+strafe = 40
+wait = 30
+backstep = 20
+r1_combo = -10
+r2_combo = -10
+dash_attack = -15
+jump_attack = -15
+dash_jump_attack = -15
+forward_roll_attack = -9999
+side_roll_attack = -9999
+back_roll_attack = -9999
+two_hand_right = -9999
+two_hand_r1_chance = -9999
+two_hand_r2_chance = -9999
+guard_while_moving = 40
+
+# Walks up and uses a buffing skill (Seppuku) again and again, never attacking or dodging.
+[personalities.sacrificial]
+effect = 20018663
+row = 15103
+suppress = [1755] # Seppuku's weapon buff: while it lasts the AI does not use the skill again
+
+[personalities.sacrificial.odds]
+art_buff = 9999
+art_near = -9999
+art_mid = -9999
+art_far = -9999
+art_heal = -9999
+approach = 100
+wait = 50
+r1_combo = -9999
+r2_combo = -9999
+dash_attack = -9999
+forward_roll_attack = -9999
+side_roll_attack = -9999
+back_roll_attack = -9999
+backstep_attack = -9999
+jump_attack = -9999
+dash_jump_attack = -9999
+shoot_r1 = -9999
+shoot_r2 = -9999
+far_spell_advancing = -9999
+far_spell_retreating = -9999
+near_spell_strafing = -9999
+mid_spell_strafing = -9999
+far_spell_strafing = -9999
+healing_spell = -9999
+buff_spell = -9999
+near_spell_advancing = -9999
+near_spell_retreating = -9999
+mid_spell_advancing = -9999
+mid_spell_retreating = -9999
+shield_r1 = -9999
+shield_r2 = -9999
+guard_counter = -9999
+left_r1_combo = -9999
+left_r2_combo = -9999
+left_l1_combo = -9999
+left_dash_attack = -9999
+left_jump_attack = -9999
+riposte = -9999
+parried_steady = 9999
+backstep = -9999
+forward_roll = -9999
+side_roll = -9999
+back_roll = -9999
+retreat = -9999
+dash_in = -9999
+two_hand_right = -9999
+two_hand_left = -9999
+guard_break_critical = -9999
+guard_break_dash_attack = -9999
+guard_break_spell = -9999
+guard_break_steady = 9999
+shield_poke = -9999
+estus_punish_dash_attack = -9999
+estus_punish_throw = -9999
+estus_steady = 9999
+parry = -9999
+parry_window_forward_roll = -9999
+parry_window_side_roll = -9999
+parry_window_back_roll = -9999
+parry_window_backstep_attack = -9999
+parry_window_guard = -9999
+parry_window_steady = 9999
+hit_back_roll = -9999
+hit_side_roll = -9999
+hit_guard_back = -9999
+hit_guard_side = -9999
+hit_steady = 9999
+hit_r1_combo = -9999
+hit_forward_roll = -9999
+hit_backstep = -9999
+hit_guard_forward = -9999
+projectile_forward_roll = -9999
+projectile_side_roll = -9999
+projectile_guard_forward = -9999
+projectile_guard_side = -9999
+projectile_steady = 9999
+projectile_back_roll = -9999
+projectile_dash_in = -9999
+threat_backstep = -9999
+threat_forward_roll = -9999
+threat_side_roll = -9999
+threat_back_roll = -9999
+threat_guard_forward = -9999
+threat_guard_side = -9999
+threat_guard = -9999
+threat_shield_poke = -9999
+threat_steady = 9999
+threat_evasive_art = -9999
+rolling_art_chance = -9999
+throw_item = -9999
+healing_item = -9999
+buff_item = -9999
+pot_combo = -9999
+
+# Charges in and keeps swinging: no backing off, no waiting, trades blows when hit.
+[personalities.berserker]
+effect = 20018707
+row = 15140
+
+[personalities.berserker.odds]
+r1_combo = 40
+r2_combo = 40
+dash_attack = 50
+jump_attack = 40
+dash_jump_attack = 40
+dash_in = 80
+approach = 40
+strafe = -10
+backstep = -9999
+back_roll = -9999
+retreat = -9999
+wait = -9999
+hit_r1_combo = 80
+hit_steady = 40
+hit_back_roll = -9999
+hit_backstep = -9999
+threat_steady = 80
+threat_backstep = -9999
+threat_back_roll = -9999
+projectile_dash_in = 60
+estus_punish_dash_attack = 80
+guard_break_dash_attack = 60
+two_hand_r1_chance = 60
+two_hand_r2_chance = 60
+healing_item = -600
+
+# Turtles behind a shield: guards while moving, guard counters and shield pokes, rarely rolls.
+[personalities.sentinel]
+effect = 20018708
+row = 15141
+
+[personalities.sentinel.odds]
+guard_while_moving = 300
+blocked_steady = 80
+guard_counter = 150
+shield_poke = 80
+threat_shield_poke = 100
+threat_guard = 80
+threat_guard_forward = 40
+threat_guard_side = 40
+hit_guard_forward = 40
+hit_guard_side = 40
+hit_guard_back = 40
+projectile_guard_forward = 80
+projectile_guard_side = 40
+strafe = 40
+wait = 20
+threat_forward_roll = -30
+threat_side_roll = -30
+threat_back_roll = -30
+hit_back_roll = -30
+hit_side_roll = -30
+forward_roll = -20
+side_roll = -20
+back_roll = -20
+forward_roll_attack = -9999
+side_roll_attack = -9999
+back_roll_attack = -9999
+jump_attack = -20
+two_hand_right = -9999
+two_hand_r1_chance = -9999
+two_hand_r2_chance = -9999
+
+# Plays like an online Ash of War enthusiast: skills at every range, skill dodges.
+[personalities.showoff]
+effect = 20018711
+row = 15144
+
+[personalities.showoff.odds]
+art_near = 150
+art_mid = 150
+art_far = 100
+rolling_art_chance = 80
+threat_evasive_art = 80
+r1_combo = -10
+jump_attack = 10
+
+[faces]
+male = [3100, 3102, 3104, 3106, 3108, 3110, 3112, 3114, 3116, 3118, 3120, 3122]
+female = [3101, 3103, 3105, 3107, 3109, 3111, 3113, 3115, 3117, 3119, 3121, 3123]
+
+[names]
+male = [
+    "Aldric", "Osric", "Leodric", "Hollis", "Brandt", "Corvin", "Dagan", "Emrys",
+    "Faren", "Garrick", "Halvard", "Ivor", "Jorund", "Lothar", "Merrick", "Norwin",
+    "Orlen", "Perrin", "Rhodric", "Tobiah", "Ulric", "Vesmer", "Wendel", "Yorick",
+]
+female = [
+    "Maren", "Sella", "Adela", "Brisa", "Cyrene", "Delphine", "Edda", "Fenna",
+    "Gisela", "Helka", "Isolde", "Jessamy", "Katla", "Liesl", "Morwen", "Nerys",
+    "Odile", "Petra", "Rowena", "Sabine", "Talia", "Ursel", "Vesna", "Wren",
+]
+
+# Gestures, by the names in docs/LIBRARY.md. A Tarnished may greet you with one of the greetings
+# the first time it comes near after arriving (greeting_chance in the INI), and one that defeated you
+# may play a victory gesture before it fades (victory_gesture_chance). An entry's own greetings or
+# victories replace these lists; an empty list means never.
+[gestures]
+greetings = [
+    "bow", "polite_bow", "reverential_bow", "my_lord", "wave", "casual_greeting", "warm_welcome",
+    "by_my_sword", "hoslows_oath", "point_forwards", "beckon", "strength",
+]
+victories = [
+    "bow", "polite_bow", "my_thanks", "reverential_bow", "point_downwards", "finger_snap",
+    "jump_for_joy", "triumphant_delight", "fancy_spin", "bravo", "strength", "nod_in_thought",
+    "calm_down", "wave",
+]
+
+[[tarnished]]
+id = "iron-vanguard"
+name = "Iron Vanguard"
+titles = ["Knight {name}", "{name} the Unbowed", "Oathsworn {name}", "{name} of the Iron Vow"]
+class = "vagabond"
+weight = 18
+styles = ["steady", "brawler", "sentinel", "knight"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 5, dexterity = 1 }
+
+[[tarnished.gear]]
+level = 1
+right = [{ id = 2000100, ash = 10000 }]
+left = [31330000]
+armor = [660000, 660100, 660200, 660300]
+
+[[tarnished.gear]]
+level = 25
+right = [{ id = 2020100, ash = 10000 }]
+left = [31330000]
+armor = [660000, 660100, 660200, 660300]
+talismans = [1000]
+
+[[tarnished.gear]]
+level = 60
+right = [{ id = 3180100, ash = 10000 }]
+left = [31130000]
+armor = [1500000, 1500100, 1500200, 1500300]
+talismans = [1000, 1150]
+
+[[tarnished.gear]]
+level = 110
+right = [{ id = 3080100, ash = 10000 }]
+left = [31130000]
+armor = [780000, 780100, 780200, 780300]
+talismans = [1040, 1231, 1032, 2180]
+
+[[tarnished]]
+id = "keen-duelist"
+name = "Keen Duelist"
+titles = ["{name} the Keen", "Duelist {name}", "{name} of the Reeds", "Swordsaint {name}"]
+class = "samurai"
+weight = 18
+styles = ["agile", "relentless", "duelist", "showoff", "evasive"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 5 }
+
+[[tarnished.gear]]
+level = 1
+right = [{ id = 9000200, ash = 11400 }]
+left = [30070000]
+armor = [870000, 871100, 870200, 870300]
+
+[[tarnished.gear]]
+level = 30
+right = [{ id = 9000200, ash = 11400 }]
+armor = [150000, 150100, 150200, 150300]
+talismans = [1150]
+
+[[tarnished.gear]]
+level = 60
+right = [{ id = 9010200, ash = 11400 }]
+armor = [180000, 180100, 180200, 180300]
+talismans = [1150, 2180]
+
+[[tarnished.gear]]
+level = 120
+right = [9020000]
+armor = [180000, 180100, 180200, 180300]
+talismans = [1250, 2081, 1150, 1231]
+
+[[tarnished]]
+id = "carian-spellblade"
+name = "Carian Spellblade"
+titles = ["Spellblade {name}", "{name} of Caria", "{name} the Moonsworn", "Carian Knight {name}"]
+class = "prisoner"
+weight = 14
+styles = ["battlemage", "agile", "showoff"]
+victories = ["erudition", "bow", "nod_in_thought", "finger_snap"]
+growth = { vigor = 4, mind = 2, endurance = 1, strength = 1, dexterity = 1, intelligence = 4 }
+
+[[tarnished.gear]]
+level = 1
+right = [5000000]
+left = [33000000]
+armor = [890000, 890100, -1, 890300]
+spells = [4390, 4000]
+
+[[tarnished.gear]]
+level = 20
+right = [2180000]
+left = [33250000]
+armor = [130000, 130100, 130200, 130300]
+talismans = [1010]
+spells = [4000, 4440]
+
+[[tarnished.gear]]
+level = 60
+right = [2180000]
+left = [33200000]
+armor = [980000, 980100, 980200, 980300]
+talismans = [2000, 1150]
+spells = [4000, 4430, 4300, 4440]
+
+[[tarnished.gear]]
+level = 110
+right = [3090000]
+left = [33200000]
+armor = [980000, 980100, 980200, 980300]
+talismans = [3000, 2000, 1150, 1231]
+spells = [4431, 4440, 4300, 4430]
+
+[[tarnished.gear]]
+level = 150
+right = [3090000]
+left = [33090000]
+armor = [980000, 980100, 980200, 980300]
+talismans = [3000, 2000, 1150, 1231]
+spells = [4431, 4440, 4300, 4021]
+
+[[tarnished]]
+id = "golden-oathbound"
+name = "Golden Oathbound"
+titles = ["Oathbound {name}", "{name} the Faithful", "Golden {name}", "{name} of the Erdtree"]
+class = "confessor"
+weight = 12
+styles = ["steady", "preceptor", "sentinel", "zealot"]
+greetings = ["reverential_bow", "my_lord", "bow", "hoslows_oath"]
+victories = ["golden_order_totality", "rapture", "reverential_bow", "my_thanks"]
+growth = { vigor = 4, mind = 2, endurance = 1, strength = 2, faith = 4 }
+
+[[tarnished.gear]]
+level = 1
+right = [11000700]
+left = [34000000]
+armor = [880000, 880100, 880200, 880300]
+spells = [6421, 6000]
+
+[[tarnished.gear]]
+level = 25
+right = [11000700]
+left = [34000000]
+armor = [1770000, 1770100, 1770200, 1770300]
+talismans = [2030]
+spells = [6421, 6000, 6050]
+
+[[tarnished.gear]]
+level = 60
+right = [{ id = 3180700, ash = 20100 }]
+left = [34000000]
+armor = [1770000, 1770100, 1770200, 1770300]
+talismans = [2030, 1150]
+spells = [6421, 6600, 6050]
+
+[[tarnished.gear]]
+level = 110
+right = [18080000]
+left = [34070000]
+armor = [1790000, 1790100, 1790200, 1790300]
+talismans = [3070, 2030, 1040, 1231]
+spells = [6421, 6600, 6050, 6430]
+
+[[tarnished.gear]]
+level = 150
+right = [3140000]
+left = [34070000]
+armor = [1790000, 1790100, 1790200, 1790300]
+talismans = [3070, 2030, 1040, 1231]
+spells = [6210, 6600, 6424, 6430]
+
+[[tarnished]]
+id = "primeval-sorcerer"
+name = "Primeval Sorcerer"
+titles = ["Sorcerer {name}", "{name} of Raya Lucaria", "{name} the Starseeker", "Primeval {name}"]
+class = "astrologer"
+weight = 10
+styles = ["kiting", "cautious", "preceptor"]
+victories = ["erudition", "bow", "nod_in_thought", "calm_down"]
+growth = { vigor = 4, mind = 3, endurance = 1, intelligence = 5 }
+
+[[tarnished.gear]]
+level = 1
+right = [2010000]
+left = [33130000]
+armor = [630000, 630100, 630200, 630300]
+spells = [4000, 4070]
+
+[[tarnished.gear]]
+level = 20
+right = [5020000]
+left = [33250000]
+armor = [830000, 830100, 830200, 830300]
+talismans = [1010]
+spells = [4000, 4001, 4070]
+
+[[tarnished.gear]]
+level = 60
+right = [5020000]
+left = [33200000]
+armor = [581000, 581100, 581200, 830300]
+talismans = [2000, 1010]
+spells = [4710, 4440, 4001, 4060]
+
+[[tarnished.gear]]
+level = 110
+right = [5000000]
+left = [33240000]
+armor = [580000, 580100, 580200, 580300]
+talismans = [3000, 2000, 1010, 1231]
+spells = [4220, 4710, 4440, 4060]
+
+[[tarnished.gear]]
+level = 150
+right = [5000000]
+left = [33240000]
+armor = [580000, 580100, 580200, 580300]
+talismans = [3000, 2000, 1010, 1231]
+spells = [4200, 4220, 4710, 4440]
+
+[[tarnished]]
+id = "colossal-wanderer"
+name = "Colossal Wanderer"
+titles = ["{name} the Colossus", "Champion {name}", "{name} Stonebreaker", "Wandering {name}"]
+class = "hero"
+weight = 12
+styles = ["reckless", "duelist", "brawler", "berserker", "unyielding"]
+growth = { vigor = 4, mind = 1, endurance = 3, strength = 6 }
+
+[[tarnished.gear]]
+level = 1
+right = [{ id = 14000100, ash = 10000 }]
+left = [31230000]
+armor = [730000, 730100, 730200, 730300]
+
+[[tarnished.gear]]
+level = 20
+right = [{ id = 4040100, ash = 10000 }]
+armor = [730000, 730100, 730200, 730300]
+talismans = [1210]
+
+[[tarnished.gear]]
+level = 60
+right = [{ id = 15000100, ash = 10000 }]
+armor = [190000, 190100, 190200, 190300]
+talismans = [1210, 1032]
+
+[[tarnished.gear]]
+level = 120
+right = [{ id = 23110000, ash = 50600 }]
+armor = [200000, 200100, 200200, 200300]
+talismans = [1210, 1032, 1040, 2070]
+
+[[tarnished]]
+id = "blood-reaver"
+name = "Blood Reaver"
+titles = ["Bloody Finger {name}", "{name} the Reaver", "Bloodhound {name}", "{name} of the Mohg Vow"]
+class = "bandit"
+weight = 8
+styles = ["relentless", "agile", "reckless", "berserker", "evasive"]
+greetings = ["beckon", "point_forwards", "bow", "by_my_sword"]
+victories = ["finger_snap", "point_downwards", "triumphant_delight", "fancy_spin"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 3, arcane = 4 }
+
+[[tarnished.gear]]
+level = 1
+right = [1040000]
+left = [30000000]
+armor = [1401000, 931100, 930200, 930300]
+
+[[tarnished.gear]]
+level = 25
+right = [{ id = 9001100, ash = 20400 }]
+armor = [680000, 680100, 680200, 680300]
+talismans = [1000]
+
+[[tarnished.gear]]
+level = 60
+right = [8030000]
+left = [1040000]
+armor = [790000, 790100, 790200, 790300]
+talismans = [2160, 1150]
+
+[[tarnished.gear]]
+level = 110
+right = [9040000]
+left = [1040000]
+armor = [790000, 790100, 790200, 790300]
+talismans = [2160, 2081, 1250, 1231]
+
+[[tarnished]]
+id = "dragon-cultist"
+name = "Dragon Cultist"
+titles = ["Dragon Cultist {name}", "{name} Stormcaller", "{name} of the Dragon Communion", "Drakeblood {name}"]
+class = "confessor"
+weight = 8
+styles = ["brawler", "battlemage", "zealot"]
+growth = { vigor = 4, mind = 2, endurance = 1, strength = 2, dexterity = 1, faith = 4 }
+
+[[tarnished.gear]]
+level = 1
+right = [16000600]
+left = [34000000]
+armor = [60000, 60100, 60200, 60300]
+spells = [6420]
+
+[[tarnished.gear]]
+level = 15
+right = [16010600]
+left = [34000000]
+armor = [60000, 60100, 60200, 60300]
+talismans = [2010]
+spells = [6900]
+
+[[tarnished.gear]]
+level = 70
+right = [18140000]
+left = [34080000]
+armor = [60000, 60100, 60200, 60300]
+talismans = [2010, 1150]
+spells = [6900, 6930, 6971]
+
+[[tarnished.gear]]
+level = 110
+right = [17050000]
+left = [34080000]
+armor = [950000, 950100, 950200, 950300]
+talismans = [2010, 1040, 3070, 1231]
+spells = [6900, 6930, 6971]
+
+[[tarnished]]
+id = "night-heretic"
+name = "Night Heretic"
+titles = ["{name} the Heretic", "Godskin Apostle {name}", "{name} of the Black Flame", "Nightbound {name}"]
+class = "prophet"
+weight = 8
+styles = ["kiting", "preceptor", "cautious"]
+growth = { vigor = 4, mind = 2, endurance = 1, strength = 1, dexterity = 3, faith = 4 }
+
+[[tarnished.gear]]
+level = 1
+right = [16000500]
+left = [34000000]
+armor = [620000, 622100, -1, 620300]
+spells = [6000, 6421]
+
+[[tarnished.gear]]
+level = 20
+right = [10000500]
+left = [34000000]
+armor = [290000, 290100, 290200, 290300]
+talismans = [2120]
+spells = [6000]
+
+[[tarnished.gear]]
+level = 70
+right = [10010000]
+left = [34000000]
+armor = [520000, 520100, 520200, 520300]
+talismans = [2120, 1150]
+spells = [6210, 6050]
+
+[[tarnished.gear]]
+level = 110
+right = [10010000]
+left = [34070000]
+armor = [520000, 520100, 520200, 520300]
+talismans = [2120, 1040, 3070, 1231]
+spells = [6210, 6050, 6421]
+
+# Class libraries: instead of fixed loadouts, each Tarnished draws its weapons, armor,
+# talismans, spells and Ashes of War from these pools. `level` is the earliest level an
+# item appears at, `weight` its relative chance (default 10); -1 in `left` means an empty hand.
+
+# Predefined Tarnished: one fixed name and loadout at every level.
+
+[[tarnished]]
+id = "vigor-check"
+name = "Vigor Check"
+names = ["Vigor Check"]
+class = "bandit"
+weight = 4
+roles = ["invader", "host", "cooperator"]
+styles = ["parrier"]
+greetings = ["point_forwards", "beckon", "bow"]
+victories = ["point_downwards", "finger_snap", "bravo", "fancy_spin"]
+# Full, uncorrected damage: a riposte at high level can take most of a 60-vigor health bar.
+pvp_damage = false
+growth = { vigor = 3, endurance = 1, strength = 1, dexterity = 5, arcane = 1 }
+
+[[tarnished.gear]]
+level = 1
+right = [1030200]
+left = [30000000]
+armor = [180000, 180100, 180200, 180300]
+talismans = [2090, 5050, 1150]
+
+[[tarnished]]
+id = "let-me-solo-me"
+name = "Let Me Solo Me"
+names = ["Let Me Solo Me"]
+class = "samurai"
+weight = 3
+roles = ["invader"]
+styles = ["sacrificial"]
+greetings = ["wave", "bow", "polite_bow", "casual_greeting", "jump_for_joy"]
+victories = ["bow", "wave"]
+growth = { vigor = 4, mind = 2, endurance = 1, dexterity = 3 }
+
+[[tarnished.gear]]
+level = 1
+right = [{ id = 9000000, ash = 60600 }]
+armor = [1120000, -1, -1, -1]
+
+[[tarnished]]
+id = "strength-class"
+name = "Strength"
+titles = ["{name} the Mighty", "Warlord {name}", "{name} Ironhide", "Juggernaut {name}", "{name} of the Crushing Blow"]
+class = ["hero", "vagabond"]
+weight = 12
+styles = ["reckless", "duelist", "brawler", "steady", "berserker", "redmane"]
+growth = { vigor = 4, mind = 1, endurance = 3, strength = 6 }
+
+[tarnished.pool]
+right = [
+    14000100, 11000100, 11010100, 3180100, 3080100, 12000100,
+    { id = 12140100, level = 10 }, { id = 4040100, level = 20 }, { id = 15000100, level = 20 },
+    { id = 12020100, level = 25 }, { id = 12060100, level = 30 }, { id = 4000100, level = 50 },
+    { id = 4010100, level = 50 }, { id = 4030100, level = 60 }, { id = 23040100, level = 60 },
+    { id = 15040000, level = 60, weight = 5 }, { id = 4100000, level = 70, weight = 5 },
+    { id = 15080100, level = 70 }, { id = 12190100, level = 80 }, { id = 23110100, level = 100 },
+    { id = 4080000, level = 110, weight = 4 },
+]
+left = [
+    { id = -1, weight = 25 }, 31330000, { id = 31000000, level = 10 }, { id = 31130000, level = 30 },
+    { id = 31140000, level = 40 }, { id = 32090000, level = 60 }, { id = 32000000, level = 90, weight = 5 },
+]
+armor = [
+    [660000, 660100, 660200, 660300], [1100000, 1100100, 1100200, 1100300],
+    { set = [1500000, 1500100, 1500200, 1500300], level = 10 },
+    { set = [1770000, 1770100, 1770200, 1770300], level = 20 },
+    { set = [200000, 200100, 200200, 200300], level = 40 },
+    { set = [270000, 270100, 270200, 270300], level = 60 },
+    { set = [140000, 140100, 140200, 140300], level = 80, weight = 5 },
+    { set = [780000, 780100, 780200, 780300], level = 90 },
+    { set = [720000, 720100, 720200, 720300], level = 100 },
+    { set = [470000, 470100, 470200, 470300], level = 110 },
+    { set = [570000, 570100, 570200, 570300], level = 120 },
+]
+talismans = [
+    1000, { id = 2070, level = 20 }, { id = 2180, level = 30 }, { id = 1150, level = 30 },
+    { id = 1030, level = 30 }, { id = 1001, level = 40 }, { id = 2130, level = 40 },
+    { id = 4000, level = 40 }, { id = 1040, level = 50 }, { id = 1210, level = 60 },
+    { id = 1060, level = 70 }, { id = 2050, level = 80 }, { id = 1002, level = 90 },
+    { id = 1032, level = 100 }, { id = 1231, level = 110 }, { id = 4003, level = 110 },
+]
+ashes = [10000, 10600, 10700, 11000, 65000, 65100, { id = 11600, level = 20 }, { id = 70000, level = 30 }]
+
+[[tarnished]]
+id = "dexterity-class"
+name = "Dexterity"
+titles = ["{name} the Swift", "Blademaster {name}", "{name} of the Thousand Cuts", "Duelist {name}", "{name} Quickblade"]
+class = ["samurai", "warrior"]
+weight = 12
+styles = ["agile", "relentless", "brawler", "showoff", "evasive"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 5 }
+
+[tarnished.pool]
+right = [
+    9000200, 7140200, 5020200, { id = 7030200, level = 5 }, { id = 5000200, level = 10 },
+    { id = 10000200, level = 10 }, { id = 16010200, level = 10 }, { id = 22020200, level = 30 },
+    { id = 9010200, level = 35 }, { id = 16110200, level = 40 }, { id = 6020200, level = 40 },
+    { id = 5040200, level = 50 }, { id = 7020200, level = 50 }, { id = 13000200, level = 60 },
+    { id = 10010200, level = 70 }, { id = 9080000, level = 70, weight = 5 },
+    { id = 6040000, level = 120, weight = 5 }, { id = 16090000, level = 130, weight = 5 },
+    { id = 9020000, level = 150, weight = 4 },
+]
+left = [{ id = -1, weight = 35 }, 30000000, 1020000, 30100000, { id = 30120000, level = 20 }]
+armor = [
+    [150000, 150100, 150200, 150300], [870000, 870100, 870200, 870300], [1400000, 1400100, 1400200, 1400300],
+    { set = [190000, 190100, 190200, 190300], level = 20 },
+    { set = [860000, 860100, 860200, 860300], level = 30 },
+    { set = [930000, 930100, 930200, 930300], level = 40 },
+    { set = [872000, 872100, 872200, 872300], level = 40 },
+    { set = [290000, 290100, 290200, 290300], level = 60 },
+    { set = [180000, 180100, 180200, 180300], level = 100 },
+    { set = [770000, 770100, 770200, 770300], level = 150, weight = 5 },
+]
+talismans = [
+    1000, { id = 1150, level = 30 }, { id = 2180, level = 30 }, { id = 2200, level = 30 },
+    { id = 2120, level = 40 }, { id = 2060, level = 40 }, { id = 1001, level = 40 },
+    { id = 1040, level = 50 }, { id = 2040, level = 50 }, { id = 2080, level = 60 },
+    { id = 1070, level = 60 }, { id = 2050, level = 80 }, { id = 1002, level = 90 },
+    { id = 1250, level = 100 }, { id = 1231, level = 110 }, { id = 2081, level = 120 },
+]
+ashes = [11400, 11200, 10900, 10300, 10100, 50300, { id = 80000, level = 20 }, { id = 80100, level = 60 }]
+
+[[tarnished]]
+id = "quality-class"
+name = "Quality"
+titles = ["Knight {name}", "{name} the Balanced", "Sworn Blade {name}", "{name} of the Twin Paths", "Errant Knight {name}"]
+class = ["vagabond", "warrior", "samurai"]
+weight = 12
+styles = ["steady", "brawler", "agile", "duelist", "knight", "unyielding"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 3, dexterity = 3 }
+
+[tarnished.pool]
+right = [
+    2000300, 2040300, 3180300, { id = 15120300, level = 20 }, { id = 3050300, level = 20 },
+    { id = 4040300, level = 20 }, { id = 16070300, level = 20 }, { id = 3040300, level = 40 },
+    { id = 6020300, level = 40 }, { id = 18110300, level = 50 }, { id = 23040300, level = 60 },
+    { id = 12180300, level = 60 }, { id = 3190300, level = 70 }, { id = 3160000, level = 80, weight = 5 },
+]
+left = [
+    { id = -1, weight = 20 }, 31330000, { id = 31000000, level = 10 }, { id = 31130000, level = 30 },
+    { id = 31090000, level = 40 },
+]
+armor = [
+    [660000, 660100, 660200, 660300], [1500000, 1500100, 1500200, 1500300],
+    { set = [1770000, 1770100, 1770200, 1770300], level = 20 },
+    { set = [860000, 860100, 860200, 860300], level = 30 },
+    { set = [240000, 240100, 240200, 240300], level = 40 },
+    { set = [170000, 170100, 170200, 170300], level = 60 },
+    { set = [280000, 280100, 280200, 280300], level = 70 },
+    { set = [1790000, 1790100, 1790200, 1790300], level = 80 },
+    { set = [230000, 230100, 230200, 230300], level = 80 },
+    { set = [780000, 780100, 780200, 780300], level = 110 },
+    { set = [1820000, 1820100, 1820200, 1820300], level = 130 },
+]
+talismans = [
+    1000, { id = 1150, level = 30 }, { id = 2180, level = 30 }, { id = 4000, level = 40 },
+    { id = 1001, level = 40 }, { id = 1040, level = 50 }, { id = 1051, level = 60 },
+    { id = 1060, level = 70 }, { id = 1070, level = 70 }, { id = 2050, level = 80 },
+    { id = 1002, level = 90 }, { id = 1231, level = 110 },
+]
+ashes = [10000, 10300, 11000, 10100, 50300, { id = 11600, level = 20 }, { id = 65100, level = 20 }, { id = 70000, level = 30 }]
+
+[[tarnished]]
+id = "sorcery-class"
+name = "Sorcery"
+titles = ["Sorcerer {name}", "{name} the Glintstone Sage", "{name} of the Academy", "Starcaller {name}", "{name} Moonreader"]
+class = ["astrologer", "prisoner"]
+weight = 10
+styles = ["kiting", "battlemage", "preceptor", "cautious"]
+growth = { vigor = 4, mind = 3, endurance = 1, intelligence = 5 }
+
+[tarnished.pool]
+right = [
+    1000800, 5000800, 2000800, 7140800, { id = 2180000, level = 20 }, { id = 2150000, level = 30 },
+    { id = 3180800, level = 30 }, { id = 9030000, level = 40 }, { id = 9060000, level = 60 },
+    { id = 7070000, level = 60 }, { id = 3090000, level = 100, weight = 5 },
+]
+left = [{ id = -1, weight = 20 }, 30100000]
+catalysts = [
+    33000000, 33130000, { id = 33120000, level = 10 }, { id = 33060000, level = 10 },
+    { id = 33250000, level = 15 }, { id = 33200000, level = 40 }, { id = 33210000, level = 50 },
+    { id = 33040000, level = 80 }, { id = 33090000, level = 110 }, { id = 33240000, level = 140 },
+    { id = 33230000, level = 140 },
+]
+spells = [
+    4000, { id = 4010, level = 10 }, { id = 4001, level = 15 }, { id = 4440, level = 15 },
+    { id = 4040, level = 20 }, { id = 4390, level = 20 }, { id = 4710, level = 20 },
+    { id = 4400, level = 25 }, { id = 4300, level = 35 }, { id = 4060, level = 40 },
+    { id = 4430, level = 40 }, { id = 4720, level = 40 }, { id = 4630, level = 40, weight = 4 },
+    { id = 4610, level = 60 }, { id = 4380, level = 60 }, { id = 4450, level = 60 },
+    { id = 4700, level = 60, weight = 5 }, { id = 4020, level = 80 }, { id = 4620, level = 90 },
+    { id = 4721, level = 90 }, { id = 4431, level = 90 }, { id = 4500, level = 100 },
+    { id = 4021, level = 110 }, { id = 4220, level = 110 }, { id = 4381, level = 120 },
+]
+armor = [
+    [630000, 630100, 630200, 630300],
+    { set = [1000000, 1000100, 1000200, 1000300], level = 20 },
+    { set = [830000, 830100, 830200, 830300], level = 20 },
+    { set = [990000, 990100, 990200, 990300], level = 40 },
+    { set = [980000, 980100, 980200, 980300], level = 60 },
+    { set = [120000, 120100, 120200, 120300], level = 60 },
+    { set = [580000, 580100, 580200, 580300], level = 130 },
+]
+talismans = [
+    1010, { id = 4010, level = 30 }, { id = 1150, level = 30 }, { id = 1011, level = 40 },
+    { id = 2000, level = 50 }, { id = 1040, level = 50 }, { id = 3000, level = 60 },
+    { id = 3070, level = 60 }, { id = 3080, level = 60 }, { id = 6020, level = 60 },
+    { id = 1140, level = 70 }, { id = 1080, level = 80 }, { id = 1012, level = 90 },
+    { id = 3001, level = 120 },
+]
+ashes = [20000, 20300, 21900, { id = 21800, level = 60 }, 10100]
+
+[[tarnished]]
+id = "faith-class"
+name = "Faith"
+titles = ["{name} the Devout", "Prelate {name}", "{name} of the Golden Order", "Oathkeeper {name}", "{name} Flamebearer"]
+class = ["confessor", "prophet"]
+weight = 10
+styles = ["preceptor", "steady", "battlemage", "zealot"]
+growth = { vigor = 4, mind = 3, endurance = 1, strength = 1, faith = 5 }
+
+[tarnished.pool]
+right = [
+    11000700, 2000700, 16000700, { id = 3180700, level = 20 }, { id = 18000700, level = 25 },
+    { id = 19020000, level = 50 }, { id = 17070000, level = 60 }, { id = 3210000, level = 60 },
+    { id = 19060000, level = 80 }, { id = 3100000, level = 110, weight = 5 },
+    { id = 3140000, level = 110, weight = 5 }, { id = 3170000, level = 120, weight = 5 },
+]
+left = [{ id = -1, weight = 20 }, 30080000, 31330000]
+catalysts = [
+    34000000, { id = 34040000, level = 15 }, { id = 34020000, level = 60 },
+    { id = 34030000, level = 60 }, { id = 34010000, level = 90 }, { id = 34070000, level = 120 },
+]
+spells = [
+    6000, 6010, 6420, { id = 6421, level = 10 }, { id = 6400, level = 20 }, { id = 6900, level = 20 },
+    { id = 6430, level = 40 }, { id = 6600, level = 40 }, { id = 6210, level = 50 },
+    { id = 6250, level = 50 }, { id = 6930, level = 60 }, { id = 6410, level = 70 },
+    { id = 6921, level = 90 }, { id = 6490, level = 90 }, { id = 6230, level = 90 },
+    { id = 6110, level = 120 }, { id = 6424, level = 120, weight = 5 }, { id = 6240, level = 130 },
+]
+armor = [
+    [880000, 880100, 880200, 880300],
+    { set = [1770000, 1770100, 1770200, 1770300], level = 20 },
+    { set = [350000, 350100, 350200, 350300], level = 50 },
+    { set = [1720000, 1720100, 1720200, 1720300], level = 60 },
+    { set = [520000, 520100, 520200, 520300], level = 70 },
+    { set = [1790000, 1790100, 1790200, 1790300], level = 80 },
+    { set = [1820000, 1820100, 1820200, 1820300], level = 130 },
+    { set = [460000, 460100, 460200, 460300], level = 140 },
+]
+talismans = [
+    1000, { id = 1150, level = 30 }, { id = 2020, level = 40 }, { id = 2030, level = 50 },
+    { id = 1040, level = 50 }, { id = 3040, level = 60 }, { id = 3070, level = 60 },
+    { id = 2010, level = 60 }, { id = 1090, level = 70 }, { id = 4040, level = 70 },
+    { id = 3060, level = 110 }, { id = 3050, level = 120 },
+]
+ashes = [20100, 20800, { id = 60300, level = 40 }, { id = 60400, level = 60 }, 10100, 11000]
+
+[[tarnished]]
+id = "arcane-class"
+name = "Arcane"
+titles = ["Bloodhound {name}", "{name} the Bloodletter", "{name} of the Dynasty", "Mohg's Chosen {name}", "{name} Crimsonblade"]
+class = ["bandit"]
+weight = 10
+styles = ["relentless", "agile", "reckless", "evasive", "showoff"]
+growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 3, arcane = 5 }
+
+[tarnished.pool]
+right = [
+    1001100, 7141100, { id = 9001100, level = 10 }, { id = 1040000, level = 15 },
+    { id = 10001100, level = 20 }, { id = 22021100, level = 30 }, { id = 9011100, level = 40 },
+    { id = 19011100, level = 50 }, { id = 6000000, level = 60 }, { id = 18111100, level = 60 },
+    { id = 9040000, level = 80 }, { id = 10050000, level = 80 }, { id = 8100000, level = 110, weight = 5 },
+    { id = 17010000, level = 130, weight = 5 },
+]
+left = [{ id = -1, weight = 35 }, 1020000, 30000000]
+armor = [
+    [1400000, 1400100, 1400200, 1400300],
+    { set = [930000, 930100, 930200, 930300], level = 30 },
+    { set = [790000, 790100, 790200, 790300], level = 40 },
+    { set = [290000, 290100, 290200, 290300], level = 60 },
+    { set = [650000, 650100, 650200, 650300], level = 70 },
+    { set = [180000, 180100, 180200, 180300], level = 100 },
+]
+talismans = [
+    1000, { id = 2180, level = 30 }, { id = 1150, level = 30 }, { id = 2200, level = 30 },
+    { id = 5050, level = 40 }, { id = 2120, level = 40 }, { id = 2170, level = 60 },
+    { id = 2080, level = 60 }, { id = 2160, level = 80 }, { id = 1250, level = 100 },
+    { id = 1231, level = 110 },
+]
+ashes = [20400, 11200, 10300, { id = 80000, level = 20 }, { id = 80100, level = 40 }, { id = 60600, level = 60 }]

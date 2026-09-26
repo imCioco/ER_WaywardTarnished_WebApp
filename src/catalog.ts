@@ -1,0 +1,160 @@
+import Papa from 'papaparse';
+import initSqlJs, { type Database } from 'sql.js';
+import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
+import { AFFINITIES } from './constants';
+import type { ItemKind } from './types';
+
+export type CatalogItem = {
+  id: number;
+  name: string;
+  kind: ItemKind;
+  group: string;
+  slot?: string;
+  dlc: boolean;
+  icon_name?: string;
+  allowed_affinities?: string;
+  reinforcement?: string;
+  aow_allowed?: string;
+  wepTypeCol?: string;
+  compatibleWepTypes?: string;
+  allowedAffinities?: string;
+  [key: string]: string | number | boolean | undefined;
+};
+
+function normalize(value: string): string {
+  return value.replace(/^\[[^\]]+\]\s*/, '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+}
+
+function fileName(path: string): string {
+  return path.split(/[\\/]/).at(-1) ?? path;
+}
+
+function stem(path: string): string {
+  return fileName(path).replace(/\.csv$/i, '').replace(/^DLC/, '');
+}
+
+export class ItemCatalog {
+  items = new Map<string, CatalogItem>();
+  icons = new Map<string, string>();
+  iconCache = new Map<string, string | undefined>();
+  database: Database | null = null;
+  sourceName = '';
+
+  get size(): number { return this.items.size; }
+
+  key(kind: ItemKind, id: number): string { return `${kind}:${id}`; }
+
+  get(kind: ItemKind, id: number): CatalogItem | undefined {
+    const base = kind === 'weapon' && id >= 0 ? Math.floor(id / 10000) * 10000 : id;
+    return this.items.get(this.key(kind, id)) ?? this.items.get(this.key(kind, base));
+  }
+
+  name(kind: ItemKind, id: number): string {
+    if (id === -1) return 'Empty slot';
+    const item = this.get(kind, id);
+    if (!item) return `Item #${id}`;
+    let name = item.name;
+    if (kind === 'weapon') {
+      const affinity = Math.floor((id % 10000) / 100);
+      const upgrade = id % 100;
+      if (affinity > 0 && affinity < AFFINITIES.length) name = `${AFFINITIES[affinity]} ${name}`;
+      if (upgrade) name += ` +${upgrade}`;
+    }
+    return name;
+  }
+
+  list(kind: ItemKind, group?: string): CatalogItem[] {
+    return [...this.items.values()].filter((item) => item.kind === kind && (!group || item.group === group)).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  icon(kind: ItemKind, id: number): string | undefined {
+    const cacheKey = this.key(kind, id);
+    if (this.iconCache.has(cacheKey)) return this.iconCache.get(cacheKey);
+    const item = this.get(kind, id);
+    if (!item || !this.database) { this.iconCache.set(cacheKey, undefined); return undefined; }
+    const candidates = [item.icon_name ?? item.name];
+    if (item.group === 'Ammo' && item.name.includes(' - ')) {
+      const [group, rawName] = item.name.split(' - ', 2);
+      const parts = rawName.split(' (', 2);
+      const suffix = parts.length > 1 ? ` (${parts[1]}` : '';
+      candidates.push(`${parts[0].endsWith(group) ? parts[0] : `${parts[0]} ${group}`}${suffix}`);
+    }
+    if (kind === 'weapon') candidates.unshift(`${item.name} (Weapon)`);
+    const iconName = candidates.map(normalize).map((candidate) => this.icons.get(candidate)).find(Boolean);
+    if (!iconName) { this.iconCache.set(cacheKey, undefined); return undefined; }
+    const statement = this.database.prepare('SELECT data FROM icons WHERE name = ?');
+    statement.bind([iconName]);
+    if (!statement.step()) { statement.free(); this.iconCache.set(cacheKey, undefined); return undefined; }
+    const data = statement.get()[0] as Uint8Array;
+    statement.free();
+    const bytes = new Uint8Array(data);
+    let binary = '';
+    for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+    const result = `data:image/png;base64,${btoa(binary)}`;
+    this.iconCache.set(cacheKey, result);
+    return result;
+  }
+}
+
+async function attachIconDatabase(catalog: ItemCatalog, bytes: ArrayBuffer): Promise<void> {
+  const SQL = await initSqlJs({ locateFile: () => wasmUrl });
+  catalog.database = new SQL.Database(new Uint8Array(bytes));
+  const rows = catalog.database.exec('SELECT name FROM icons ORDER BY name')[0]?.values ?? [];
+  rows.forEach(([name]) => catalog.icons.set(normalize(String(name).replace(/\.[^.]+$/, '')), String(name)));
+}
+
+export async function loadBundledCatalog(): Promise<ItemCatalog> {
+  const root = `${import.meta.env.BASE_URL}catalog/`;
+  const [itemsResponse, iconsResponse] = await Promise.all([fetch(`${root}items.json`), fetch(`${root}icons.db`)]);
+  if (!itemsResponse.ok || !iconsResponse.ok) throw new Error('The bundled item resources could not be loaded.');
+  const catalog = new ItemCatalog();
+  const items = await itemsResponse.json() as CatalogItem[];
+  items.forEach((item) => catalog.items.set(catalog.key(item.kind, Number(item.id)), { ...item, id: Number(item.id) }));
+  await attachIconDatabase(catalog, await iconsResponse.arrayBuffer());
+  catalog.sourceName = 'Bundled ER Save Manager resources';
+  return catalog;
+}
+
+export async function loadCatalog(files: File[]): Promise<ItemCatalog> {
+  const catalog = new ItemCatalog();
+  const byPath = new Map(files.map((file) => [(file.webkitRelativePath || file.name).replace(/\\/g, '/'), file]));
+  const slots = new Map<number, string>();
+  const slotFile = [...byPath.entries()].find(([path]) => path.endsWith('/armor_slot_types.csv') || path === 'armor_slot_types.csv')?.[1];
+  if (slotFile) {
+    const result = Papa.parse<Record<string, string>>(await slotFile.text(), { header: true, skipEmptyLines: true });
+    result.data.forEach((row) => slots.set(Number(row.ID), row.Slot));
+  }
+  const groups: Record<string, ItemKind> = {
+    MeleeWeapons: 'weapon', RangedWeapons: 'weapon', Shields: 'weapon', SpellTools: 'weapon', Ammo: 'weapon',
+    Armor: 'armor', Talismans: 'talisman', Magic: 'spell', Gems: 'ash',
+  };
+  for (const [path, file] of [...byPath.entries()].sort()) {
+    if (!path.toLowerCase().endsWith('.csv') || path.includes('/Convergence/') || path.includes('/TarnishedPack/')) continue;
+    const group = stem(path);
+    if (group === 'armor_slot_types' || group === 'SeamlessCoop') continue;
+    const kind = groups[group] ?? 'goods';
+    const result = Papa.parse<Record<string, string>>(await file.text(), { header: true, skipEmptyLines: true });
+    for (const row of result.data) {
+      const id = Number(row.ID);
+      if (!Number.isInteger(id) || id < 0) continue;
+      const item: CatalogItem = {
+        ...row,
+        id,
+        name: row.Name || String(id),
+        kind,
+        group,
+        slot: kind === 'armor' ? slots.get(id) : undefined,
+        dlc: path.includes('/DLC/'),
+      };
+      catalog.items.set(catalog.key(kind, id), item);
+    }
+  }
+  const iconFile = [...byPath.entries()].find(([path]) => path.endsWith('/icons.db') || path === 'icons.db')?.[1];
+  if (iconFile) {
+    await attachIconDatabase(catalog, await iconFile.arrayBuffer());
+  }
+  const firstPath = [...byPath.keys()][0] ?? 'local folder';
+  catalog.sourceName = firstPath.split('/')[0] || 'local folder';
+  if (!catalog.size) throw new Error('No compatible item CSV files were found. Choose the folder that contains items and icons.db.');
+  return catalog;
+}
