@@ -3,9 +3,9 @@ import type { ItemCatalog } from '../catalog';
 import type { Consumable, LibraryDocument } from '../types';
 import { ConsumablesEditor } from './ConsumablesEditor';
 
-type Props = { document: LibraryDocument; catalog: ItemCatalog; gestures: string[]; onChange: (document: LibraryDocument) => void };
+type Props = { document: LibraryDocument; catalog: ItemCatalog; gestures: string[]; basePool: Consumable[]; onChange: (document: LibraryDocument) => void };
 
-export function SharedSettings({ document, catalog, gestures, onChange }: Props) {
+export function SharedSettings({ document, catalog, gestures, basePool, onChange }: Props) {
   const pool = document.consumables?.pool;
   const updateConsumables = (values: { kinds?: number; pool?: Consumable[] }) => {
     const consumables = { ...(document.consumables ?? {}), ...values };
@@ -35,7 +35,15 @@ export function SharedSettings({ document, catalog, gestures, onChange }: Props)
         <Card title="Shared consumables" className="form-card span-2">
           <Typography.Paragraph type="secondary">Each Tarnished draws this many different consumables within its level from the pool below, or from its own list when it has one. A later library file’s non-empty pool replaces this one.</Typography.Paragraph>
           <Form layout="vertical"><Form.Item label="Different consumables per Tarnished" className="kinds-field"><InputNumber min={0} max={9} value={document.consumables?.kinds} placeholder="inherit" onChange={(kinds) => updateConsumables({ kinds: kinds === null ? undefined : Number(kinds) })} /></Form.Item></Form>
-          <ConsumablesEditor catalog={catalog} value={pool ?? []} onChange={(next) => updateConsumables({ pool: next?.length ? next : undefined })} />
+          <ConsumablesEditor
+            catalog={catalog}
+            value={pool?.length ? pool : undefined}
+            shared={basePool}
+            inheritable
+            sharedSource="the mod’s base.toml, which the mod loads before this file"
+            labels={{ inherit: 'Inherit base.toml', custom: 'This library’s pool' }}
+            onChange={(next) => updateConsumables({ pool: next?.length ? next : undefined })}
+          />
         </Card>
         <Card title="Advanced definitions" className="form-card span-2">
           <Typography.Paragraph>Templates, faces, styles and personalities remain in the library and are preserved by the editor. Use <strong>Advanced TOML</strong> in the command bar to edit their complete definitions.</Typography.Paragraph>

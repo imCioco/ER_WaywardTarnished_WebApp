@@ -10,10 +10,11 @@ A browser-based editor for creating Wayward Tarnished enemy libraries. It runs e
 - Consumables: the shared pool and how many different ones each Tarnished carries, plus per-entry **Use shared pool**, **Carry none** and **Own list** states. Only goods the player-like AI can use (`EquipParamGoods.aiUseJudgeId`) are offered, with counts capped at the stack size.
 - Item pickers with game icons for weapons, armor, talismans, spells, Ashes of War and consumables. Ashes of War are grouped by whether they fit the chosen weapon and affinity; affinity and upgrade limits follow the weapon.
 - Starting classes, roles, level range, selection weight, attribute growth and runtime flags.
-- Names, title patterns, AI styles and personalities.
+- Names and title patterns.
+- AI personalities: each Tarnished's styles, the library of vanilla styles (a named NPC invader's personality SpEffect) and custom personalities (per-action odds written into one of the mod's five personality slots). Every style and personality has a description, shown on hover; descriptions are saved as TOML comments, since the mod rejects unknown keys. Replacing a personality in a slot moves the Tarnished that used it to the new one, and validation warns when a personality would compete with `base.toml` for a slot.
 - Greeting and victory gestures with explicit **Inherit shared**, **Never** and **Custom selection** states.
 - Shared names and gesture pools.
-- Complete TOML source for templates, faces, personalities, custom attributes and future format fields.
+- Complete TOML source for templates, faces, custom attributes and future format fields.
 
 The app automatically stores an unfinished draft in browser storage. **Open** reads a local `.toml` file; **Download TOML** validates and exports the current library. No file is installed into the mod automatically.
 

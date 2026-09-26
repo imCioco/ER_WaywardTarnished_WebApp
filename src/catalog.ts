@@ -69,9 +69,16 @@ export class ItemCatalog {
     return [...this.items.values()].filter((item) => item.kind === kind && (!group || item.group === group)).sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /** Goods the player-like AI can use: those with an `EquipParamGoods.aiUseJudgeId`. */
+  /** Whether the catalog says which goods the AI can use (the bundled one does; a local CSV folder may not). */
+  get hasAiUse(): boolean {
+    for (const item of this.items.values()) if (Number(item.aiUseJudgeId) > 0) return true;
+    return false;
+  }
+
+  /** Goods the player-like AI can use: those with an `EquipParamGoods.aiUseJudgeId`. Without that data, every consumable. */
   consumables(): CatalogItem[] {
-    return this.list('goods').filter((item) => Number(item.aiUseJudgeId) > 0);
+    const goods = this.list('goods');
+    return this.hasAiUse ? goods.filter((item) => Number(item.aiUseJudgeId) > 0) : goods.filter((item) => item.group === 'Consumables');
   }
 
   /** The most of a goods item a Tarnished can carry: its stack size, at most 99. */
@@ -142,7 +149,7 @@ async function attachIconDatabase(catalog: ItemCatalog, bytes: ArrayBuffer): Pro
 
 export async function loadBundledCatalog(): Promise<ItemCatalog> {
   const root = `${import.meta.env.BASE_URL}catalog/`;
-  const [itemsResponse, iconsResponse] = await Promise.all([fetch(`${root}items.json`), fetch(`${root}icons.db`)]);
+  const [itemsResponse, iconsResponse] = await Promise.all([fetch(`${root}items.json`, { cache: 'no-cache' }), fetch(`${root}icons.db`, { cache: 'no-cache' })]);
   if (!itemsResponse.ok || !iconsResponse.ok) throw new Error('The bundled item resources could not be loaded.');
   const catalog = new ItemCatalog();
   const items = await itemsResponse.json() as CatalogItem[];

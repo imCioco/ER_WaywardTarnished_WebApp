@@ -65,11 +65,21 @@ export type LibraryDocument = {
   faces?: { male?: number[]; female?: number[] };
   names?: { male?: string[]; female?: string[] };
   styles?: Record<string, number>;
-  personalities?: Record<string, unknown>;
+  personalities?: Record<string, Personality>;
   gestures?: { greetings?: string[]; victories?: string[] };
   consumables?: { kinds?: number; pool?: Consumable[] };
   tarnished: Tarnished[];
+  /** Style and personality descriptions; written as TOML comments, since the mod rejects unknown keys. */
+  __descriptions?: Record<string, string>;
   [key: string]: unknown;
+};
+
+/** A custom AI personality: odds the mod writes into a free NpcAiBehaviorProbability row. */
+export type Personality = {
+  effect: number;
+  row: number;
+  suppress?: number[];
+  odds: Record<string, number>;
 };
 
 export type ValidationResult = { errors: string[]; warnings: string[] };

@@ -10,17 +10,16 @@ import { PoolEditor } from './PoolEditor';
 
 type Props = {
   entry: Tarnished;
-  view: 'overview' | 'equipment' | 'behavior';
+  view: 'overview' | 'equipment' | 'behavior' | 'personalities';
   catalog: ItemCatalog;
   gestureNames: string[];
-  styleNames: string[];
   sharedConsumables?: Consumable[];
   onChange: (entry: Tarnished) => void;
   onDuplicate: () => void;
   onDelete: () => void;
 };
 
-export function EnemyEditor({ entry, view, catalog, gestureNames, styleNames, sharedConsumables, onChange, onDuplicate, onDelete }: Props) {
+export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumables, onChange, onDuplicate, onDelete }: Props) {
   const patch = (values: Partial<Tarnished>) => onChange({ ...entry, ...values });
   const setOptional = (field: 'greetings' | 'victories' | 'consumables', value: unknown[] | undefined) => {
     const next = structuredClone(entry);
@@ -63,16 +62,13 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, styleNames, sh
   if (view === 'behavior') {
     return (
       <div className="editor-page">
-        <div className="editor-titlebar"><div><Typography.Title level={2}>Names & behavior</Typography.Title><Typography.Text type="secondary">Control identity, presentation and AI style for {entry.name}.</Typography.Text></div></div>
+        <div className="editor-titlebar"><div><Typography.Title level={2}>Names & gestures</Typography.Title><Typography.Text type="secondary">Names, titles and gestures for {entry.name}. Fighting styles are in AI personalities.</Typography.Text></div></div>
         <div className="form-grid">
           <Card title="Names and titles" className="form-card span-2">
             <Form layout="vertical">
               <Form.Item label="Possible given names"><Select mode="tags" value={entry.names ?? []} onChange={(names) => patch({ names })} tokenSeparators={[',']} placeholder="Type a name and press Enter" /></Form.Item>
               <Form.Item label="Title patterns"><Select mode="tags" value={entry.titles ?? []} onChange={(titles) => patch({ titles })} tokenSeparators={[',']} placeholder="Example: Knight {name}" /></Form.Item>
             </Form>
-          </Card>
-          <Card title="AI styles" className="form-card span-2">
-            <Form layout="vertical"><Form.Item label="Styles and personalities"><Select mode="multiple" value={entry.styles ?? []} options={styleNames.map((name) => ({ value: name, label: name }))} onChange={(styles) => patch({ styles })} placeholder="Choose one or more styles" optionFilterProp="label" /></Form.Item></Form>
           </Card>
           <Card title="Greeting gesture" className="form-card"><GestureField label="When this Tarnished approaches" value={entry.greetings} choices={gestureNames} onChange={(value) => setOptional('greetings', value)} /></Card>
           <Card title="Victory gesture" className="form-card"><GestureField label="After defeating the player" value={entry.victories} choices={gestureNames} onChange={(value) => setOptional('victories', value)} /></Card>

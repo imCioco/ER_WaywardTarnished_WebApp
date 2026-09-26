@@ -6,16 +6,17 @@ import {
 import {
   ApartmentOutlined, CheckCircleOutlined, CodeOutlined, DatabaseOutlined, DownloadOutlined,
   FileAddOutlined, FolderOpenOutlined, FormOutlined, PlusOutlined, RedoOutlined,
-  MenuOutlined, SettingOutlined, TeamOutlined, ThunderboltOutlined, UndoOutlined, UploadOutlined,
+  MenuOutlined, RobotOutlined, SettingOutlined, TeamOutlined, ThunderboltOutlined, UndoOutlined, UploadOutlined,
 } from '@ant-design/icons';
 import { ItemCatalog, loadBundledCatalog, loadCatalog } from './catalog';
 import { copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary, type GoodsLookup } from './library';
-import type { LibraryDocument, Tarnished, ValidationResult } from './types';
+import type { Consumable, LibraryDocument, Tarnished, ValidationResult } from './types';
 import { EnemyEditor } from './components/EnemyEditor';
 import { SharedSettings } from './components/SharedSettings';
+import { PersonalitiesEditor } from './components/PersonalitiesEditor';
 import './styles.css';
 
-type View = 'overview' | 'equipment' | 'behavior' | 'shared';
+type View = 'overview' | 'equipment' | 'behavior' | 'personalities' | 'shared';
 const DRAFT_KEY = 'wayward-tarnished-library-studio-draft-v2';
 
 function Studio() {
@@ -24,6 +25,9 @@ function Studio() {
   const [catalog, setCatalog] = useState(new ItemCatalog());
   const [catalogProgress, setCatalogProgress] = useState('Loading item names and icons…');
   const [gestures, setGestures] = useState<string[]>([]);
+  // The mod loads its base.toml first, so a library inherits its consumables, styles and personalities.
+  const [baseDocument, setBaseDocument] = useState<LibraryDocument>();
+  const basePool: Consumable[] = baseDocument?.consumables?.pool ?? [];
   const [selected, setSelected] = useState(0);
   const [view, setView] = useState<View>('overview');
   const [search, setSearch] = useState('');
@@ -41,13 +45,14 @@ function Studio() {
   useEffect(() => { documentRef.current = document; }, [document]);
   useEffect(() => {
     Promise.all([
-      fetch(`${import.meta.env.BASE_URL}base.toml`).then((response) => response.text()),
-      fetch(`${import.meta.env.BASE_URL}gestures.txt`).then((response) => response.text()),
+      fetch(`${import.meta.env.BASE_URL}base.toml`, { cache: 'no-cache' }).then((response) => response.text()),
+      fetch(`${import.meta.env.BASE_URL}gestures.txt`, { cache: 'no-cache' }).then((response) => response.text()),
     ]).then(([base, gestureText]) => {
       const gestureNames = gestureText.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
       setGestures(gestureNames);
       const draft = localStorage.getItem(DRAFT_KEY);
       const baseDocument = parseLibrary(base);
+      setBaseDocument(baseDocument);
       const draftDocument = draft ? parseLibrary(draft) : null;
       const hasRealDraft = Boolean(draftDocument && serializeLibrary(draftDocument) !== serializeLibrary(baseDocument));
       const loaded = hasRealDraft ? draftDocument! : baseDocument;
@@ -99,12 +104,11 @@ function Studio() {
   const entries = document?.tarnished ?? [];
   const selectedEntry = entries[selected];
   const filteredEntries = entries.map((entry, index) => ({ entry, index })).filter(({ entry }) => `${entry.name} ${entry.id}`.toLowerCase().includes(search.toLowerCase()));
-  const styleNames = useMemo(() => document ? [...new Set([...Object.keys(document.styles ?? {}), ...Object.keys(document.personalities ?? {})])].sort() : [], [document]);
   const serialized = useMemo(() => document ? serializeLibrary(document) : '', [document]);
   const dirty = Boolean(document && serialized !== savedText);
   const goodsLookup = useCallback<GoodsLookup>((id) => {
     const item = catalog.get('goods', id);
-    return item ? { name: item.name, usable: Number(item.aiUseJudgeId) > 0, limit: catalog.stackLimit(id) } : undefined;
+    return item ? { name: item.name, usable: !catalog.hasAiUse || Number(item.aiUseJudgeId) > 0, limit: catalog.stackLimit(id) } : undefined;
   }, [catalog]);
   const randomPools = entries.filter((entry) => entry.pool).length;
   const poolChoices = entries.reduce((count, entry) => count + poolChoiceCount(entry.pool), 0);
@@ -145,7 +149,7 @@ function Studio() {
     setSelected(Math.max(0, Math.min(selected, next.tarnished.length - 1)));
   };
   const newLibrary = async () => {
-    const base = parseLibrary(await fetch(`${import.meta.env.BASE_URL}base.toml`).then((response) => response.text()));
+    const base = parseLibrary(await fetch(`${import.meta.env.BASE_URL}base.toml`, { cache: 'no-cache' }).then((response) => response.text()));
     base.tarnished = [];
     resetHistory(base);
     setFilename('my-tarnished-library.toml');
@@ -163,7 +167,7 @@ function Studio() {
   };
   const download = () => {
     if (!document) return;
-    const result = validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined);
+    const result = validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined, baseDocument);
     if (result.errors.length) { setValidation(result); return; }
     const blob = new Blob([serialized], { type: 'application/toml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -176,7 +180,7 @@ function Studio() {
     localStorage.removeItem(DRAFT_KEY);
     message.success('Library downloaded.');
   };
-  const showValidation = () => setValidation(document ? validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined) : null);
+  const showValidation = () => setValidation(document ? validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined, baseDocument) : null);
   const openRaw = () => { setRawText(serialized); setRawOpen(true); };
   const applyRaw = () => {
     try { commit(parseLibrary(rawText)); setRawOpen(false); message.success('Advanced TOML applied.'); }
@@ -197,7 +201,8 @@ function Studio() {
   const viewItems: { key: View; icon: ReactNode; label: string; hint: string }[] = [
     { key: 'overview', icon: <FormOutlined />, label: 'Overview', hint: 'Identity, availability and growth' },
     { key: 'equipment', icon: <ApartmentOutlined />, label: 'Equipment', hint: selectedEntry?.pool ? 'Random pool and consumables' : 'Level loadouts and consumables' },
-    { key: 'behavior', icon: <TeamOutlined />, label: 'Names & behavior', hint: 'Names, AI styles and gestures' },
+    { key: 'behavior', icon: <TeamOutlined />, label: 'Names & gestures', hint: 'Names, titles, greetings and victories' },
+    { key: 'personalities', icon: <RobotOutlined />, label: 'AI personalities', hint: 'Fighting styles, custom personalities' },
     { key: 'shared', icon: <SettingOutlined />, label: 'Shared settings', hint: 'Library-wide names, gestures, consumables' },
   ];
   const stats = [
@@ -232,7 +237,7 @@ function Studio() {
       </Layout.Sider>
       <Layout className="main-layout">
         <header className="command-bar">
-          <Breadcrumb items={view === 'shared' ? [{ title: 'Library Studio' }, { title: 'Shared settings' }] : [{ title: 'Library Studio' }, { title: selectedEntry?.name ?? 'Library' }, { title: viewItems.find((item) => item.key === view)?.label }]} />
+          <Breadcrumb items={view === 'shared' || (view === 'personalities' && !selectedEntry) ? [{ title: 'Library Studio' }, { title: viewItems.find((item) => item.key === view)?.label }] : [{ title: 'Library Studio' }, { title: selectedEntry?.name ?? 'Library' }, { title: viewItems.find((item) => item.key === view)?.label }]} />
           <Space wrap>
             <Button type="text" icon={<UndoOutlined />} disabled={!past.current.length} onClick={undo} aria-label="Undo" />
             <Button type="text" icon={<RedoOutlined />} disabled={!future.current.length} onClick={redo} aria-label="Redo" />
@@ -262,7 +267,7 @@ function Studio() {
             ))}
           </nav>
           <section className="work-surface">
-            {view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} styleNames={styleNames} sharedConsumables={document.consumables?.pool} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
+            {view === 'personalities' ? <PersonalitiesEditor document={document} base={baseDocument} selected={selectedEntry ? selected : undefined} onChange={commit} /> : view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} basePool={basePool} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} sharedConsumables={document.consumables?.pool?.length ? document.consumables.pool : basePool} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
           </section>
         </Layout.Content>
       </Layout>
@@ -283,7 +288,7 @@ export default function App() {
   return (
     <ConfigProvider theme={{
       token: { colorPrimary: '#202020', colorText: '#191919', colorTextSecondary: '#6b6b6b', colorBgLayout: '#f3f3f1', colorBgContainer: '#ffffff', colorBorder: '#d8d8d5', borderRadius: 0, borderRadiusLG: 0, borderRadiusSM: 0, fontFamily: 'Inter, Segoe UI, Arial, sans-serif', controlHeight: 38 },
-      components: { Button: { primaryShadow: 'none' }, Card: { headerBg: '#fafaf9' }, Menu: { itemSelectedBg: '#ededeb', itemSelectedColor: '#111111', itemHoverBg: '#f5f5f3' } },
+      components: { Button: { primaryShadow: 'none' }, Card: { headerBg: '#fafaf9' }, Select: { optionSelectedBg: '#e6e6e3', optionSelectedColor: '#111111', optionActiveBg: '#f3f3f1' }, Menu: { itemSelectedBg: '#ededeb', itemSelectedColor: '#111111', itemHoverBg: '#f5f5f3' } },
     }}><AntApp><Studio /></AntApp></ConfigProvider>
   );
 }

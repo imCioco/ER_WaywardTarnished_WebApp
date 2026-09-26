@@ -74,6 +74,42 @@ describe('Wayward Tarnished library model', () => {
     expect(usable.has(190)).toBe(false); // Rune Arc
   });
 
+  it('reads style and personality descriptions from comments and writes them back', () => {
+    const document = parseLibrary(baseText);
+    expect(document.__descriptions?.reckless).toContain('heavy attacks');
+    expect(document.__descriptions?.parrier).toContain('parries it with a parrying shield');
+    document.__descriptions!.parrier = 'Waits, parries\nand ripostes.';
+    const text = serializeLibrary(document);
+    expect(text).toContain('# Waits, parries and ripostes.\n[personalities.parrier]');
+    expect(text).not.toContain('__descriptions');
+    const saved = parseLibrary(text);
+    expect(saved.__descriptions).toEqual({ ...document.__descriptions, parrier: 'Waits, parries and ripostes.' });
+    expect(saved.personalities).toEqual(document.personalities);
+    expect(saved.styles).toEqual(document.styles);
+  });
+
+  it('checks personality slots, actions and style references', () => {
+    const document = parseLibrary(baseText);
+    document.personalities!.copycat = { effect: 5023, row: 15023, odds: { parry: 100, not_an_action: 5 } };
+    document.tarnished[0].styles = ['copycat', 'missing-style'];
+    const errors = validateLibrary(document, gestures).errors;
+    expect(errors.some((error) => error.includes('shares its effect with “copycat”') || error.includes('shares its effect with “parrier”'))).toBe(true);
+    expect(errors.some((error) => error.includes('unknown action “not_an_action”'))).toBe(true);
+    expect(errors.some((error) => error.includes('style “missing-style”'))).toBe(true);
+  });
+
+  it('warns when a personality competes with base.toml for a slot', () => {
+    const base = parseLibrary(baseText);
+    const document = parseLibrary(baseText);
+    delete document.personalities!.showoff;
+    document.personalities!.zzz = { effect: 20018711, row: 15144, odds: { art_near: 100 } };
+    document.tarnished.forEach((entry) => { entry.styles = entry.styles?.filter((style) => style !== 'showoff'); });
+    const result = validateLibrary(document, gestures, undefined, base);
+    expect(result.errors).toEqual([]);
+    expect(result.warnings.some((warning) => warning.includes('the mod keeps “showoff”'))).toBe(true);
+    expect(validateLibrary(base, gestures, undefined, base).warnings.some((warning) => warning.includes('slot'))).toBe(false);
+  });
+
   it('ships the expected local item catalog without external fetching', () => {
     const items = JSON.parse(readFileSync(new URL('../public/catalog/items.json', import.meta.url), 'utf8'));
     expect(items).toHaveLength(2797);

@@ -47,7 +47,7 @@ button, input, textarea { font: inherit; }
 .stat-chip + .stat-chip { border-left: 1px solid #ececea; }
 .stat-chip strong { color: #191919; font-size: 14px; font-variant-numeric: tabular-nums; }
 .stat-chip span { color: #777; }
-.workspace-tabs { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 1500px; margin: 0 auto; border: 1px solid #d8d8d5; border-bottom: 0; background: #fafaf9; }
+.workspace-tabs { display: grid; grid-template-columns: repeat(5, 1fr); max-width: 1500px; margin: 0 auto; border: 1px solid #d8d8d5; border-bottom: 0; background: #fafaf9; }
 .workspace-tab { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 8px; min-height: 70px; padding: 12px 18px; border: 0; border-right: 1px solid #d8d8d5; border-bottom: 1px solid #d8d8d5; color: #444; background: transparent; text-align: left; cursor: pointer; transition: background .15s; }
 .workspace-tab:last-child { border-right: 0; }
 .workspace-tab:hover { background: #f1f1ef; }
@@ -105,6 +105,53 @@ button, input, textarea { font: inherit; }
 .consumables-list.inherited { background: #fafaf9; }
 .consumables-divider { margin: 12px 0 !important; border: 0 !important; }
 .kinds-field .ant-input-number { width: 180px; }
+
+.build-styles { margin-bottom: 26px; }
+.build-styles .ant-alert { margin-top: 10px; }
+.style-select { width: 100%; }
+.style-tag { margin: 2px 4px 2px 0; cursor: default; }
+.style-option { display: flex; flex-direction: column; min-width: 0; line-height: 1.35; }
+.style-option small { color: #777; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.archetype-hover { display: inline-flex; max-width: 100%; }
+.style-option, .archetype-hover:has(.style-option) { width: 100%; }
+.archetype-popover-root { max-width: 340px; }
+.archetype-popover .archetype-description { margin: 8px 0 6px !important; }
+.archetype-meta { font-size: 12px; }
+.chosen-archetypes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; margin-top: 12px; }
+.chosen-archetype { padding: 10px 12px; border: 1px solid #ececea; border-left: 3px solid #8c8c8c; background: #fafaf9; }
+.chosen-archetype.personality { border-left-color: #1d39c4; }
+.chosen-archetype > div { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.chosen-archetype .ant-typography { margin: 6px 0 0 !important; color: #555; font-size: 13px; }
+.archetype-heading { margin-bottom: 14px; align-items: end; }
+.slot-strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid #d8d8d5; margin-bottom: 14px; }
+.slot-chip { display: flex; flex-direction: column; padding: 8px 12px; min-width: 0; }
+.slot-chip + .slot-chip { border-left: 1px solid #ececea; }
+.slot-chip small { color: #777; font-size: 11px; }
+.slot-chip strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slot-chip.used { box-shadow: inset 0 3px 0 #1d39c4; }
+.slot-chip.free strong { color: #389e0d; }
+.slot-note { margin-bottom: 14px; }
+.archetype-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.archetype-card { display: flex; flex-direction: column; border-top: 3px solid #bfbfbf; }
+.archetype-card.personality { border-top-color: #1d39c4; }
+.archetype-card.in-build { background: #fafaf9; outline: 1px solid #171717; }
+.archetype-card .ant-card-body { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 12px 14px; }
+.archetype-card-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+.archetype-card-head .ant-tag { margin-inline-end: 0; }
+.archetype-name { font-size: 15px; cursor: help; }
+.archetype-card .archetype-description { flex: 1; margin: 0 !important; font-size: 13px; }
+.archetype-actions { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+.archetype-actions-spacer { flex: 1; }
+.odds-toolbar { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 6px 0 12px; }
+.odds-toolbar h5 { margin: 0 0 2px !important; }
+.odds-collapse .ant-collapse-content-box { padding: 8px 12px !important; }
+.odds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 4px 16px; }
+.odds-row { display: grid; grid-template-columns: minmax(0, 1fr) 88px auto; align-items: center; gap: 6px; padding: 2px 6px; border-left: 3px solid transparent; }
+.odds-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.odds-row.raised { border-left-color: #389e0d; background: #f6ffed; }
+.odds-row.lowered { border-left-color: #cf1322; background: #fff1f0; }
+.odds-row .ant-input-number { width: 88px; }
+.personality-modal .ant-alert { margin-bottom: 12px; }
 .row-actions { opacity: .35; }
 .choice-row:hover .row-actions { opacity: 1; }
 .loadout-content > .ant-form-item { max-width: 260px; }
@@ -117,8 +164,10 @@ button, input, textarea { font: inherit; }
 
 @media (max-width: 1190px) {
   .command-bar { align-items: start; flex-direction: column; }
-  .workspace-tabs { grid-template-columns: 1fr 1fr; }
-  .workspace-tab:nth-child(2) { border-right: 0; }
+  .workspace-tabs { grid-template-columns: repeat(3, 1fr); }
+  .workspace-tab:nth-child(3) { border-right: 0; }
+  .slot-strip { grid-template-columns: repeat(3, 1fr); }
+  .odds-toolbar { flex-direction: column; align-items: stretch; }
   .page-intro { flex-direction: column; align-items: stretch; }
   .intro-side { align-items: start; }
   .pool-grid, .loadout-grid { grid-template-columns: 1fr; }
@@ -136,7 +185,11 @@ button, input, textarea { font: inherit; }
   .command-bar { padding: 10px 14px 10px 62px; }
   .page-intro, .editor-titlebar, .section-heading { align-items: stretch; flex-direction: column; }
   .form-grid, .two-column-fields, .three-column-fields, .pool-grid, .stats-grid { grid-template-columns: 1fr; }
+  .workspace-tabs { grid-template-columns: 1fr 1fr; }
+  .workspace-tab:nth-child(3) { border-right: 1px solid #d8d8d5; }
+  .workspace-tab:nth-child(2n) { border-right: 0; }
   .workspace-tab { min-height: 54px; padding: 10px 12px; }
+  .slot-strip { grid-template-columns: 1fr 1fr; }
   .workspace-tab small { display: none; }
   .item-field { flex-direction: column; }
   .item-field .item-id-input { width: 100%; }
