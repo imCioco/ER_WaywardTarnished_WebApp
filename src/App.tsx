@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { ItemCatalog, loadBundledCatalog, loadCatalog } from './catalog';
 import { copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary, type GoodsLookup } from './library';
-import type { Consumable, LibraryDocument, Tarnished, ValidationResult } from './types';
+import type { Consumable, ItemKind, LibraryDocument, Tarnished, ValidationResult } from './types';
 import { EnemyEditor } from './components/EnemyEditor';
 import { SharedSettings } from './components/SharedSettings';
 import { PersonalitiesEditor } from './components/PersonalitiesEditor';
@@ -110,6 +110,12 @@ function Studio() {
     const item = catalog.get('goods', id);
     return item ? { name: item.name, usable: !catalog.hasAiUse || Number(item.aiUseJudgeId) > 0, limit: catalog.stackLimit(id) } : undefined;
   }, [catalog]);
+  const validationOptions = () => ({
+    gestures,
+    base: baseDocument,
+    goods: catalog.size ? goodsLookup : undefined,
+    isDlcItem: catalog.size ? (kind: ItemKind, id: number) => Boolean(catalog.get(kind, id)?.dlc) : undefined,
+  });
   const randomPools = entries.filter((entry) => entry.pool).length;
   const poolChoices = entries.reduce((count, entry) => count + poolChoiceCount(entry.pool), 0);
 
@@ -167,7 +173,7 @@ function Studio() {
   };
   const download = () => {
     if (!document) return;
-    const result = validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined, baseDocument);
+    const result = validateLibrary(document, validationOptions());
     if (result.errors.length) { setValidation(result); return; }
     const blob = new Blob([serialized], { type: 'application/toml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -180,7 +186,7 @@ function Studio() {
     localStorage.removeItem(DRAFT_KEY);
     message.success('Library downloaded.');
   };
-  const showValidation = () => setValidation(document ? validateLibrary(document, gestures, catalog.size ? goodsLookup : undefined, baseDocument) : null);
+  const showValidation = () => setValidation(document ? validateLibrary(document, validationOptions()) : null);
   const openRaw = () => { setRawText(serialized); setRawOpen(true); };
   const applyRaw = () => {
     try { commit(parseLibrary(rawText)); setRawOpen(false); message.success('Advanced TOML applied.'); }
@@ -267,7 +273,7 @@ function Studio() {
             ))}
           </nav>
           <section className="work-surface">
-            {view === 'personalities' ? <PersonalitiesEditor document={document} base={baseDocument} selected={selectedEntry ? selected : undefined} onChange={commit} /> : view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} basePool={basePool} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} sharedConsumables={document.consumables?.pool?.length ? document.consumables.pool : basePool} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
+            {view === 'personalities' ? <PersonalitiesEditor document={document} base={baseDocument} selected={selectedEntry ? selected : undefined} onChange={commit} /> : view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} basePool={basePool} onChange={commit} /> : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} sharedConsumables={document.consumables?.pool?.length ? document.consumables.pool : basePool} sharedKinds={document.consumables?.kinds ?? baseDocument?.consumables?.kinds} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} /> : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
           </section>
         </Layout.Content>
       </Layout>

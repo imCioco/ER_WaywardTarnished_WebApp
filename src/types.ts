@@ -10,16 +10,24 @@ export type WeightedChoice = {
 
 export type ItemChoice = number | WeightedChoice;
 
+/** A loadout slot: one item, or a list of options of which one is picked (weighted, within the level). */
+export type Pick = ItemChoice | ItemChoice[];
+
 export type Consumable = { id: number; count?: number; level?: number; weight?: number };
 export type ArmorChoice = number[] | { set: number[]; level?: number; weight?: number };
 
 export type Loadout = {
   level: number;
-  right?: ItemChoice[];
-  left?: ItemChoice[];
-  armor?: number[];
-  talismans?: number[];
-  spells?: number[];
+  /** Loadouts at the same level are variants; one is picked by weight (default 10). */
+  weight?: number;
+  right?: Pick[];
+  left?: Pick[];
+  /** Head, chest, arms, legs; each one piece or a list of options. Not together with armor_sets. */
+  armor?: Pick[];
+  /** Whole sets to pick one from, so the pieces always match. */
+  armor_sets?: ArmorChoice[];
+  talismans?: Pick[];
+  spells?: Pick[];
   arrows?: [number, number];
   bolts?: [number, number];
 };
@@ -47,12 +55,16 @@ export type Tarnished = {
   sex?: 'any' | 'male' | 'female';
   enabled?: boolean;
   pvp_damage?: boolean;
+  /** Uses Shadow of the Erdtree items: left out when the DLC is not installed. */
+  dlc?: boolean;
   styles?: string[];
   greetings?: string[];
   victories?: string[];
   faces?: number[];
   items?: [number, number][];
   consumables?: Consumable[];
+  /** How many different consumables it carries; default = [consumables] kinds. */
+  consumable_kinds?: number;
   growth?: Record<string, number>;
   attributes?: Record<string, number>;
   gear?: Loadout[];
@@ -74,10 +86,11 @@ export type LibraryDocument = {
   [key: string]: unknown;
 };
 
-/** A custom AI personality: odds the mod writes into a free NpcAiBehaviorProbability row. */
+/** A custom AI personality: odds the mod writes into a free personality slot when a Tarnished with it spawns. */
 export type Personality = {
-  effect: number;
-  row: number;
+  /** Older files named a slot; the mod now accepts and ignores it. */
+  effect?: number;
+  row?: number;
   suppress?: number[];
   odds: Record<string, number>;
 };

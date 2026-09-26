@@ -35,38 +35,184 @@ export const GEAR_FIELDS: { key: string; label: string; kind: ItemKind; limit?: 
   { key: 'spells', label: 'Spells', kind: 'spell', limit: 7 },
 ];
 
-// Personality slots: a permanent SpEffect and the NpcAiBehaviorProbability row battle goal 29999 adds
-// for it, used by no vanilla NPC, event or param (docs/RESEARCH.md). Every personality needs its own.
-export const PERSONALITY_SLOTS: { effect: number; row: number }[] = [
-  { effect: 5023, row: 15023 },
-  { effect: 20018663, row: 15103 },
-  { effect: 20018707, row: 15140 },
-  { effect: 20018708, row: 15141 },
-  { effect: 20018711, row: 15144 },
-];
+// How many custom personalities can be in play at once: the player-like AI has five spare personality
+// slots, which the mod fills as Tarnished spawn (docs/LIBRARY.md, Custom personalities).
+export const PERSONALITIES_AT_ONCE = 5;
 
 // -9999 rules an action out and 9999 forces it; the game's situational odds are mostly 10-100.
 export const ODDS_LIMIT = 9999;
 
-// The NpcAiBehaviorProbability columns a personality may change (BEHAVIOUR_ODDS in the mod's src/library.rs).
-export const ODDS_GROUPS: { label: string; hint: string; actions: string[] }[] = [
-  { label: 'Right hand', hint: 'Attacks with the right-hand weapon', actions: ['r1_combo', 'r2_combo', 'dash_attack', 'forward_roll_attack', 'side_roll_attack', 'back_roll_attack', 'backstep_attack', 'jump_attack', 'dash_jump_attack', 'shoot_r1', 'shoot_r2', 'shield_r1', 'shield_r2'] },
-  { label: 'Spells', hint: 'Casting with the right-hand catalyst, by distance and movement', actions: ['near_spell_strafing', 'near_spell_advancing', 'near_spell_retreating', 'mid_spell_strafing', 'mid_spell_advancing', 'mid_spell_retreating', 'far_spell_strafing', 'far_spell_advancing', 'far_spell_retreating', 'healing_spell', 'buff_spell'] },
-  { label: 'Left hand', hint: 'Attacks with the left-hand weapon', actions: ['left_r1_combo', 'left_r2_combo', 'left_dash_attack', 'left_forward_roll_attack', 'left_side_roll_attack', 'left_back_roll_attack', 'left_backstep_attack', 'left_jump_attack', 'left_dash_jump_attack', 'left_l1_combo', 'left_shoot_r1', 'left_shoot_r2'] },
-  { label: 'Left-hand spells', hint: 'Casting with a left-hand catalyst', actions: ['left_near_spell_strafing', 'left_near_spell_advancing', 'left_near_spell_retreating', 'left_mid_spell_strafing', 'left_mid_spell_advancing', 'left_mid_spell_retreating', 'left_far_spell_strafing', 'left_far_spell_advancing', 'left_far_spell_retreating', 'left_healing_spell', 'left_buff_spell'] },
-  { label: 'Movement', hint: 'Dodging, spacing and grip', actions: ['backstep', 'forward_roll', 'side_roll', 'back_roll', 'strafe', 'retreat', 'dash_in', 'wait', 'approach', 'two_hand_right', 'two_hand_left', 'one_hand'] },
-  { label: 'Skills and items', hint: 'Ashes of War and consumables', actions: ['art_near', 'art_mid', 'art_far', 'art_heal', 'art_buff', 'throw_item', 'healing_item', 'buff_item', 'pot_combo', 'shield_poke'] },
-  { label: 'Chances', hint: 'How often it two-hands, guards, dual-wields or dodges with a skill', actions: ['two_hand_r1_chance', 'two_hand_r2_chance', 'guard_while_moving', 'dual_r1_chance', 'rolling_art_chance'] },
-  { label: 'At parry timing', hint: 'When your attack comes in at parry timing', actions: ['parry', 'parry_window_forward_roll', 'parry_window_side_roll', 'parry_window_back_roll', 'parry_window_backstep_attack', 'parry_window_guard', 'parry_window_steady'] },
-  { label: 'After parries, blocks and guard breaks', hint: 'Follow-ups', actions: ['riposte', 'parried_steady', 'blocked_backstep', 'blocked_steady', 'guard_counter', 'guard_break_critical', 'guard_break_dash_attack', 'guard_break_spell', 'guard_break_steady'] },
-  { label: 'When you drink', hint: 'Punishing your flask', actions: ['estus_punish_dash_attack', 'estus_punish_throw', 'estus_steady'] },
-  { label: 'When hit', hint: 'Reactions to taking a hit', actions: ['hit_back_roll', 'hit_side_roll', 'hit_forward_roll', 'hit_backstep', 'hit_guard_forward', 'hit_guard_back', 'hit_guard_side', 'hit_r1_combo', 'hit_steady'] },
-  { label: 'At a projectile', hint: 'Reactions to arrows and spells', actions: ['projectile_forward_roll', 'projectile_side_roll', 'projectile_back_roll', 'projectile_guard_forward', 'projectile_guard_side', 'projectile_dash_in', 'projectile_steady'] },
-  { label: 'Seeing your attack coming', hint: 'Reactions before your attack lands', actions: ['threat_backstep', 'threat_forward_roll', 'threat_side_roll', 'threat_back_roll', 'threat_guard_forward', 'threat_guard_side', 'threat_guard', 'threat_shield_poke', 'threat_evasive_art', 'threat_steady'] },
-  { label: 'Approached while drawing a bow', hint: 'Bow reactions', actions: ['drawn_bow_strafe', 'drawn_bow_side_roll', 'drawn_bow_steady'] },
+/**
+ * How battle goal 29999 (029999_battle.lua) uses a group's numbers:
+ * - weight: main actions. The totals are clamped at 0 and one action is picked with chances in
+ *   proportion to them (Common_Battle_Activate_ForCommonNPC).
+ * - reaction: an interrupt (hit, parry timing, ...) rolls 1-100 and walks the event's reactions in a fixed
+ *   order, adding their odds; the first whose running total reaches the roll happens, else none does.
+ * - chance: compared with a 1-100 roll on its own, a plain percentage.
+ */
+export type OddsKind = 'weight' | 'reaction' | 'chance';
+
+export const ODDS_KINDS: Record<OddsKind, { label: string; summary: string }> = {
+  weight: {
+    label: 'Weighted choice',
+    summary: 'When the Tarnished decides its next move, your number is added to the game’s own odds for the situation (mostly 10–100), and it picks one action with chances in proportion to the totals. Totals below 0 count as 0.',
+  },
+  reaction: {
+    label: 'Reaction roll (1–100)',
+    summary: 'When this happens, the AI rolls 1–100 and checks these reactions in a fixed order, adding up their odds; the first whose running total reaches the roll happens. Whatever is left under 100 is the chance it does not react.',
+  },
+  chance: {
+    label: 'Percent chance',
+    summary: 'A plain percentage: each time, the AI rolls 1–100 and does it when the roll is at or under the total. 100 or more is always, 0 or less never.',
+  },
+};
+
+export const ODDS_GROUPS: { label: string; hint: string; kind: OddsKind; actions: string[] }[] = [
+  { label: 'Right hand', hint: 'Attacks with the right-hand weapon', kind: 'weight', actions: ['r1_combo', 'r2_combo', 'dash_attack', 'forward_roll_attack', 'side_roll_attack', 'back_roll_attack', 'backstep_attack', 'jump_attack', 'dash_jump_attack', 'shoot_r1', 'shoot_r2', 'shield_r1', 'shield_r2'] },
+  { label: 'Spells', hint: 'Casting with the right-hand catalyst, by distance and movement', kind: 'weight', actions: ['near_spell_strafing', 'near_spell_advancing', 'near_spell_retreating', 'mid_spell_strafing', 'mid_spell_advancing', 'mid_spell_retreating', 'far_spell_strafing', 'far_spell_advancing', 'far_spell_retreating', 'healing_spell', 'buff_spell'] },
+  { label: 'Left hand', hint: 'Attacks with the left-hand weapon', kind: 'weight', actions: ['left_r1_combo', 'left_r2_combo', 'left_dash_attack', 'left_forward_roll_attack', 'left_side_roll_attack', 'left_back_roll_attack', 'left_backstep_attack', 'left_jump_attack', 'left_dash_jump_attack', 'left_l1_combo', 'left_shoot_r1', 'left_shoot_r2'] },
+  { label: 'Left-hand spells', hint: 'Casting with a left-hand catalyst', kind: 'weight', actions: ['left_near_spell_strafing', 'left_near_spell_advancing', 'left_near_spell_retreating', 'left_mid_spell_strafing', 'left_mid_spell_advancing', 'left_mid_spell_retreating', 'left_far_spell_strafing', 'left_far_spell_advancing', 'left_far_spell_retreating', 'left_healing_spell', 'left_buff_spell'] },
+  { label: 'Movement', hint: 'Dodging, spacing and grip', kind: 'weight', actions: ['backstep', 'forward_roll', 'side_roll', 'back_roll', 'strafe', 'retreat', 'dash_in', 'wait', 'approach', 'two_hand_right', 'two_hand_left', 'one_hand'] },
+  { label: 'Skills and items', hint: 'Ashes of War and consumables', kind: 'weight', actions: ['art_near', 'art_mid', 'art_far', 'art_heal', 'art_buff', 'throw_item', 'healing_item', 'buff_item', 'pot_combo', 'shield_poke'] },
+  { label: 'Chances', hint: 'How often it two-hands, guards, dual-wields or dodges with a skill', kind: 'chance', actions: ['two_hand_r1_chance', 'two_hand_r2_chance', 'guard_while_moving', 'dual_r1_chance', 'rolling_art_chance'] },
+  { label: 'At parry timing', hint: 'When your attack comes in at parry timing', kind: 'reaction', actions: ['parry', 'parry_window_forward_roll', 'parry_window_side_roll', 'parry_window_back_roll', 'parry_window_backstep_attack', 'parry_window_guard', 'parry_window_steady'] },
+  { label: 'After a parry', hint: 'Once it has parried you', kind: 'reaction', actions: ['riposte', 'parried_steady'] },
+  { label: 'After blocking', hint: 'Once it has blocked your hit', kind: 'reaction', actions: ['blocked_backstep', 'blocked_steady', 'guard_counter'] },
+  { label: 'After a guard break', hint: 'Once it has broken your guard', kind: 'reaction', actions: ['guard_break_critical', 'guard_break_dash_attack', 'guard_break_spell', 'guard_break_steady'] },
+  { label: 'When you drink', hint: 'Punishing your flask', kind: 'reaction', actions: ['estus_punish_dash_attack', 'estus_punish_throw', 'estus_steady'] },
+  { label: 'When hit', hint: 'Reactions to taking a hit', kind: 'reaction', actions: ['hit_back_roll', 'hit_side_roll', 'hit_forward_roll', 'hit_backstep', 'hit_guard_forward', 'hit_guard_back', 'hit_guard_side', 'hit_r1_combo', 'hit_steady'] },
+  { label: 'At a projectile', hint: 'Reactions to arrows and spells', kind: 'reaction', actions: ['projectile_forward_roll', 'projectile_side_roll', 'projectile_back_roll', 'projectile_guard_forward', 'projectile_guard_side', 'projectile_dash_in', 'projectile_steady'] },
+  { label: 'Seeing your attack coming', hint: 'Reactions before your attack lands', kind: 'reaction', actions: ['threat_backstep', 'threat_forward_roll', 'threat_side_roll', 'threat_back_roll', 'threat_guard_forward', 'threat_guard_side', 'threat_guard', 'threat_shield_poke', 'threat_evasive_art', 'threat_steady'] },
+  { label: 'Approached while drawing a bow', hint: 'Bow reactions', kind: 'reaction', actions: ['drawn_bow_strafe', 'drawn_bow_side_roll', 'drawn_bow_steady'] },
 ];
 
 export const ODDS_ACTIONS = ODDS_GROUPS.flatMap((group) => group.actions);
+
+/** What each action does, from the NpcAiBehaviorProbability field descriptions. */
+export const ACTION_HELP: Record<string, string> = {
+  r1_combo: 'Light attack combo.',
+  r2_combo: 'Heavy attack combo.',
+  dash_attack: 'Running attack.',
+  forward_roll_attack: 'Rolls toward you, then attacks.',
+  side_roll_attack: 'Rolls sideways, then attacks.',
+  back_roll_attack: 'Rolls back, then attacks.',
+  backstep_attack: 'Backsteps, then attacks.',
+  jump_attack: 'Jumping attack.',
+  dash_jump_attack: 'Running jump attack.',
+  shoot_r1: 'Shoots a right-hand bow or crossbow.',
+  shoot_r2: 'Shoots a right-hand bow or crossbow with the heavy button.',
+  shield_r1: 'Light attack with a right-hand shield.',
+  shield_r2: 'Heavy attack with a right-hand shield.',
+  near_spell_strafing: 'Casts up close while circling you.',
+  near_spell_advancing: 'Casts up close while moving in.',
+  near_spell_retreating: 'Casts up close while backing away.',
+  mid_spell_strafing: 'Casts at mid range while circling you.',
+  mid_spell_advancing: 'Casts at mid range while moving in.',
+  mid_spell_retreating: 'Casts at mid range while backing away.',
+  far_spell_strafing: 'Casts from afar while circling you.',
+  far_spell_advancing: 'Casts from afar while moving in.',
+  far_spell_retreating: 'Casts from afar while backing away.',
+  healing_spell: 'Casts a healing spell. The mod removes healing incantations, so this rarely matters.',
+  buff_spell: 'Casts a buff; skipped while that buff is active.',
+  left_r1_combo: 'Light attack combo with the left-hand weapon.',
+  left_r2_combo: 'Heavy attack combo with the left-hand weapon.',
+  left_dash_attack: 'Running attack with the left-hand weapon.',
+  left_forward_roll_attack: 'Rolls toward you, then attacks with the left hand.',
+  left_side_roll_attack: 'Rolls sideways, then attacks with the left hand.',
+  left_back_roll_attack: 'Rolls back, then attacks with the left hand.',
+  left_backstep_attack: 'Backsteps, then attacks with the left hand.',
+  left_jump_attack: 'Jumping attack with the left hand.',
+  left_dash_jump_attack: 'Running jump attack, two-handing the left weapon.',
+  left_l1_combo: 'Attacks with the left weapon while one-handing (L1), as when dual-wielding.',
+  left_shoot_r1: 'Shoots a left-hand bow or crossbow.',
+  left_shoot_r2: 'Shoots a left-hand bow or crossbow with the heavy button.',
+  left_near_spell_strafing: 'Left-hand cast up close while circling you.',
+  left_near_spell_advancing: 'Left-hand cast up close while moving in.',
+  left_near_spell_retreating: 'Left-hand cast up close while backing away.',
+  left_mid_spell_strafing: 'Left-hand cast at mid range while circling you.',
+  left_mid_spell_advancing: 'Left-hand cast at mid range while moving in.',
+  left_mid_spell_retreating: 'Left-hand cast at mid range while backing away.',
+  left_far_spell_strafing: 'Left-hand cast from afar while circling you.',
+  left_far_spell_advancing: 'Left-hand cast from afar while moving in.',
+  left_far_spell_retreating: 'Left-hand cast from afar while backing away.',
+  left_healing_spell: 'Left-hand healing spell (healing incantations are removed by the mod).',
+  left_buff_spell: 'Left-hand buff; skipped while that buff is active.',
+  backstep: 'Backsteps out of reach.',
+  forward_roll: 'Rolls toward you.',
+  side_roll: 'Rolls sideways.',
+  back_roll: 'Rolls away.',
+  strafe: 'Circles around you.',
+  retreat: 'Walks backwards to open distance.',
+  dash_in: 'Runs in to close the distance.',
+  wait: 'Stands and watches.',
+  approach: 'Walks toward you.',
+  two_hand_right: 'Switches to two-handing the right weapon.',
+  two_hand_left: 'Switches to two-handing the left weapon.',
+  one_hand: 'Goes back to one-handing.',
+  art_near: 'Uses its Ash of War up close.',
+  art_mid: 'Uses its Ash of War at mid range.',
+  art_far: 'Uses its Ash of War from afar.',
+  art_heal: 'Uses a healing skill.',
+  art_buff: 'Uses a buffing skill (War Cry, Seppuku, ...); skipped while the buff is active.',
+  throw_item: 'Throws a pot, knife or dart from its item slots.',
+  healing_item: 'Drinks its flask.',
+  buff_item: 'Uses a self-buff item or grease; skipped while that buff is active.',
+  pot_combo: 'Throws pots one after another.',
+  shield_poke: 'Pokes with a thrusting shield.',
+  two_hand_r1_chance: 'Chance its light attacks are two-handed.',
+  two_hand_r2_chance: 'Chance its heavy attacks are two-handed.',
+  guard_while_moving: 'Chance it keeps its guard up while moving.',
+  dual_r1_chance: 'Chance its light attacks use both weapons (dual-wielding).',
+  rolling_art_chance: 'Chance it dodges with a skill (Quickstep, Bloodhound’s Step, ...) instead of a roll.',
+  parry: 'Parries. Needs a parry skill (Buckler Parry, Parry, ...): without one it does nothing at that moment. The parry itself can still be early or late.',
+  parry_window_forward_roll: 'Rolls through your attack toward you.',
+  parry_window_side_roll: 'Rolls aside.',
+  parry_window_back_roll: 'Rolls away.',
+  parry_window_backstep_attack: 'Backsteps, then attacks.',
+  parry_window_guard: 'Blocks.',
+  parry_window_steady: 'Ignores the attack and carries on.',
+  riposte: 'Ripostes you (the critical hit after a parry).',
+  parried_steady: 'Lets the opening pass.',
+  blocked_backstep: 'Backsteps after blocking.',
+  blocked_steady: 'Keeps its guard up and carries on.',
+  guard_counter: 'Answers with a guard counter.',
+  guard_break_critical: 'Lands a critical hit on your broken guard.',
+  guard_break_dash_attack: 'Runs in with an attack.',
+  guard_break_spell: 'Casts a spell.',
+  guard_break_steady: 'Lets the opening pass.',
+  estus_punish_dash_attack: 'Runs in and attacks while you drink.',
+  estus_punish_throw: 'Throws an item at you while you drink.',
+  estus_steady: 'Lets you drink.',
+  hit_back_roll: 'Rolls away.',
+  hit_side_roll: 'Rolls aside.',
+  hit_forward_roll: 'Rolls toward you.',
+  hit_backstep: 'Backsteps.',
+  hit_guard_forward: 'Raises its guard facing you.',
+  hit_guard_back: 'Guards while backing off.',
+  hit_guard_side: 'Guards while stepping aside.',
+  hit_r1_combo: 'Hits back with a light attack combo (trades blows).',
+  hit_steady: 'Carries on as if nothing happened.',
+  projectile_forward_roll: 'Rolls through it toward you.',
+  projectile_side_roll: 'Rolls aside.',
+  projectile_back_roll: 'Rolls away.',
+  projectile_guard_forward: 'Blocks it.',
+  projectile_guard_side: 'Blocks while stepping aside.',
+  projectile_dash_in: 'Runs at you.',
+  projectile_steady: 'Ignores it.',
+  threat_backstep: 'Backsteps out of reach.',
+  threat_forward_roll: 'Rolls through toward you.',
+  threat_side_roll: 'Rolls aside.',
+  threat_back_roll: 'Rolls away.',
+  threat_guard_forward: 'Guards while stepping in.',
+  threat_guard_side: 'Guards while stepping aside.',
+  threat_guard: 'Guards in place.',
+  threat_shield_poke: 'Answers with a shield poke.',
+  threat_evasive_art: 'Dodges with a skill (Quickstep, ...).',
+  threat_steady: 'Ignores it.',
+  drawn_bow_strafe: 'Circles away while keeping the bow drawn.',
+  drawn_bow_side_roll: 'Rolls aside.',
+  drawn_bow_steady: 'Keeps aiming.',
+};
 
 export function actionLabel(action: string): string {
   const words = action.replace(/_/g, ' ').replace(/\br(\d)\b/g, 'R$1').replace(/\bl1\b/g, 'L1');

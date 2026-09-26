@@ -1,6 +1,6 @@
 import { parse, stringify } from 'smol-toml';
 import { CLASSES, GEAR_FIELDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
-import type { Consumable, EquipmentPool, ItemChoice, LibraryDocument, Personality, Tarnished, ValidationResult } from './types';
+import type { ArmorChoice, Consumable, EquipmentPool, ItemChoice, ItemKind, LibraryDocument, Loadout, Personality, Pick, Tarnished, ValidationResult } from './types';
 
 /** What the item catalog knows about a goods id: whether the AI can use it and its stack limit. */
 export type GoodsLookup = (id: number) => { name: string; usable: boolean; limit: number } | undefined;
@@ -9,7 +9,8 @@ export type GoodsLookup = (id: number) => { name: string; usable: boolean; limit
 // base.toml: a trailing comment on a [styles] line, and the comment lines right above [personalities.name].
 const KEY = String.raw`("(?:[^"\\]|\\.)*"|[A-Za-z0-9_-]+)`;
 const STYLE_LINE = new RegExp(String.raw`^\s*${KEY}\s*=\s*[^#]*?(?:#\s?(.*))?$`);
-const PERSONALITY_HEADER = new RegExp(String.raw`^\s*\[\s*personalities\s*\.\s*${KEY}\s*\]\s*(?:#.*)?$`);
+// [personalities.name], or [personalities.name.odds] when a personality has nothing but odds.
+const PERSONALITY_HEADER = new RegExp(String.raw`^\s*\[\s*personalities\s*\.\s*${KEY}\s*(?:\.\s*odds\s*)?\]\s*(?:#.*)?$`);
 const TABLE_HEADER = /^\s*\[/;
 
 function keyName(key: string): string {
@@ -29,7 +30,8 @@ export function readDescriptions(text: string): Record<string, string> {
     if (header) {
       const comments: string[] = [];
       for (let above = index - 1; above >= 0 && /^\s*#/.test(lines[above]); above -= 1) comments.unshift(lines[above].replace(/^\s*#\s?/, ''));
-      if (comments.length) descriptions[keyName(header[1])] = oneLine(comments.join(' '));
+      const name = keyName(header[1]);
+      if (comments.length && descriptions[name] === undefined) descriptions[name] = oneLine(comments.join(' '));
     }
     if (TABLE_HEADER.test(line)) { table = line.trim().replace(/\s*#.*$/, ''); return; }
     if (table !== '[styles]') return;
@@ -41,11 +43,14 @@ export function readDescriptions(text: string): Record<string, string> {
 
 function writeDescriptions(text: string, descriptions: Record<string, string>): string {
   let table = '';
+  const written = new Set<string>();
   return text.split('\n').map((line) => {
     const header = PERSONALITY_HEADER.exec(line);
     if (header) {
       table = line.trim();
-      const description = descriptions[keyName(header[1])];
+      const name = keyName(header[1]);
+      const description = written.has(name) ? undefined : descriptions[name];
+      written.add(name);
       return description ? `# ${oneLine(description)}\n${line}` : line;
     }
     if (TABLE_HEADER.test(line)) { table = line.trim(); return line; }
@@ -76,7 +81,8 @@ export type Archetype = {
   name: string;
   kind: 'style' | 'personality';
   description?: string;
-  effect: number;
+  /** A vanilla style's SpEffect. */
+  effect?: number;
   personality?: Personality;
   /** Defined only in base.toml, which the mod loads before this file. */
   inherited: boolean;
@@ -90,57 +96,23 @@ export function archetypes(document: LibraryDocument, base?: LibraryDocument): A
       result.set(name, { name, kind: 'style', effect, description: source.__descriptions?.[name] ?? result.get(name)?.description, inherited });
     }
     for (const [name, personality] of Object.entries(source.personalities ?? {})) {
-      result.set(name, { name, kind: 'personality', effect: personality.effect, personality, description: source.__descriptions?.[name] ?? result.get(name)?.description, inherited });
+      result.set(name, { name, kind: 'personality', personality, description: source.__descriptions?.[name] ?? result.get(name)?.description, inherited });
     }
   }
-  // An inherited personality whose slot this file's personality wins is dropped by the mod.
-  const owners = slotOwners(document, base);
-  return [...result.values()]
-    .filter((archetype) => !(archetype.inherited && archetype.kind === 'personality' && owners.get(archetype.effect) !== archetype.name))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  return [...result.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Where each personality slot goes once the mod merges base.toml and this file, in its name order. */
-export function slotOwners(document: LibraryDocument, base?: LibraryDocument): Map<number, string> {
-  const merged = { ...(base?.personalities ?? {}), ...(document.personalities ?? {}) };
-  const owners = new Map<number, string>();
-  for (const name of Object.keys(merged).sort()) {
-    const { effect } = merged[name];
-    if (!owners.has(effect)) owners.set(effect, name);
-  }
-  return owners;
-}
-
-/** Validates this file's personalities and, given base.toml, how they merge with the shipped ones. */
-function validatePersonalities(document: LibraryDocument, errors: string[], warnings: string[], base?: LibraryDocument): void {
-  const personalities = document.personalities ?? {};
-  const claimed = new Map<string, string>();
-  for (const [name, personality] of Object.entries(personalities)) {
+function validatePersonalities(document: LibraryDocument, errors: string[]): void {
+  for (const [name, personality] of Object.entries(document.personalities ?? {})) {
     const label = `Personality “${name}”`;
     if (!/^[A-Za-z0-9_-]+$/.test(name)) errors.push(`${label}: use only letters, digits, - and _ in the name.`);
     if (document.styles?.[name] !== undefined) errors.push(`${label}: has the name of a style.`);
-    if (!Number.isInteger(personality.effect) || !Number.isInteger(personality.row)) { errors.push(`${label}: choose a personality slot.`); continue; }
-    for (const [key, value] of [[`effect ${personality.effect}`, name], [`row ${personality.row}`, name]]) {
-      const owner = claimed.get(key);
-      if (owner) errors.push(`${label}: shares its ${key.split(' ')[0]} with “${owner}”; every personality needs its own slot.`);
-      else claimed.set(key, value);
-    }
     if (typeof personality.odds !== 'object' || personality.odds === null) errors.push(`${label}: odds are required.`);
     for (const [action, value] of Object.entries(personality.odds ?? {})) {
       if (!ODDS_ACTIONS.includes(action)) errors.push(`${label}: unknown action “${action}”.`);
       if (!isWhole(value, -32768, 32767)) errors.push(`${label}: ${action} must be a whole number from -${ODDS_LIMIT} to ${ODDS_LIMIT}.`);
     }
     for (const effect of personality.suppress ?? []) if (!isWhole(effect, 0, 2147483647)) errors.push(`${label}: suppressed SpEffect IDs must be whole numbers.`);
-  }
-  if (!base?.personalities) return;
-  // Installed beside base.toml, both files' personalities meet; the first by name keeps a shared slot.
-  const owners = slotOwners(document, base);
-  for (const [name, personality] of Object.entries(personalities)) {
-    const owner = owners.get(personality.effect);
-    const rival = Object.entries(base.personalities).find(([other, shipped]) => other !== name && personalities[other] === undefined && shipped.effect === personality.effect)?.[0];
-    if (!rival) continue;
-    if (owner === name) warnings.push(`Personality “${name}” takes base.toml’s “${rival}” slot when installed beside it; “${rival}” is then dropped and Tarnished that use it lose that style.`);
-    else warnings.push(`Personality “${name}” shares its slot with base.toml’s “${rival}”, and the mod keeps “${rival}” (first by name). Name it “${rival}” to replace it, or install this file instead of base.toml.`);
   }
 }
 
@@ -206,15 +178,60 @@ function validateConsumables(list: unknown, owner: string, errors: string[], goo
   });
 }
 
-/** `base` is the mod's base.toml: the file the mod loads first, whose styles and personalities this one can use. */
-export function validateLibrary(document: LibraryDocument, gestureNames: string[] = [], goods?: GoodsLookup, base?: LibraryDocument): ValidationResult {
+export type ValidateOptions = {
+  gestures?: string[];
+  goods?: GoodsLookup;
+  /** The mod's base.toml, loaded before this file: its styles, personalities and templates apply here too. */
+  base?: LibraryDocument;
+  /** Whether an item is from Shadow of the Erdtree, from the item catalog. */
+  isDlcItem?: (kind: ItemKind, id: number) => boolean;
+};
+
+/** The options of a loadout slot: one item or a list of options. */
+export function pickOptions(pick: Pick): ItemChoice[] {
+  return Array.isArray(pick) ? pick : [pick];
+}
+
+function armorSetPieces(choice: ArmorChoice): number[] | undefined {
+  return Array.isArray(choice) ? choice : choice?.set;
+}
+
+/** Every item an entry can equip, for the DLC check. */
+function entryItems(entry: Tarnished): [ItemKind, number][] {
+  const items: [ItemKind, number][] = [];
+  const add = (kind: ItemKind, choices: ItemChoice[] | undefined) => {
+    for (const choice of choices ?? []) {
+      const id = choiceId(choice);
+      if (id >= 0) items.push([kind, id]);
+      if (typeof choice === 'object' && choice.ash !== undefined) items.push(['ash', choice.ash]);
+    }
+  };
+  for (const gear of entry.gear ?? []) {
+    for (const field of GEAR_FIELDS) add(field.kind, ((gear[field.key as keyof Loadout] as Pick[] | undefined) ?? []).flatMap(pickOptions));
+    for (const set of gear.armor_sets ?? []) add('armor', armorSetPieces(set));
+  }
+  if (entry.pool) {
+    for (const field of POOL_FIELDS) {
+      const values = entry.pool[field.key as keyof EquipmentPool] as unknown[] | undefined;
+      if (field.key === 'armor') for (const set of (values ?? []) as ArmorChoice[]) add('armor', armorSetPieces(set));
+      else add(field.kind, values as ItemChoice[] | undefined);
+    }
+  }
+  return items;
+}
+
+export function validateLibrary(document: LibraryDocument, options: ValidateOptions = {}): ValidationResult {
+  const { gestures: gestureNames = [], goods, base, isDlcItem } = options;
   const errors: string[] = [];
   const warnings: string[] = [];
   const entries = document.tarnished ?? [];
   const ids = new Set<string>();
   const validGestures = new Set(gestureNames);
   const knownStyles = new Set(archetypes(document, base).map((archetype) => archetype.name));
-  validatePersonalities(document, errors, warnings, base);
+  // Each Ash of War in a loadout borrows one custom weapon row; the mod allows as many as the smallest template has.
+  const templates = { ...(base?.templates ?? {}), ...(document.templates ?? {}) } as Record<string, { custom_weapons?: unknown[] }>;
+  const customRows = Object.values(templates).length ? Math.min(...Object.values(templates).map((template) => template?.custom_weapons?.length ?? 0)) : undefined;
+  validatePersonalities(document, errors);
 
   entries.forEach((entry, index) => {
     const label = entry.name?.trim() || `Entry ${index + 1}`;
@@ -226,6 +243,9 @@ export function validateLibrary(document: LibraryDocument, gestureNames: string[
     const classes = Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : [];
     if (!classes.length || classes.some((value) => !CLASSES.includes(value))) errors.push(`${label}: choose at least one valid starting class.`);
     if (entry.roles && (!entry.roles.length || entry.roles.some((value) => !ROLES.includes(value)))) errors.push(`${label}: select at least one valid role.`);
+    for (const title of entry.titles ?? []) {
+      if ((title.match(/\{name\}/g) ?? []).length > 1) errors.push(`${label}: title “${title}” uses {name} more than once.`);
+    }
     for (const field of ['greetings', 'victories'] as const) {
       for (const gesture of entry[field] ?? []) {
         if (validGestures.size && !validGestures.has(gesture)) errors.push(`${label}: unknown ${field} gesture “${gesture}”.`);
@@ -245,17 +265,35 @@ export function validateLibrary(document: LibraryDocument, gestureNames: string[
       }
     }
     if (entry.consumables !== undefined) validateConsumables(entry.consumables, `${label} / consumable`, errors, goods);
+    if (entry.consumable_kinds !== undefined && !isWhole(entry.consumable_kinds, 0, 10)) errors.push(`${label}: different consumables must be from 0 to 10.`);
     const hasGear = Array.isArray(entry.gear) && entry.gear.length > 0;
     const hasPool = Boolean(entry.pool);
     if (hasGear === hasPool) errors.push(`${label}: use either level loadouts or one random pool.`);
     entry.gear?.forEach((gear, gearIndex) => {
-      if (!isWhole(gear.level, 0, 4294967295)) errors.push(`${label} / loadout ${gearIndex + 1}: level is required.`);
+      const where = `${label} / loadout ${gearIndex + 1} (level ${gear.level})`;
+      if (!isWhole(gear.level, 0, 4294967295)) errors.push(`${where}: level is required.`);
+      if (gear.weight !== undefined && !isWhole(gear.weight, 0, 4294967295)) errors.push(`${where}: variant weight must be zero or higher.`);
       for (const field of GEAR_FIELDS) {
-        const values = gear[field.key as keyof typeof gear];
-        if (!Array.isArray(values)) continue;
-        if (field.limit && values.length > field.limit) errors.push(`${label} / loadout ${gearIndex + 1}: ${field.label} allows at most ${field.limit}.`);
-        values.forEach((choice, choiceIndex) => validateChoice(choice, `${label} / ${field.label} ${choiceIndex + 1}`, errors, field.key === 'armor'));
+        const slots = gear[field.key as keyof Loadout];
+        if (!Array.isArray(slots)) continue;
+        if (field.limit && slots.length > field.limit) errors.push(`${where}: ${field.label} allows at most ${field.limit} slots.`);
+        (slots as Pick[]).forEach((pick, slotIndex) => {
+          if (Array.isArray(pick) && !pick.length) errors.push(`${where}: ${field.label} slot ${slotIndex + 1} has an empty list of options.`);
+          pickOptions(pick).forEach((choice) => validateChoice(choice, `${where} / ${field.label} ${slotIndex + 1}`, errors, field.key === 'armor' || field.key === 'left'));
+        });
       }
+      if (gear.armor?.length && gear.armor_sets?.length) errors.push(`${where}: uses both armor pieces and armor sets; pick one.`);
+      gear.armor_sets?.forEach((choice, setIndex) => {
+        const set = armorSetPieces(choice);
+        if (!Array.isArray(set) || set.length !== 4) errors.push(`${where} / armor set ${setIndex + 1}: choose head, chest, arms and legs.`);
+        else set.forEach((piece) => validateChoice(piece, `${where} / armor set ${setIndex + 1}`, errors, true));
+      });
+      for (const ammo of ['arrows', 'bolts'] as const) {
+        const value = gear[ammo];
+        if (value !== undefined && (!Array.isArray(value) || value.length !== 2 || !isWhole(value[0], 0, 2147483647) || !isWhole(value[1], 1, 99))) errors.push(`${where}: ${ammo} needs an item and a count from 1 to 99.`);
+      }
+      const ashes = [...(gear.right ?? []), ...(gear.left ?? [])].filter((pick) => pickOptions(pick).some((choice) => typeof choice === 'object' && choice.ash !== undefined)).length;
+      if (customRows !== undefined && ashes > customRows) errors.push(`${where}: uses ${ashes} Ashes of War but the templates borrow only ${customRows} custom weapon rows.`);
     });
     if (entry.pool) {
       if (!entry.pool.right?.length) errors.push(`${label} / pool: add at least one right-hand weapon.`);
@@ -265,12 +303,16 @@ export function validateLibrary(document: LibraryDocument, gestureNames: string[
         if (!Array.isArray(values)) continue;
         if (field.key === 'armor') {
           values.forEach((choice, choiceIndex) => {
-            const set = Array.isArray(choice) ? choice : (choice as { set?: number[] }).set;
+            const set = armorSetPieces(choice as ArmorChoice);
             if (!Array.isArray(set) || set.length !== 4) errors.push(`${label} / armor set ${choiceIndex + 1}: choose head, chest, arms and legs.`);
             else set.forEach((piece, pieceIndex) => validateChoice(piece, `${label} / armor set ${choiceIndex + 1}.${pieceIndex + 1}`, errors, true));
           });
         } else values.forEach((choice, choiceIndex) => validateChoice(choice, `${label} / ${field.label} ${choiceIndex + 1}`, errors, ['left', 'catalysts'].includes(field.key)));
       }
+    }
+    if (isDlcItem && !entry.dlc) {
+      const dlcItems = entryItems(entry).filter(([kind, id]) => isDlcItem(kind, id));
+      if (dlcItems.length) warnings.push(`${label}: uses ${dlcItems.length} Shadow of the Erdtree item${dlcItems.length === 1 ? '' : 's'}; turn on “Uses Shadow of the Erdtree” so it is left out for players without the DLC.`);
     }
   });
 

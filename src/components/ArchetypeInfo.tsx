@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { Popover, Select, Space, Tag, Typography } from 'antd';
-import { PERSONALITY_SLOTS } from '../constants';
 import type { Archetype } from '../library';
 
 export function kindLabel(archetype: Archetype): string {
@@ -9,9 +8,8 @@ export function kindLabel(archetype: Archetype): string {
 
 export function archetypeDetail(archetype: Archetype): string {
   if (archetype.kind === 'style') return `NPC personality SpEffect ${archetype.effect}`;
-  const slot = PERSONALITY_SLOTS.findIndex((candidate) => candidate.effect === archetype.effect);
   const changed = Object.keys(archetype.personality?.odds ?? {}).length;
-  return `${slot >= 0 ? `Slot ${slot + 1}` : `SpEffect ${archetype.effect}`} · ${changed} action${changed === 1 ? '' : 's'} changed`;
+  return `${changed} action${changed === 1 ? '' : 's'} changed`;
 }
 
 export function ArchetypeSummary({ archetype }: { archetype: Archetype }) {

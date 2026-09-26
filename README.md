@@ -4,14 +4,14 @@ A browser-based editor for creating Wayward Tarnished enemy libraries. It runs e
 
 ## What it edits
 
-- Fixed Tarnished builds with level-based equipment loadouts.
+- Fixed Tarnished builds with level loadouts. Every slot holds one item or a weighted list of options (one is picked per Tarnished); armor is picked per piece or as whole sets; loadouts that share a level are weighted variants; arrows and bolts.
 - Strength-style random class pools, grouped into weapons, catalysts, complete armor presets, talismans, spells and Ashes of War.
 - Per-choice minimum level and selection weight (defaults: level 1, weight 10, as in the mod).
-- Consumables: the shared pool and how many different ones each Tarnished carries, plus per-entry **Use shared pool**, **Carry none** and **Own list** states. Only goods the player-like AI can use (`EquipParamGoods.aiUseJudgeId`) are offered, with counts capped at the stack size.
-- Item pickers with game icons for weapons, armor, talismans, spells, Ashes of War and consumables. Ashes of War are grouped by whether they fit the chosen weapon and affinity; affinity and upgrade limits follow the weapon.
-- Starting classes, roles, level range, selection weight, attribute growth and runtime flags.
+- Consumables: the shared pool and how many different ones each Tarnished carries (shared or per entry), plus per-entry **Use shared pool**, **Carry none** and **Own list** states. Only goods the player-like AI can use (`EquipParamGoods.aiUseJudgeId`) are offered, with counts capped at the stack size.
+- Item pickers with game icons for weapons, armor, talismans, spells, Ashes of War, ammunition and consumables. Ashes of War are grouped by whether they fit the chosen weapon and affinity; affinity and upgrade limits follow the weapon.
+- Starting classes, roles, level range, selection weight, attribute growth, PvP damage and the Shadow of the Erdtree flag (validation warns when an entry uses DLC items without it).
 - Names and title patterns.
-- AI personalities: each Tarnished's styles, the library of vanilla styles (a named NPC invader's personality SpEffect) and custom personalities (per-action odds written into one of the mod's five personality slots). Every style and personality has a description, shown on hover; descriptions are saved as TOML comments, since the mod rejects unknown keys. Replacing a personality in a slot moves the Tarnished that used it to the new one, and validation warns when a personality would compete with `base.toml` for a slot.
+- AI personalities: each Tarnished's styles, the library of vanilla styles (a named NPC invader's personality SpEffect) and any number of custom personalities (up to five different ones are in play at once). The personality editor explains every action and how its number is used: main actions are weighted choices, reactions share a 1–100 roll, and chances are percentages. Every style and personality has a description, shown on hover; descriptions are saved as TOML comments, since the mod rejects unknown keys.
 - Greeting and victory gestures with explicit **Inherit shared**, **Never** and **Custom selection** states.
 - Shared names and gesture pools.
 - Complete TOML source for templates, faces, custom attributes and future format fields.

@@ -15,6 +15,8 @@ type Props = {
   armorSet?: boolean;
   allowEmpty?: boolean;
   catalystOnly?: boolean;
+  /** Only armor for this slot (head, chest, arms, legs). */
+  armorSlot?: string;
   title: string;
   onCancel: () => void;
   onSave: (value: ItemChoice | ArmorChoice) => void;
@@ -75,7 +77,7 @@ function AshField({ catalog, weapon, affinity, value, onChange }: AshFieldProps)
 }
 
 export function ItemChoiceModal(props: Props) {
-  const { open, catalog, kind, pool, armorSet, allowEmpty, catalystOnly, title, onCancel, onSave } = props;
+  const { open, catalog, kind, pool, armorSet, allowEmpty, catalystOnly, armorSlot, title, onCancel, onSave } = props;
   const [id, setId] = useState(0);
   const [pieces, setPieces] = useState([-1, -1, -1, -1]);
   const [level, setLevel] = useState(DEFAULT_LEVEL);
@@ -142,7 +144,7 @@ export function ItemChoiceModal(props: Props) {
           </>
         ) : (
           <>
-            <ItemField catalog={catalog} kind={kind} value={id} label="Item" allowEmpty={allowEmpty} catalystOnly={catalystOnly} onChange={setId} />
+            <ItemField catalog={catalog} kind={kind} value={id} label="Item" allowEmpty={allowEmpty} catalystOnly={catalystOnly} slot={armorSlot} onChange={setId} />
             {kind === 'weapon' && id >= 0 && (
               <>
                 <div className="two-column-fields">

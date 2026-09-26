@@ -59,18 +59,14 @@ unyielding = 20018672 # Leda: never rolls, guard counters, skills at every range
 redmane = 20018673   # Freyja: guards projectiles, punishes guard breaks, skills; no spells, no rolls
 knight = 20018675    # Ansbach: guard counters, stands firm, sometimes two-hands
 
-# Personalities written by the mod into personality slots no vanilla NPC, event or param uses
-# (a permanent SpEffect and the NpcAiBehaviorProbability row the AI adds for it). odds are added to
-# the game's situational odds, which are mostly 10-100; -9999 rules an action out, 9999 forces it.
-# Action names are listed in docs/LIBRARY.md. Free slots: 5023/15023, 20018663/15103,
-# 20018707/15140, 20018708/15141, 20018711/15144. suppress: SpEffects removed from the Tarnished
-# while it lives.
+# Personalities written by the mod into the player-like AI's spare personality slots (a permanent
+# SpEffect and the NpcAiBehaviorProbability row the AI adds for it). There are five slots; a slot is
+# given to a personality when a Tarnished with it spawns, so any number can be defined and up to five
+# different ones can be in play at once. odds are added to the game's situational odds, which are
+# mostly 10-100; -9999 rules an action out, 9999 forces it. Action names are listed in
+# docs/LIBRARY.md. suppress: SpEffects removed from the Tarnished while it lives.
 
 # Waits for your attack, parries it with a parrying shield and ripostes.
-[personalities.parrier]
-effect = 5023
-row = 15023
-
 [personalities.parrier.odds]
 parry = 600
 parry_window_forward_roll = -9999
@@ -105,8 +101,6 @@ guard_while_moving = 40
 
 # Walks up and uses a buffing skill (Seppuku) again and again, never attacking or dodging.
 [personalities.sacrificial]
-effect = 20018663
-row = 15103
 suppress = [1755] # Seppuku's weapon buff: while it lasts the AI does not use the skill again
 
 [personalities.sacrificial.odds]
@@ -205,10 +199,6 @@ buff_item = -9999
 pot_combo = -9999
 
 # Charges in and keeps swinging: no backing off, no waiting, trades blows when hit.
-[personalities.berserker]
-effect = 20018707
-row = 15140
-
 [personalities.berserker.odds]
 r1_combo = 40
 r2_combo = 40
@@ -237,10 +227,6 @@ two_hand_r2_chance = 60
 healing_item = -600
 
 # Turtles behind a shield: guards while moving, guard counters and shield pokes, rarely rolls.
-[personalities.sentinel]
-effect = 20018708
-row = 15141
-
 [personalities.sentinel.odds]
 guard_while_moving = 300
 blocked_steady = 80
@@ -274,10 +260,6 @@ two_hand_r1_chance = -9999
 two_hand_r2_chance = -9999
 
 # Plays like an online Ash of War enthusiast: skills at every range, skill dodges.
-[personalities.showoff]
-effect = 20018711
-row = 15144
-
 [personalities.showoff.odds]
 art_near = 150
 art_mid = 150
@@ -286,6 +268,64 @@ rolling_art_chance = 80
 threat_evasive_art = 80
 r1_combo = -10
 jump_attack = 10
+
+# Keeps its distance and works through its bag: throws perfumes and pots, buffs itself, strafes.
+[personalities.perfumer.odds]
+throw_item = 400
+buff_item = 250
+pot_combo = 150
+strafe = 40
+retreat = 30
+approach = -30
+dash_in = -40
+projectile_side_roll = 40
+threat_back_roll = 40
+
+# Charges in two-handed and leaps: jump attacks, heavy swings, war cries, never backs off.
+[personalities.raider.odds]
+two_hand_right = 150
+two_hand_r1_chance = 60
+two_hand_r2_chance = 70
+jump_attack = 120
+dash_jump_attack = 80
+r2_combo = 60
+dash_attack = 60
+dash_in = 60
+art_buff = 60
+art_near = 40
+hit_r1_combo = 60
+retreat = -9999
+backstep = -9999
+back_roll = -9999
+wait = -9999
+
+# Fights with fire from mid range, throws pots, closes in with the flail when you are near.
+[personalities.pyromancer.odds]
+mid_spell_strafing = 150
+mid_spell_advancing = 80
+far_spell_strafing = 120
+near_spell_retreating = 60
+buff_spell = 80
+left_mid_spell_strafing = 150
+left_far_spell_strafing = 120
+left_buff_spell = 80
+throw_item = 120
+strafe = 30
+
+# A crucible knight: guards while advancing, answers blocked hits, and uses the Aspects of the
+# Crucible up close.
+[personalities.crucible.odds]
+guard_while_moving = 150
+guard_counter = 120
+blocked_steady = 60
+near_spell_advancing = 120
+left_near_spell_advancing = 120
+buff_spell = 60
+left_buff_spell = 60
+shield_poke = 40
+threat_guard = 60
+hit_guard_forward = 40
+r1_combo = 30
 
 # Consumables: goods the player-like AI uses from its item slots, on top of the template's flask.
 # It can use any goods with an AI usage (EquipParamGoods.aiUseJudgeId): pots, knives, darts and
@@ -353,30 +393,30 @@ growth = { vigor = 4, mind = 1, endurance = 2, strength = 5, dexterity = 1 }
 
 [[tarnished.gear]]
 level = 1
-right = [{ id = 2000100, ash = 10000 }]
-left = [31330000]
-armor = [660000, 660100, 660200, 660300]
+right = [[{ id = 2000100, ash = 10000 }, { id = 2020100, ash = 10000 }, { id = 2040100, ash = 10000 }, { id = 11000100, ash = 10000, weight = 5 }]]
+left = [[31330000, 31000000, 31290000, 31070000]]
+armor_sets = [[660000, 660100, 660200, 660300], [40000, 40100, 40200, 40300], { set = [1830000, 1830100, 1830200, 1830300], weight = 5 }]
 
 [[tarnished.gear]]
 level = 25
-right = [{ id = 2020100, ash = 10000 }]
-left = [31330000]
-armor = [660000, 660100, 660200, 660300]
-talismans = [1000]
+right = [[{ id = 2020100, ash = 10000 }, { id = 2000100, ash = 10000 }, { id = 11050100, ash = 10000 }, { id = 3030100, ash = 10000, weight = 5 }]]
+left = [[31330000, 31000000, 31300000]]
+armor_sets = [[660000, 660100, 660200, 660300], [1700000, 1700100, 1700200, 1700300], [50000, 50100, 50200, 50300]]
+talismans = [[1000, 1150]]
 
 [[tarnished.gear]]
 level = 60
-right = [{ id = 3180100, ash = 10000 }]
-left = [31130000]
-armor = [1500000, 1500100, 1500200, 1500300]
-talismans = [1000, 1150]
+right = [[{ id = 3180100, ash = 10000 }, { id = 3040100, ash = 10000 }, { id = 3000100, ash = 10000 }, { id = 3030100, ash = 10000 }]]
+left = [[31130000, 31000000, 31290000]]
+armor_sets = [[1500000, 1500100, 1500200, 1500300], [1770000, 1770100, 1770200, 1770300], [1800000, 1800100, 1800200, 1800300]]
+talismans = [1000, [1150, 2180, 4000]]
 
 [[tarnished.gear]]
 level = 110
-right = [{ id = 3080100, ash = 10000 }]
-left = [31130000]
-armor = [780000, 780100, 780200, 780300]
-talismans = [1040, 1231, 1032, 2180]
+right = [[{ id = 3080100, ash = 10000 }, { id = 4040100, ash = 10000 }, { id = 3190100, ash = 10000 }, { id = 3040100, ash = 10000 }]]
+left = [[31130000, 31030000]]
+armor_sets = [[780000, 780100, 780200, 780300], [200000, 200100, 200200, 200300], [280000, 280100, 280200, 280300], [1790000, 1790100, 1790200, 1790300]]
+talismans = [1040, 1231, [1032, 1030], [2180, 4000]]
 
 [[tarnished]]
 id = "keen-duelist"
@@ -389,27 +429,27 @@ growth = { vigor = 4, mind = 1, endurance = 2, strength = 1, dexterity = 5 }
 
 [[tarnished.gear]]
 level = 1
-right = [{ id = 9000200, ash = 11400 }]
-left = [30070000]
-armor = [870000, 871100, 870200, 870300]
+right = [[{ id = 9000200, ash = 11400 }, { id = 7140200, ash = 11200 }, { id = 1100200, ash = 80000 }]]
+left = [[30070000, -1, 30000000]]
+armor_sets = [[870000, 871100, 870200, 870300], [150000, 150100, 150200, 150300], [1400000, 1400100, 1400200, 1400300]]
 
 [[tarnished.gear]]
 level = 30
-right = [{ id = 9000200, ash = 11400 }]
-armor = [150000, 150100, 150200, 150300]
-talismans = [1150]
+right = [[{ id = 9000200, ash = 11400 }, { id = 9010200, ash = 11400 }, 9080000]]
+armor_sets = [[150000, 150100, 150200, 150300], [870000, 870100, 870200, 870300], [180000, 180100, 180200, 180300]]
+talismans = [[1150, 2180]]
 
 [[tarnished.gear]]
 level = 60
-right = [{ id = 9010200, ash = 11400 }]
-armor = [180000, 180100, 180200, 180300]
-talismans = [1150, 2180]
+right = [[{ id = 9010200, ash = 11400 }, { id = 9000200, ash = 11400 }, 9060000, 9080000]]
+armor_sets = [[180000, 180100, 180200, 180300], [870000, 870100, 870200, 870300], [650000, 650100, 650200, 650300]]
+talismans = [[1150, 2080], [2180, 2080]]
 
 [[tarnished.gear]]
 level = 120
-right = [9020000]
-armor = [180000, 180100, 180200, 180300]
-talismans = [1250, 2081, 1150, 1231]
+right = [[9020000, 9060000, { id = 9010200, ash = 11400 }]]
+armor_sets = [[180000, 180100, 180200, 180300], [770000, 770100, 770200, 770300], [650000, 650100, 650200, 650300], [600000, 600100, 600200, 600300]]
+talismans = [[1250, 2081], [2081, 2080], 1150, 1231]
 
 [[tarnished]]
 id = "carian-spellblade"
@@ -424,42 +464,42 @@ consumables = [{ id = 1420, count = 2 }, { id = 3050, count = 3, level = 10 }, {
 
 [[tarnished.gear]]
 level = 1
-right = [5000000]
-left = [33000000]
-armor = [890000, 890100, -1, 890300]
-spells = [4390, 4000]
+right = [[5000000, 2050000, 2230000]]
+left = [[33000000, 33060000]]
+armor_sets = [[890000, 890100, -1, 890300], [220000, 220100, -1, 220300]]
+spells = [4000, [4390, 4070]]
 
 [[tarnished.gear]]
 level = 20
-right = [2180000]
-left = [33250000]
-armor = [130000, 130100, 130200, 130300]
-talismans = [1010]
-spells = [4000, 4440]
+right = [[2180000, 2190000, 2150000]]
+left = [[33250000, 33210000]]
+armor_sets = [[130000, 130100, 130200, 130300], [990000, 990100, 990200, 990300], [1000000, 1000100, 1000200, 1000300]]
+talismans = [[1010, 2000]]
+spells = [4000, [4440, 4300]]
 
 [[tarnished.gear]]
 level = 60
-right = [2180000]
-left = [33200000]
-armor = [980000, 980100, 980200, 980300]
-talismans = [2000, 1150]
+right = [[2180000, 9030000, 2150000]]
+left = [[33200000, 33210000]]
+armor_sets = [[980000, 980100, 980200, 980300], [1000000, 1000100, 1000200, 1000300], [1710000, 1710100, 1710200, 1710300]]
+talismans = [[2000, 3000], 1150]
 spells = [4000, 4430, 4300, 4440]
 
 [[tarnished.gear]]
 level = 110
-right = [3090000]
-left = [33200000]
-armor = [980000, 980100, 980200, 980300]
-talismans = [3000, 2000, 1150, 1231]
+right = [[3090000, 9060000, 2140000]]
+left = [[33200000, 33040000]]
+armor_sets = [[980000, 980100, 980200, 980300], [990000, 990100, 990200, 990300]]
+talismans = [[3000, 3080], 2000, 1150, 1231]
 spells = [4431, 4440, 4300, 4430]
 
 [[tarnished.gear]]
 level = 150
-right = [3090000]
-left = [33090000]
-armor = [980000, 980100, 980200, 980300]
-talismans = [3000, 2000, 1150, 1231]
-spells = [4431, 4440, 4300, 4021]
+right = [[3090000, 9060000, 2140000]]
+left = [[33090000, 33230000]]
+armor_sets = [[980000, 980100, 980200, 980300], [990000, 990100, 990200, 990300]]
+talismans = [[3000, 3080], 2000, 1150, 1231]
+spells = [4431, 4440, 4300, [4021, 4450]]
 
 [[tarnished]]
 id = "golden-oathbound"
@@ -475,42 +515,42 @@ consumables = [{ id = 350, count = 3 }, { id = 820, count = 2 }, { id = 1430, co
 
 [[tarnished.gear]]
 level = 1
-right = [11000700]
+right = [[11000700, 2000700, 16000700]]
 left = [34000000]
-armor = [880000, 880100, 880200, 880300]
-spells = [6421, 6000]
+armor_sets = [[880000, 880100, 880200, 880300], [1720000, 1720100, 1720200, 1720300]]
+spells = [6000, [6400, 6010]]
 
 [[tarnished.gear]]
 level = 25
-right = [11000700]
+right = [[11000700, 2020700, 11050700]]
 left = [34000000]
-armor = [1770000, 1770100, 1770200, 1770300]
+armor_sets = [[1770000, 1770100, 1770200, 1770300], [1700000, 1700100, 1700200, 1700300], [880000, 880100, 880200, 880300]]
 talismans = [2030]
-spells = [6421, 6000, 6050]
+spells = [6000, 6050, [6400, 6010]]
 
 [[tarnished.gear]]
 level = 60
-right = [{ id = 3180700, ash = 20100 }]
+right = [[{ id = 3180700, ash = 20100 }, { id = 3040700, ash = 20100 }, { id = 2020700, ash = 20100 }]]
 left = [34000000]
-armor = [1770000, 1770100, 1770200, 1770300]
-talismans = [2030, 1150]
-spells = [6421, 6600, 6050]
+armor_sets = [[1770000, 1770100, 1770200, 1770300], [1790000, 1790100, 1790200, 1790300], [280000, 280100, 280200, 280300]]
+talismans = [2030, [1150, 3070]]
+spells = [6600, 6050, [6400, 6410]]
 
 [[tarnished.gear]]
 level = 110
-right = [18080000]
+right = [[18080000, 3060000, { id = 3180700, ash = 20100 }]]
 left = [34070000]
-armor = [1790000, 1790100, 1790200, 1790300]
+armor_sets = [[1790000, 1790100, 1790200, 1790300], [270000, 270100, 270200, 270300]]
 talismans = [3070, 2030, 1040, 1231]
-spells = [6421, 6600, 6050, 6430]
+spells = [6600, 6050, 6410, [6060, 6400]]
 
 [[tarnished.gear]]
 level = 150
-right = [3140000]
+right = [[3140000, 18080000, 3060000]]
 left = [34070000]
-armor = [1790000, 1790100, 1790200, 1790300]
+armor_sets = [[1790000, 1790100, 1790200, 1790300], [270000, 270100, 270200, 270300], [460000, 460100, 460200, 460300]]
 talismans = [3070, 2030, 1040, 1231]
-spells = [6210, 6600, 6424, 6430]
+spells = [6210, 6600, 6410, [6060, 6050]]
 
 [[tarnished]]
 id = "primeval-sorcerer"
@@ -525,42 +565,42 @@ consumables = [{ id = 660, count = 3 }, { id = 3050, count = 4 }, { id = 1740, c
 
 [[tarnished.gear]]
 level = 1
-right = [2010000]
-left = [33130000]
-armor = [630000, 630100, 630200, 630300]
-spells = [4000, 4070]
+right = [[2010000, 1000000, 1070000]]
+left = [[33130000, 33000000]]
+armor_sets = [[630000, 630100, 630200, 630300], [430000, 430100, -1, 430300]]
+spells = [4000, [4070, 4030]]
 
 [[tarnished.gear]]
 level = 20
-right = [5020000]
-left = [33250000]
-armor = [830000, 830100, 830200, 830300]
+right = [[5020000, 1070000, 1050000]]
+left = [[33250000, 33060000]]
+armor_sets = [[830000, 830100, 830200, 830300], [1010000, 1010100, -1, 1010300], [900000, 900100, 900200, 900300]]
 talismans = [1010]
-spells = [4000, 4001, 4070]
+spells = [4000, 4001, [4070, 4710]]
 
 [[tarnished.gear]]
 level = 60
-right = [5020000]
-left = [33200000]
-armor = [581000, 581100, 581200, 830300]
-talismans = [2000, 1010]
-spells = [4710, 4440, 4001, 4060]
+right = [[5020000, 7070000]]
+left = [[33200000, 33210000]]
+armor_sets = [[581000, 581100, 581200, 830300], [990000, 990100, 990200, 990300], [1000000, 1000100, 1000200, 1000300]]
+talismans = [[2000, 3000], 1010]
+spells = [4710, 4440, 4001, [4060, 4600]]
 
 [[tarnished.gear]]
 level = 110
-right = [5000000]
-left = [33240000]
-armor = [580000, 580100, 580200, 580300]
+right = [[5000000, 7070000]]
+left = [[33240000, 33040000]]
+armor_sets = [[580000, 580100, 580200, 580300], [581000, 581100, 581200, 830300]]
 talismans = [3000, 2000, 1010, 1231]
-spells = [4220, 4710, 4440, 4060]
+spells = [4220, 4710, 4440, [4060, 4600]]
 
 [[tarnished.gear]]
 level = 150
-right = [5000000]
-left = [33240000]
-armor = [580000, 580100, 580200, 580300]
+right = [[5000000, 7070000]]
+left = [[33240000, 33230000]]
+armor_sets = [[580000, 580100, 580200, 580300], [581000, 581100, 581200, 830300]]
 talismans = [3000, 2000, 1010, 1231]
-spells = [4200, 4220, 4710, 4440]
+spells = [4200, 4220, 4710, [4440, 4060]]
 
 [[tarnished]]
 id = "colossal-wanderer"
@@ -573,27 +613,27 @@ growth = { vigor = 4, mind = 1, endurance = 3, strength = 6 }
 
 [[tarnished.gear]]
 level = 1
-right = [{ id = 14000100, ash = 10000 }]
-left = [31230000]
-armor = [730000, 730100, 730200, 730300]
+right = [[{ id = 14000100, ash = 10000 }, { id = 12000100, ash = 50600 }, { id = 15010100, ash = 10000 }]]
+left = [[31230000, 31270000, -1]]
+armor_sets = [[730000, 730100, 730200, 730300], [610000, 610100, 610200, 610300], [810000, 810100, -1, 810300]]
 
 [[tarnished.gear]]
 level = 20
-right = [{ id = 4040100, ash = 10000 }]
-armor = [730000, 730100, 730200, 730300]
+right = [[{ id = 4040100, ash = 10000 }, { id = 12000100, ash = 50600 }, { id = 3000100, ash = 10000 }]]
+armor_sets = [[730000, 730100, 730200, 730300], [1100000, 1100100, 1100200, 1100300], [1830000, 1830100, 1830200, 1830300]]
 talismans = [1210]
 
 [[tarnished.gear]]
 level = 60
-right = [{ id = 15000100, ash = 10000 }]
-armor = [190000, 190100, 190200, 190300]
+right = [[{ id = 15000100, ash = 10000 }, { id = 12060100, ash = 50600 }, { id = 23040100, ash = 50600 }]]
+armor_sets = [[190000, 190100, 190200, 190300], [140000, 140100, 140200, 140300], [720000, 720100, 720200, 720300]]
 talismans = [1210, 1032]
 
 [[tarnished.gear]]
 level = 120
-right = [{ id = 23110000, ash = 50600 }]
-armor = [200000, 200100, 200200, 200300]
-talismans = [1210, 1032, 1040, 2070]
+right = [[{ id = 23110000, ash = 50600 }, 23020000, { id = 4000100, ash = 10000 }, { id = 23150100, ash = 50600 }]]
+armor_sets = [[200000, 200100, 200200, 200300], [140000, 140100, 140200, 140300], [640000, 640100, 640200, 640300]]
+talismans = [1210, 1032, 1040, [2070, 2130]]
 
 [[tarnished]]
 id = "blood-reaver"
@@ -609,29 +649,29 @@ consumables = [{ id = 1700, count = 8 }, { id = 1730, count = 5 }, { id = 1440, 
 
 [[tarnished.gear]]
 level = 1
-right = [1040000]
-left = [30000000]
-armor = [1401000, 931100, 930200, 930300]
+right = [[1040000, 1140000, { id = 7141100, ash = 20400 }]]
+left = [[30000000, -1]]
+armor = [[1401000, 930000], [931100, 930100], 930200, 930300]
 
 [[tarnished.gear]]
 level = 25
-right = [{ id = 9001100, ash = 20400 }]
-armor = [680000, 680100, 680200, 680300]
-talismans = [1000]
+right = [[{ id = 9001100, ash = 20400 }, { id = 7141100, ash = 20400 }, 22021100]]
+armor_sets = [[680000, 680100, 680200, 680300], [320000, 320100, -1, 320300], [930000, 930100, 930200, 930300]]
+talismans = [[1000, 2160]]
 
 [[tarnished.gear]]
 level = 60
-right = [8030000]
-left = [1040000]
-armor = [790000, 790100, 790200, 790300]
+right = [[8030000, { id = 9001100, ash = 20400 }, 22021100]]
+left = [[1040000, 1140000]]
+armor_sets = [[790000, 790100, 790200, 790300], [320000, 320100, -1, 320300], [680000, 680100, 680200, 680300]]
 talismans = [2160, 1150]
 
 [[tarnished.gear]]
 level = 110
-right = [9040000]
-left = [1040000]
-armor = [790000, 790100, 790200, 790300]
-talismans = [2160, 2081, 1250, 1231]
+right = [[9040000, 8030000]]
+left = [[1040000, 1140000]]
+armor_sets = [[790000, 790100, 790200, 790300], [320000, 320100, -1, 320300]]
+talismans = [2160, [2081, 1250], 1231, [1250, 1150]]
 
 [[tarnished]]
 id = "dragon-cultist"
@@ -645,34 +685,34 @@ consumables = [{ id = 300, count = 3 }, { id = 320, count = 3 }, { id = 1410, co
 
 [[tarnished.gear]]
 level = 1
-right = [16000600]
+right = [[16000600, 16010600, 2000600]]
 left = [34000000]
-armor = [60000, 60100, 60200, 60300]
-spells = [6420]
+armor_sets = [[60000, 60100, 60200, 60300], [1100000, 1100100, 1100200, 1100300]]
+spells = [[6900, 6000]]
 
 [[tarnished.gear]]
 level = 15
-right = [16010600]
+right = [[16010600, 16000600, 18020600]]
 left = [34000000]
-armor = [60000, 60100, 60200, 60300]
+armor_sets = [[60000, 60100, 60200, 60300], [1720000, 1720100, 1720200, 1720300]]
 talismans = [2010]
 spells = [6900]
 
 [[tarnished.gear]]
 level = 70
-right = [18140000]
+right = [[18140000, 18000600, 16070600]]
 left = [34080000]
-armor = [60000, 60100, 60200, 60300]
+armor_sets = [[60000, 60100, 60200, 60300], [80000, 80100, 80200, 80300], [950000, 950100, 950200, 950300]]
 talismans = [2010, 1150]
-spells = [6900, 6930, 6971]
+spells = [6900, 6930, 6971, [6920, 6921]]
 
 [[tarnished.gear]]
 level = 110
-right = [17050000]
+right = [[17050000, 18140000]]
 left = [34080000]
-armor = [950000, 950100, 950200, 950300]
+armor_sets = [[950000, 950100, 950200, 950300], [60000, 60100, 60200, 60300]]
 talismans = [2010, 1040, 3070, 1231]
-spells = [6900, 6930, 6971]
+spells = [6900, 6930, 6971, [6921, 6920]]
 
 [[tarnished]]
 id = "night-heretic"
@@ -686,34 +726,34 @@ consumables = [{ id = 300, count = 3 }, { id = 1720, count = 6 }, { id = 1400, c
 
 [[tarnished.gear]]
 level = 1
-right = [16000500]
+right = [[16000500, 10000500, 7140500]]
 left = [34000000]
-armor = [620000, 622100, -1, 620300]
-spells = [6000, 6421]
+armor_sets = [[620000, 622100, -1, 620300], [290000, 290100, 290200, 290300]]
+spells = [6000, [6010, 6220]]
 
 [[tarnished.gear]]
 level = 20
-right = [10000500]
+right = [[10000500, 10030500, 10080500]]
 left = [34000000]
-armor = [290000, 290100, 290200, 290300]
+armor_sets = [[290000, 290100, 290200, 290300], [530000, 530100, 530200, 530300]]
 talismans = [2120]
-spells = [6000]
+spells = [6000, [6010, 6220]]
 
 [[tarnished.gear]]
 level = 70
-right = [10010000]
+right = [[10010000, 10030500, 10080500]]
 left = [34000000]
-armor = [520000, 520100, 520200, 520300]
+armor_sets = [[520000, 520100, 520200, 520300], [530000, 530100, 530200, 530300], [290000, 290100, 290200, 290300]]
 talismans = [2120, 1150]
-spells = [6210, 6050]
+spells = [6210, 6050, [6230, 6220]]
 
 [[tarnished.gear]]
 level = 110
-right = [10010000]
-left = [34070000]
-armor = [520000, 520100, 520200, 520300]
+right = [[10010000, 10030500]]
+left = [[34070000, 34020000]]
+armor_sets = [[520000, 520100, 520200, 520300], [530000, 530100, 530200, 530300]]
 talismans = [2120, 1040, 3070, 1231]
-spells = [6210, 6050, 6421]
+spells = [6210, 6050, [6230, 6260]]
 
 # Class libraries: instead of fixed loadouts, each Tarnished draws its weapons, armor,
 # talismans, spells and Ashes of War from these pools. `level` is the earliest level an
@@ -759,6 +799,224 @@ consumables = []   # he came to die, not to throw pots
 level = 1
 right = [{ id = 9000000, ash = 60600 }]
 armor = [1120000, -1, -1, -1]
+
+# Perfumers: they fight with the perfumer's craft. The first carries nothing but perfumes; the
+# second also sprays from Shadow of the Erdtree's perfume bottles and is left out without the DLC.
+
+[[tarnished]]
+id = "perfumer"
+name = "Perfumer"
+titles = ["Perfumer {name}", "{name} the Aromatic", "{name} of the Censer", "Traveling Perfumer {name}"]
+class = ["confessor", "warrior"]
+weight = 8
+styles = ["perfumer"]
+greetings = ["polite_bow", "curtsy", "warm_welcome", "bow"]
+victories = ["curtsy", "polite_bow", "nod_in_thought", "my_thanks"]
+growth = { vigor = 4, mind = 2, endurance = 2, strength = 1, dexterity = 3 }
+# Perfumes only: aromatics it throws or sprays, and the ones that bolster it.
+consumables = [{ id = 3510, count = 5 }, { id = 3500, count = 3 }, { id = 3580, count = 5, level = 15 }, { id = 3520, count = 3, level = 20 }, { id = 3610, count = 5, level = 25 }, { id = 3550, count = 3, level = 40 }]   # Spark Aromatic, Uplifting Aromatic, Poison Spraymist, Ironjar Aromatic, Acid Spraymist, Bloodboil Aromatic
+consumable_kinds = 4
+
+[[tarnished.gear]]
+level = 1
+right = [[7140000, 1000000, 7080000]]
+left = [[30010000, 30030000]]
+armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300]]
+talismans = [2220]
+
+[[tarnished.gear]]
+level = 40
+right = [[7030000, 7000000, { id = 7140200, ash = 11200 }]]
+left = [30010000]
+armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300], [540000, 540100, 540200, 540300]]
+talismans = [2220, [1150, 2200]]
+
+[[tarnished.gear]]
+level = 90
+right = [[7060000, { id = 7030200, ash = 11200 }, 1020200]]
+left = [[30010000, -1]]
+armor_sets = [[540000, 540100, 540200, 540300], [90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300]]
+talismans = [2220, 1150, [1040, 2200]]
+
+[[tarnished]]
+id = "perfume-alchemist"
+name = "Perfume Alchemist"
+titles = ["Alchemist {name}", "{name} the Censer-Bearer", "{name} of the Sweet Smoke", "Master Perfumer {name}"]
+class = ["warrior", "bandit"]
+weight = 8
+dlc = true   # Shadow of the Erdtree's perfume bottles
+styles = ["perfumer", "agile"]
+greetings = ["polite_bow", "curtsy", "fancy_spin", "bow"]
+victories = ["curtsy", "fancy_spin", "finger_snap", "my_thanks"]
+growth = { vigor = 4, mind = 2, endurance = 2, dexterity = 4, intelligence = 1, faith = 1, arcane = 1 }
+consumables = [{ id = 3510, count = 5 }, { id = 3500, count = 3 }, { id = 3580, count = 5 }, { id = 3520, count = 3, level = 20 }, { id = 3610, count = 5, level = 25 }, { id = 3550, count = 3, level = 40 }, { id = 2003140, count = 1, level = 60 }]   # the perfumes, and the Perfumed Oil of Ranah
+consumable_kinds = 3
+
+[[tarnished.gear]]
+level = 1
+right = [[61500000, 61510000]]
+left = [[61500000, 61530000, 30010000]]
+armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300]]
+talismans = [2220]
+
+[[tarnished.gear]]
+level = 40
+right = [[61500000, 61510000, 61530000]]
+left = [[61540000, 61520000, 61500000]]
+armor_sets = [[540000, 540100, 540200, 540300], [90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300]]
+talismans = [2220, [1150, 1040]]
+
+[[tarnished.gear]]
+level = 90
+right = [[61500000, 61510000, 61530000, 61520000]]
+left = [[61540000, 61520000, 61510000]]
+armor_sets = [[540000, 540100, 540200, 540300], [90000, 90100, 90200, 90300]]
+talismans = [2220, 1150, 1040, [1230, 1231]]
+
+# Named Tarnished: always the same name and face, their gear grows with you, with a few options
+# at every stage so they are recognisable but not identical each time.
+
+[[tarnished]]
+id = "ragnvald"
+name = "Ragnvald Stormaxe"
+names = ["Ragnvald Stormaxe"]
+sex = "male"
+faces = [3118]
+class = "hero"
+weight = 5
+styles = ["raider"]
+greetings = ["rallying_cry", "strength", "heartening_cry"]
+victories = ["triumphant_delight", "rallying_cry", "point_downwards"]
+growth = { vigor = 5, endurance = 3, strength = 6, dexterity = 1 }
+consumables = [{ id = 1210, count = 2 }, { id = 820, count = 2 }, { id = 300, count = 3 }, { id = 1830, count = 3, level = 30 }]   # Exalted Flesh, Boiled Crab, Fire Pot, Explosive Stone
+
+[[tarnished.gear]]
+level = 1
+right = [[{ id = 14020100, ash = 65100 }, { id = 14000100, ash = 65100 }]]
+left = [[31070000, 30090000, 31270000]]
+armor_sets = [[300000, 300100, -1, 300300], [700000, 700100, 700200, 700300]]
+
+[[tarnished.gear]]
+level = 30
+right = [[{ id = 14030100, ash = 65100 }, { id = 14100100, ash = 65100 }, { id = 15010100, ash = 65000 }]]
+left = [[31070000, 31270000, 30070000]]
+armor_sets = [[701000, 700100, 700200, 700300], [730000, 730100, 730200, 730300], [300000, 730100, 730200, 730300]]
+talismans = [2130, [1000, 2190]]
+
+[[tarnished.gear]]
+level = 60
+right = [[{ id = 15000100, ash = 65000 }, { id = 15030100, ash = 65100 }, { id = 15060100, ash = 65000 }]]
+armor_sets = [[300000, 730100, 730200, 730300], [730000, 730100, 730200, 730300], [860000, 860100, 860200, 860300]]
+talismans = [2130, [2190, 1230], 1150]
+
+[[tarnished.gear]]
+level = 100
+right = [[{ id = 15080100, ash = 65000 }, { id = 15130100, ash = 65100 }, 15110000]]
+armor_sets = [[720000, 720100, 720200, 720300], [300000, 720100, 720200, 720300]]
+talismans = [2130, 2190, [1230, 1231], [1210, 1040]]
+
+[[tarnished.gear]]
+level = 150
+right = [[15040000, { id = 15080100, ash = 65400 }, 15110000]]
+armor_sets = [[720000, 720100, 720200, 720300], [300000, 720100, 720200, 720300]]
+talismans = [2130, 2190, 1231, [1210, 1040]]
+
+[[tarnished]]
+id = "mother-cinder"
+name = "Mother Cinder"
+names = ["Mother Cinder"]
+sex = "female"
+faces = [3111]
+class = "prophet"
+weight = 5
+styles = ["pyromancer"]
+greetings = ["fire_spur_me", "calm_down", "what_do_you_want"]
+victories = ["fire_spur_me", "dejection", "point_downwards"]
+growth = { vigor = 4, mind = 3, endurance = 1, strength = 2, faith = 5 }
+consumables = [{ id = 300, count = 4 }, { id = 1400, count = 2 }, { id = 301, count = 3, level = 20 }, { id = 302, count = 2, level = 60 }]   # Fire Pot, Fire Grease, Redmane Fire Pot, Giantsflame Fire Pot
+consumable_kinds = 3
+
+[[tarnished.gear]]
+level = 1
+right = [[24000000, 11000400]]
+left = [34000000]
+armor_sets = [[610000, 610100, 610200, 610300], [620000, 620100, -1, 620300]]
+spells = [6000, [6010, 6220]]
+
+[[tarnished.gear]]
+level = 30
+right = [[8070000, 13010400, 24000000]]
+left = [34020000]
+armor_sets = [[350000, 350100, 350200, 350300], [351000, 351100, 351200, 351300], [610000, 610100, 610200, 610300]]
+talismans = [2020]
+spells = [6000, 6010, [6030, 6050]]
+
+[[tarnished.gear]]
+level = 70
+right = [[8070000, 13000400, 24070000]]
+left = [34020000]
+armor_sets = [[360000, 360100, 360200, 360300], [350000, 350100, 350200, 350300], [351000, 351100, 351200, 351300]]
+talismans = [2020, [3050, 1040]]
+spells = [[6100, 6020], 6010, 6050, 6060]
+
+[[tarnished.gear]]
+level = 120
+right = [[24070000, 8070000, 13000400]]
+left = [34020000]
+armor_sets = [[360000, 360100, 360200, 360300], [350000, 350100, 350200, 350300]]
+talismans = [2020, 3050, [1040, 3070], 1231]
+spells = [6110, 6100, 6120, 6050]
+
+[[tarnished]]
+id = "ser-brannoch"
+name = "Ser Brannoch"
+names = ["Ser Brannoch of the Crucible"]
+sex = "male"
+faces = [3104]
+class = "vagabond"
+weight = 5
+styles = ["crucible"]
+greetings = ["reverential_bow", "by_my_sword", "hoslows_oath"]
+victories = ["my_thanks", "reverential_bow", "the_ring"]
+growth = { vigor = 5, endurance = 2, strength = 4, dexterity = 1, faith = 3 }
+consumables = [{ id = 820, count = 2 }, { id = 1430, count = 2 }, { id = 350, count = 3 }, { id = 1210, count = 2, level = 35 }]   # Boiled Crab, Holy Grease, Holy Water Pot, Exalted Flesh
+
+[[tarnished.gear]]
+level = 1
+right = [[{ id = 2000100, ash = 10000 }, { id = 2020100, ash = 10000 }]]
+left = [[31330000, 31000000]]
+armor_sets = [[1500000, 1500100, 1500200, 1500300], [660000, 660100, 660200, 660300]]
+
+[[tarnished.gear]]
+level = 30
+right = [[{ id = 3040100, ash = 10000 }, { id = 3180100, ash = 10000 }]]
+left = [[31000000, 31290000]]
+armor_sets = [[1770000, 1770100, 1770200, 1770300], [1500000, 1500100, 1500200, 1500300]]
+talismans = [[1150, 4000]]
+
+[[tarnished.gear]]
+level = 60
+right = [[{ id = 3080100, ash = 10000 }, { id = 3040100, ash = 10000 }]]
+left = [[31130000, 31030000], 34000000]
+armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300]]
+talismans = [[1150, 4000], 1000]
+spells = [[7500, 7510]]
+
+[[tarnished.gear]]
+level = 110
+right = [[3060000, { id = 4000100, ash = 10000 }, { id = 3080100, ash = 10000 }]]
+left = [[31130000, 31030000], 34000000]
+armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300], [270000, 270100, 270200, 270300]]
+talismans = [1040, 1231, [4000, 1150], [3070, 2180]]
+spells = [7500, 7510, 7520]
+
+[[tarnished.gear]]
+level = 150
+right = [[3060000, 18080000, { id = 4000100, ash = 10000 }]]
+left = [[31130000, 31030000], 34000000]
+armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300], [270000, 270100, 270200, 270300]]
+talismans = [1040, 1231, [4000, 1150], [3070, 2180]]
+spells = [7500, 7510, 7520]
 
 [[tarnished]]
 id = "strength-class"
@@ -955,11 +1213,11 @@ catalysts = [
     { id = 34030000, level = 60 }, { id = 34010000, level = 90 }, { id = 34070000, level = 120 },
 ]
 spells = [
-    6000, 6010, 6420, { id = 6421, level = 10 }, { id = 6400, level = 20 }, { id = 6900, level = 20 },
-    { id = 6430, level = 40 }, { id = 6600, level = 40 }, { id = 6210, level = 50 },
+    6000, 6010, { id = 6400, level = 20 }, { id = 6900, level = 20 },
+    { id = 6600, level = 40 }, { id = 6210, level = 50 },
     { id = 6250, level = 50 }, { id = 6930, level = 60 }, { id = 6410, level = 70 },
     { id = 6921, level = 90 }, { id = 6490, level = 90 }, { id = 6230, level = 90 },
-    { id = 6110, level = 120 }, { id = 6424, level = 120, weight = 5 }, { id = 6240, level = 130 },
+    { id = 6110, level = 120 }, { id = 6240, level = 130 },
 ]
 armor = [
     [880000, 880100, 880200, 880300],

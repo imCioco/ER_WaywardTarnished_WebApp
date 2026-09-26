@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Divider, Form, Input, InputNumber, Popconfirm, Select, Space, Switch, Typography } from 'antd';
+import { Button, Card, Checkbox, Divider, Form, Input, InputNumber, Popconfirm, Segmented, Select, Space, Switch, Typography } from 'antd';
 import { CopyOutlined, DeleteOutlined, SwapOutlined } from '@ant-design/icons';
 import { CLASSES, ROLES, STATS } from '../constants';
 import type { ItemCatalog } from '../catalog';
@@ -14,14 +14,16 @@ type Props = {
   catalog: ItemCatalog;
   gestureNames: string[];
   sharedConsumables?: Consumable[];
+  /** Different consumables each Tarnished carries by default ([consumables] kinds). */
+  sharedKinds?: number;
   onChange: (entry: Tarnished) => void;
   onDuplicate: () => void;
   onDelete: () => void;
 };
 
-export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumables, onChange, onDuplicate, onDelete }: Props) {
+export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumables, sharedKinds, onChange, onDuplicate, onDelete }: Props) {
   const patch = (values: Partial<Tarnished>) => onChange({ ...entry, ...values });
-  const setOptional = (field: 'greetings' | 'victories' | 'consumables', value: unknown[] | undefined) => {
+  const setOptional = (field: 'greetings' | 'victories' | 'consumables' | 'consumable_kinds' | 'pvp_damage' | 'dlc', value: unknown) => {
     const next = structuredClone(entry);
     if (value === undefined) delete next[field]; else (next as Record<string, unknown>)[field] = value;
     onChange(next);
@@ -53,6 +55,11 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumab
           <div className="section-heading">
             <div><Typography.Title level={3}>Consumables</Typography.Title><Typography.Paragraph type="secondary">Pots, knives, greases and buffs the AI uses from its item slots, on top of the template’s flask. Each Tarnished draws the shared number of different consumables within its level.</Typography.Paragraph></div>
           </div>
+          <Form layout="vertical" className="kinds-field">
+            <Form.Item label="Different consumables it carries" help={`Empty uses the shared number${sharedKinds !== undefined ? ` (${sharedKinds})` : ''}. The template’s flask comes first; ten item slots in all.`}>
+              <InputNumber min={0} max={9} value={entry.consumable_kinds} placeholder={sharedKinds !== undefined ? `shared: ${sharedKinds}` : 'shared'} onChange={(value) => setOptional('consumable_kinds', value === null ? undefined : Number(value))} />
+            </Form.Item>
+          </Form>
           <ConsumablesEditor catalog={catalog} value={entry.consumables} shared={sharedConsumables} inheritable onChange={(value) => setOptional('consumables', value)} />
         </section>
       </div>
@@ -103,8 +110,14 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumab
           </Form>
         </Card>
         <Card title="Runtime flags" className="form-card">
-          <Form layout="vertical"><Form.Item label="Use PvP damage rules"><Switch checked={entry.pvp_damage !== false} onChange={(pvp_damage) => patch({ pvp_damage })} checkedChildren="On" unCheckedChildren="Off" /></Form.Item></Form>
-          <Typography.Paragraph type="secondary">The mod still applies its own global runtime settings and safety checks.</Typography.Paragraph>
+          <Form layout="vertical">
+            <Form.Item label="PvP damage rules" help="On: damage is scaled as between players. Off: full, uncorrected damage. INI default follows pvp_damage in WaywardTarnished.ini.">
+              <Segmented value={entry.pvp_damage === undefined ? 'ini' : entry.pvp_damage ? 'on' : 'off'} options={[{ value: 'ini', label: 'INI default' }, { value: 'on', label: 'On' }, { value: 'off', label: 'Off' }]} onChange={(value) => setOptional('pvp_damage', value === 'ini' ? undefined : value === 'on')} />
+            </Form.Item>
+            <Form.Item label="Uses Shadow of the Erdtree items" help="Left out for players without the DLC. Validate warns when an entry uses DLC items without this.">
+              <Switch checked={entry.dlc === true} onChange={(dlc) => setOptional('dlc', dlc ? true : undefined)} checkedChildren="DLC" unCheckedChildren="Base game" />
+            </Form.Item>
+          </Form>
         </Card>
         <Card title="Attribute growth" className="form-card span-2">
           <Typography.Paragraph type="secondary">Relative weights used when the Tarnished gains levels. Zero leaves a stat unchanged.</Typography.Paragraph>

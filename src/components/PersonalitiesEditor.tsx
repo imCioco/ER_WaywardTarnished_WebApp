@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { Alert, Button, Card, Empty, Popconfirm, Segmented, Space, Tag, Tooltip, Typography } from 'antd';
 import { CheckOutlined, CopyOutlined, DeleteOutlined, EditOutlined, ExperimentOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import { PERSONALITY_SLOTS } from '../constants';
+import { PERSONALITIES_AT_ONCE } from '../constants';
 import { archetypes as listArchetypes, type Archetype } from '../library';
-import type { LibraryDocument, Personality } from '../types';
+import type { LibraryDocument } from '../types';
 import { ArchetypePopover, StyleSelect, archetypeDetail, kindLabel } from './ArchetypeInfo';
 import { PersonalityModal, StyleModal, type PersonalityDraft } from './PersonalityModal';
 
@@ -50,8 +50,6 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
   const byName = useMemo(() => new Map(archetypes.map((archetype) => [archetype.name, archetype])), [archetypes]);
   const chosen = entry?.styles ?? [];
   const usage = (name: string) => document.tarnished.filter((tarnished) => tarnished.styles?.includes(name)).length;
-  const documentSlots = useMemo(() => new Map(Object.entries(document.personalities ?? {}).map(([name, personality]) => [personality.effect, name])), [document]);
-  const baseSlots = useMemo(() => new Map(Object.entries(base?.personalities ?? {}).map(([name, personality]) => [personality.effect, name])), [base]);
 
   const change = (action: (next: LibraryDocument) => void) => {
     const next = structuredClone(document);
@@ -61,28 +59,16 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
   const setStyles = (styles: string[]) => change((next) => { if (selected !== undefined) next.tarnished[selected].styles = styles; });
   const toggle = (name: string) => setStyles(chosen.includes(name) ? chosen.filter((style) => style !== name) : [...chosen, name]);
 
-  const freeSlot = () => PERSONALITY_SLOTS.find((slot) => !documentSlots.has(slot.effect) && !baseSlots.has(slot.effect))
-    ?? PERSONALITY_SLOTS.find((slot) => !documentSlots.has(slot.effect)) ?? PERSONALITY_SLOTS[0];
-  const newPersonality = () => {
-    const slot = freeSlot();
-    setEditing({ kind: 'personality', title: 'New personality', initial: { name: '', description: '', personality: { effect: slot.effect, row: slot.row, odds: {} } } });
-  };
+  const newPersonality = () => setEditing({ kind: 'personality', title: 'New personality', initial: { name: '', description: '', personality: { odds: {} } } });
   const editArchetype = (archetype: Archetype, copy = false) => {
     const original = copy || archetype.inherited ? undefined : archetype.name;
     const name = copy ? `${archetype.name}-copy` : archetype.name;
     const description = archetype.description ?? '';
     const title = copy ? `Copy of ${archetype.name}` : archetype.inherited ? `Customize ${archetype.name}` : `Edit ${archetype.name}`;
-    if (archetype.kind === 'style') setEditing({ kind: 'style', title, original, initial: { name, description, effect: archetype.effect } });
-    else {
-      const personality = structuredClone(archetype.personality!);
-      if (copy) { const slot = freeSlot(); personality.effect = slot.effect; personality.row = slot.row; }
-      setEditing({ kind: 'personality', title, original, initial: { name, description, personality } });
-    }
+    if (archetype.kind === 'style') setEditing({ kind: 'style', title, original, initial: { name, description, effect: archetype.effect ?? 0 } });
+    else setEditing({ kind: 'personality', title, original, initial: { name, description, personality: structuredClone(archetype.personality!) } });
   };
   const savePersonality = (draft: PersonalityDraft, original?: string) => change((next) => {
-    const personalities: Record<string, Personality> = next.personalities ?? {};
-    const displaced = Object.entries(personalities).find(([other, personality]) => other !== original && other !== draft.name && personality.effect === draft.personality.effect)?.[0];
-    if (displaced) { removeArchetype(next, displaced); replaceStyle(next, displaced, draft.name); }
     if (original && original !== draft.name) { removeArchetype(next, original); replaceStyle(next, original, draft.name); }
     next.personalities = { ...(next.personalities ?? {}), [draft.name]: draft.personality };
     setDescription(next, draft.name, draft.description);
@@ -136,7 +122,7 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
       <div className="section-heading archetype-heading">
         <div>
           <Typography.Title level={3}>Personality library</Typography.Title>
-          <Typography.Paragraph type="secondary"><strong>Vanilla styles</strong> borrow a named NPC invader’s behavior through its SpEffect. <strong>Custom personalities</strong> set their own odds for each action, written by the mod into one of five free personality slots.</Typography.Paragraph>
+          <Typography.Paragraph type="secondary"><strong>Vanilla styles</strong> borrow a named NPC invader’s behavior through its SpEffect. <strong>Custom personalities</strong> set their own odds for each action; the mod writes them into the game when a Tarnished with one spawns.</Typography.Paragraph>
         </div>
         <Segmented
           value={filter}
@@ -150,19 +136,7 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
         />
       </div>
 
-      <div className="slot-strip">
-        {PERSONALITY_SLOTS.map((slot, index) => {
-          const owner = documentSlots.get(slot.effect) ?? baseSlots.get(slot.effect);
-          return (
-            <Tooltip key={slot.effect} title={`SpEffect ${slot.effect} → NpcAiBehaviorProbability ${slot.row}`}>
-              <div className={`slot-chip ${owner ? 'used' : 'free'}`}><small>Slot {index + 1}</small><strong>{owner ?? 'free'}</strong></div>
-            </Tooltip>
-          );
-        })}
-      </div>
-      {PERSONALITY_SLOTS.every((slot) => documentSlots.has(slot.effect) || baseSlots.has(slot.effect)) && (
-        <Alert type="info" showIcon className="slot-note" message="All five personality slots are in use." description="A new personality takes the slot you choose and replaces the personality there; Tarnished that used it switch to the new one. Vanilla styles need no slot, so you can add as many as you like." />
-      )}
+      <Alert type="info" showIcon className="slot-note" message={`Define as many personalities as you like; up to ${PERSONALITIES_AT_ONCE} different custom ones can be in play at once.`} description={`Any number of Tarnished can share a personality. A Tarnished that arrives while ${PERSONALITIES_AT_ONCE} other custom personalities are in use fights without its own. Vanilla styles have no limit.`} />
 
       {shown.length ? (
         <div className="archetype-grid">
@@ -204,8 +178,6 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
           initial={editing.initial}
           original={editing.original}
           archetypes={archetypes}
-          documentSlots={documentSlots}
-          baseSlots={baseSlots}
           onCancel={() => setEditing(null)}
           onSave={(draft) => savePersonality(draft, editing.original)}
         />
