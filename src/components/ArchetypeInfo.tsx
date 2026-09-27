@@ -16,7 +16,7 @@ export function ArchetypeSummary({ archetype }: { archetype: Archetype }) {
   return (
     <div className="archetype-popover">
       <Space size={4} wrap>
-        <Tag color={archetype.kind === 'style' ? 'default' : 'geekblue'}>{kindLabel(archetype)}</Tag>
+        <Tag>{kindLabel(archetype)}</Tag>
         {archetype.inherited && <Tag>from base.toml</Tag>}
       </Space>
       <Typography.Paragraph className="archetype-description">{archetype.description || <Typography.Text type="secondary">No description yet.</Typography.Text>}</Typography.Paragraph>
@@ -60,7 +60,7 @@ export function StyleSelect({ archetypes, value, onChange }: SelectProps) {
         const archetype = byName.get(String(name));
         return (
           <ArchetypePopover archetype={archetype}>
-            <Tag closable={closable} onClose={onClose} onMouseDown={(event) => event.stopPropagation()} color={archetype?.kind === 'personality' ? 'geekblue' : archetype ? undefined : 'red'} className="style-tag">{String(name)}</Tag>
+            <Tag closable={closable} onClose={onClose} onMouseDown={(event) => event.stopPropagation()} color={archetype ? undefined : 'red'} className="style-tag">{String(name)}</Tag>
           </ArchetypePopover>
         );
       }}

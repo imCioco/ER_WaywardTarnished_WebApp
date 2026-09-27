@@ -148,7 +148,7 @@ export function PersonalitiesEditor({ document, base, selected, onChange }: Prop
                 <div className="archetype-card-head">
                   <ArchetypePopover archetype={archetype}><Typography.Text strong className="archetype-name">{archetype.name}</Typography.Text></ArchetypePopover>
                   <Space size={4} wrap>
-                    <Tag color={archetype.kind === 'personality' ? 'geekblue' : undefined}>{kindLabel(archetype)}</Tag>
+                    <Tag>{kindLabel(archetype)}</Tag>
                     {archetype.inherited && <Tooltip title="Defined in the mod’s base.toml, which the mod loads before this file"><Tag>base.toml</Tag></Tooltip>}
                   </Space>
                 </div>

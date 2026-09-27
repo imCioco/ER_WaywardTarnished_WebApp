@@ -1,7 +1,43 @@
 import type { ItemKind } from './types';
 
 export const CLASSES = ['vagabond', 'warrior', 'hero', 'bandit', 'astrologer', 'prophet', 'samurai', 'prisoner', 'confessor', 'wretch'];
-export const ROLES = ['invader', 'hunter', 'host', 'cooperator'];
+export const ROLES = ['invader', 'hunter', 'host', 'cooperator', 'summon'];
+
+/** What each role means in game (docs/LIBRARY.md, Roles). */
+export const ROLE_HELP: Record<string, string> = {
+  invader: 'Invades your world as a red phantom.',
+  hunter: 'Answers your call when you are invaded (blue phantom). A hunter can also be summoned.',
+  host: 'The Tarnished whose world you invade with a Bloody Finger.',
+  cooperator: 'Helps the host whose world you invade.',
+  summon: 'Called from a golden summon sign after the Furlcalling Finger Remedy (INI [summons]).',
+};
+
+/** `[chances]` groups: which entries each one covers (library.rs Tarnished::group). */
+export const CHANCE_GROUPS: { key: 'named' | 'loadouts' | 'class_libraries'; label: string; help: string }[] = [
+  { key: 'named', label: 'Named Tarnished', help: 'Entries with exactly one given name, such as Vigor Check or Ragnvald Stormaxe.' },
+  { key: 'loadouts', label: 'Fixed builds', help: 'The other entries with hand-made level loadouts.' },
+  { key: 'class_libraries', label: 'Class libraries', help: 'Entries that draw random gear from item pools.' },
+];
+
+/** The INI's default level_spread: Tarnished target the player's level plus or minus this. */
+export const LEVEL_SPREAD = 5;
+export const MAXIMUM_LEVEL = 713;
+
+/** Starting attributes of each class, in STATS order (library.rs Class::attributes). */
+export const CLASS_STATS: Record<string, number[]> = {
+  vagabond: [15, 10, 11, 14, 13, 9, 9, 7], warrior: [11, 12, 11, 10, 16, 10, 8, 9],
+  hero: [14, 9, 12, 16, 9, 7, 8, 11], bandit: [10, 11, 10, 9, 13, 9, 8, 14],
+  astrologer: [9, 15, 9, 8, 12, 16, 7, 9], prophet: [10, 14, 8, 11, 10, 7, 16, 10],
+  samurai: [12, 11, 13, 12, 15, 9, 8, 8], prisoner: [11, 12, 11, 11, 14, 14, 6, 9],
+  confessor: [10, 13, 10, 12, 12, 9, 14, 9], wretch: [10, 10, 10, 10, 10, 10, 10, 10],
+};
+
+/** Past the first cap a point counts double, past the second four times (library.rs SOFT_CAPS). */
+export const SOFT_CAPS: [number, number][] = [[40, 60], [20, 40], [25, 40], [55, 80], [55, 80], [60, 80], [60, 80], [45, 60]];
+
+export const STAT_SHORT: Record<string, string> = {
+  vigor: 'Vig', mind: 'Min', endurance: 'End', strength: 'Str', dexterity: 'Dex', intelligence: 'Int', faith: 'Fai', arcane: 'Arc',
+};
 export const STATS = ['vigor', 'mind', 'endurance', 'strength', 'dexterity', 'intelligence', 'faith', 'arcane'];
 export const ARMOR_SLOTS = ['head', 'chest', 'arms', 'legs'];
 export const AFFINITIES = ['Standard', 'Heavy', 'Keen', 'Quality', 'Fire', 'Flame Art', 'Lightning', 'Sacred', 'Magic', 'Cold', 'Poison', 'Blood', 'Occult'];

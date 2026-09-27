@@ -4,6 +4,11 @@
 # shows its own name. Teams (the game's own relation table): 27 NPC invaders fight you and 47 but
 # ignore 2 and 16; 47 (spirit summons) fights 27 beside you; 2 (white phantoms) fights the
 # invader team 16 you join while invading, and the world's enemies fight 2 but not 16.
+# [chances] (optional): percent of the picks for whole groups, shared inside by weight. Entries with their
+# own chance keep it. Groups: named (one fixed name), loadouts, class_libraries. Example:
+# [chances]
+# class_libraries = 20
+
 [templates.invader]
 npc_param = 523770000
 think_param = 523770000
@@ -766,7 +771,7 @@ id = "vigor-check"
 name = "Vigor Check"
 names = ["Vigor Check"]
 class = "bandit"
-weight = 4
+chance = 5                 # 5% of the picks while eligible, whatever the weights
 roles = ["invader", "host", "cooperator"]
 styles = ["parrier"]
 greetings = ["point_forwards", "beckon", "bow"]
@@ -787,7 +792,7 @@ id = "let-me-solo-me"
 name = "Let Me Solo Me"
 names = ["Let Me Solo Me"]
 class = "samurai"
-weight = 3
+chance = 4
 roles = ["invader"]
 styles = ["sacrificial"]
 greetings = ["wave", "bow", "polite_bow", "casual_greeting", "jump_for_joy"]

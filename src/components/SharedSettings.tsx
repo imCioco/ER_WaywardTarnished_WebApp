@@ -1,11 +1,33 @@
+import { useState } from 'react';
 import { Card, Form, InputNumber, Select, Typography } from 'antd';
 import type { ItemCatalog } from '../catalog';
-import type { Consumable, LibraryDocument } from '../types';
+import type { Archetype } from '../library';
+import type { MergedLibrary, Rules } from '../simulate';
+import type { Chances, Consumable, LibraryDocument, Tarnished } from '../types';
+import { OddsPanel } from './AppearanceOdds';
 import { ConsumablesEditor } from './ConsumablesEditor';
+import { SampleDrawer } from './SampleDrawer';
 
-type Props = { document: LibraryDocument; catalog: ItemCatalog; gestures: string[]; basePool: Consumable[]; onChange: (document: LibraryDocument) => void };
+type Props = {
+  document: LibraryDocument;
+  catalog: ItemCatalog;
+  gestures: string[];
+  basePool: Consumable[];
+  library: MergedLibrary;
+  includeBase: boolean;
+  onIncludeBase: (value: boolean) => void;
+  rules?: Rules;
+  archetypes: Archetype[];
+  onChange: (document: LibraryDocument) => void;
+};
 
-export function SharedSettings({ document, catalog, gestures, basePool, onChange }: Props) {
+export function SharedSettings({ document, catalog, gestures, basePool, library, includeBase, onIncludeBase, rules, archetypes, onChange }: Props) {
+  const [testing, setTesting] = useState<{ entry: Tarnished; level: number } | null>(null);
+  const setChances = (chances: Chances | undefined) => {
+    const next: LibraryDocument = { ...document };
+    if (chances) next.chances = chances; else delete next.chances;
+    onChange(next);
+  };
   const pool = document.consumables?.pool;
   const updateConsumables = (values: { kinds?: number; pool?: Consumable[] }) => {
     const consumables = { ...(document.consumables ?? {}), ...values };
@@ -20,6 +42,7 @@ export function SharedSettings({ document, catalog, gestures, basePool, onChange
     <div className="editor-page">
       <div className="editor-titlebar"><div><Typography.Title level={2}>Shared library settings</Typography.Title><Typography.Text type="secondary">Defaults used when an individual Tarnished does not provide its own values.</Typography.Text></div></div>
       <div className="form-grid">
+        <OddsPanel library={library} chances={document.chances} includeBase={includeBase} onIncludeBase={onIncludeBase} onChances={setChances} onTest={(entry, level) => setTesting({ entry, level })} />
         <Card title="Shared names" className="form-card span-2">
           <Form layout="vertical">
             <Form.Item label="Male names"><Select mode="tags" tokenSeparators={[',']} value={document.names?.male ?? []} onChange={(values) => updateNames('male', values)} /></Form.Item>
@@ -46,9 +69,10 @@ export function SharedSettings({ document, catalog, gestures, basePool, onChange
           />
         </Card>
         <Card title="Advanced definitions" className="form-card span-2">
-          <Typography.Paragraph>Templates, faces, styles and personalities remain in the library and are preserved by the editor. Use <strong>Advanced TOML</strong> in the command bar to edit their complete definitions.</Typography.Paragraph>
+          <Typography.Paragraph>Templates (one per role: invader, hunter, host, cooperator and summon; summons fall back to the hunter’s), faces, styles and personalities remain in the library and are preserved by the editor. Use <strong>Advanced TOML</strong> in the command bar to edit their complete definitions.</Typography.Paragraph>
         </Card>
       </div>
+      {testing && <SampleDrawer key={`${testing.entry.id}-${testing.level}`} open entry={testing.entry} initialLevel={testing.level} library={library} rules={rules} catalog={catalog} archetypes={archetypes} onClose={() => setTesting(null)} />}
     </div>
   );
 }

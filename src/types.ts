@@ -66,11 +66,22 @@ export type Tarnished = {
   /** How many different consumables it carries; default = [consumables] kinds. */
   consumable_kinds?: number;
   growth?: Record<string, number>;
+  /** Own starting attributes instead of a class: all eight, each at least 1. */
   attributes?: Record<string, number>;
+  /** Stat plans: attributes to reach by a level; the highest plan at or below the Tarnished's level applies. */
+  stats?: StatPlan[];
+  /** Percent of the picks while eligible, instead of a share by `weight` (0-100). */
+  chance?: number;
   gear?: Loadout[];
   pool?: EquipmentPool;
   [key: string]: unknown;
 };
+
+/** `[[tarnished.stats]]`: at `level` and above, attributes are raised to at least these after the gear's requirements. */
+export type StatPlan = { level: number } & Partial<Record<'vigor' | 'mind' | 'endurance' | 'strength' | 'dexterity' | 'intelligence' | 'faith' | 'arcane', number>>;
+
+/** `[chances]`: percent of the picks for a whole group of entries, shared inside it by weight. */
+export type Chances = { named?: number; loadouts?: number; class_libraries?: number };
 
 export type LibraryDocument = {
   templates?: Record<string, unknown>;
@@ -80,6 +91,7 @@ export type LibraryDocument = {
   personalities?: Record<string, Personality>;
   gestures?: { greetings?: string[]; victories?: string[] };
   consumables?: { kinds?: number; pool?: Consumable[] };
+  chances?: Chances;
   tarnished: Tarnished[];
   /** Style and personality descriptions; written as TOML comments, since the mod rejects unknown keys. */
   __descriptions?: Record<string, string>;

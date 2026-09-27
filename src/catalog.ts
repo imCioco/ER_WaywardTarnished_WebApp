@@ -1,4 +1,3 @@
-import Papa from 'papaparse';
 import initSqlJs, { type Database } from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { AFFINITIES, MOST_CONSUMABLES } from './constants';
@@ -25,14 +24,6 @@ export type CatalogItem = {
 
 function normalize(value: string): string {
   return value.replace(/^\[[^\]]+\]\s*/, '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-}
-
-function fileName(path: string): string {
-  return path.split(/[\\/]/).at(-1) ?? path;
-}
-
-function stem(path: string): string {
-  return fileName(path).replace(/\.csv$/i, '').replace(/^DLC/, '');
 }
 
 export class ItemCatalog {
@@ -156,49 +147,5 @@ export async function loadBundledCatalog(): Promise<ItemCatalog> {
   items.forEach((item) => catalog.items.set(catalog.key(item.kind, Number(item.id)), { ...item, id: Number(item.id) }));
   await attachIconDatabase(catalog, await iconsResponse.arrayBuffer());
   catalog.sourceName = 'Bundled ER Save Manager resources';
-  return catalog;
-}
-
-export async function loadCatalog(files: File[]): Promise<ItemCatalog> {
-  const catalog = new ItemCatalog();
-  const byPath = new Map(files.map((file) => [(file.webkitRelativePath || file.name).replace(/\\/g, '/'), file]));
-  const slots = new Map<number, string>();
-  const slotFile = [...byPath.entries()].find(([path]) => path.endsWith('/armor_slot_types.csv') || path === 'armor_slot_types.csv')?.[1];
-  if (slotFile) {
-    const result = Papa.parse<Record<string, string>>(await slotFile.text(), { header: true, skipEmptyLines: true });
-    result.data.forEach((row) => slots.set(Number(row.ID), row.Slot));
-  }
-  const groups: Record<string, ItemKind> = {
-    MeleeWeapons: 'weapon', RangedWeapons: 'weapon', Shields: 'weapon', SpellTools: 'weapon', Ammo: 'weapon',
-    Armor: 'armor', Talismans: 'talisman', Magic: 'spell', Gems: 'ash',
-  };
-  for (const [path, file] of [...byPath.entries()].sort()) {
-    if (!path.toLowerCase().endsWith('.csv') || path.includes('/Convergence/') || path.includes('/TarnishedPack/')) continue;
-    const group = stem(path);
-    if (group === 'armor_slot_types' || group === 'SeamlessCoop') continue;
-    const kind = groups[group] ?? 'goods';
-    const result = Papa.parse<Record<string, string>>(await file.text(), { header: true, skipEmptyLines: true });
-    for (const row of result.data) {
-      const id = Number(row.ID);
-      if (!Number.isInteger(id) || id < 0) continue;
-      const item: CatalogItem = {
-        ...row,
-        id,
-        name: row.Name || String(id),
-        kind,
-        group,
-        slot: kind === 'armor' ? slots.get(id) : undefined,
-        dlc: path.includes('/DLC/'),
-      };
-      catalog.items.set(catalog.key(kind, id), item);
-    }
-  }
-  const iconFile = [...byPath.entries()].find(([path]) => path.endsWith('/icons.db') || path === 'icons.db')?.[1];
-  if (iconFile) {
-    await attachIconDatabase(catalog, await iconFile.arrayBuffer());
-  }
-  const firstPath = [...byPath.keys()][0] ?? 'local folder';
-  catalog.sourceName = firstPath.split('/')[0] || 'local folder';
-  if (!catalog.size) throw new Error('No compatible item CSV files were found. Choose the folder that contains items and icons.db.');
   return catalog;
 }

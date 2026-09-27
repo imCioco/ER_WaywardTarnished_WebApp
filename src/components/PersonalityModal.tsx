@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Alert, Badge, Button, Collapse, Form, Input, InputNumber, Modal, Select, Space, Switch, Tag, Tooltip, Typography } from 'antd';
-import { ACTION_HELP, ODDS_GROUPS, ODDS_KINDS, ODDS_LIMIT, PERSONALITIES_AT_ONCE, actionLabel } from '../constants';
+import { Alert, Button, Collapse, Flex, Form, Input, InputNumber, Modal, Select, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import { ACTION_HELP, ODDS_GROUPS, ODDS_KINDS, ODDS_LIMIT, PERSONALITIES_AT_ONCE, actionLabel, type OddsKind } from '../constants';
 import type { Archetype } from '../library';
 import type { Personality } from '../types';
 
@@ -31,7 +31,7 @@ function OddsGuide() {
             <Typography.Paragraph>Each number is <strong>added</strong> to the odds the game already gives the Tarnished for the moment, from its weapons, spells, distance, stamina and health (mostly 10–100). Leave a field empty to keep the game’s own odds. The AI only considers actions its gear allows: no parrying without a parry skill, no spells without a catalyst, no pots it does not carry.</Typography.Paragraph>
             <div className="odds-kinds">
               {Object.entries(ODDS_KINDS).map(([kind, info]) => (
-                <div key={kind} className={`odds-kind ${kind}`}><Tag>{info.label}</Tag><span>{info.summary}</span></div>
+                <div key={kind} className="odds-kind"><Tag>{info.label}</Tag><span>{info.summary}</span></div>
               ))}
             </div>
             <Typography.Title level={5}>Examples</Typography.Title>
@@ -47,6 +47,39 @@ function OddsGuide() {
         ),
       }]}
     />
+  );
+}
+
+/** What a number does to an action, in words: shown under its field. */
+function effectText(kind: OddsKind, value: number | undefined): string {
+  if (value === undefined) return 'Game’s own odds';
+  if (value <= -ODDS_LIMIT) return 'Never';
+  if (value >= ODDS_LIMIT) return kind === 'weight' ? 'Nearly always picked' : 'Always, when possible';
+  if (value === 0) return 'Same as the game';
+  const amount = Math.abs(value);
+  const direction = value > 0 ? 'more' : 'less';
+  if (kind === 'chance') return `${amount} percentage point${amount === 1 ? '' : 's'} ${direction} often`;
+  if (kind === 'reaction') return `${value > 0 ? '+' : '−'}${amount} on the 1–100 reaction roll`;
+  return `${value > 0 ? '+' : '−'}${amount} on the game’s odds`;
+}
+
+function OddsField({ action, kind, value, onChange }: { action: string; kind: OddsKind; value?: number; onChange: (value: number | null) => void }) {
+  const tone = value === undefined || value === 0 ? 'unset' : value < 0 ? 'lowered' : 'raised';
+  return (
+    <div className={`odds-field ${tone}`}>
+      <Flex justify="space-between" align="baseline" gap={8}>
+        <Tooltip title={<><code>{action}</code><br />{ACTION_HELP[action]}</>} mouseEnterDelay={0.4}>
+          <Typography.Text strong className="odds-field-name">{actionLabel(action)}</Typography.Text>
+        </Tooltip>
+        <Space size={0}>
+          <Button size="small" type="text" className={value === -ODDS_LIMIT ? 'odds-preset active lowered' : 'odds-preset'} onClick={() => onChange(value === -ODDS_LIMIT ? null : -ODDS_LIMIT)} title="Rule this action out (-9999)">Never</Button>
+          <Button size="small" type="text" className={value === ODDS_LIMIT ? 'odds-preset active raised' : 'odds-preset'} onClick={() => onChange(value === ODDS_LIMIT ? null : ODDS_LIMIT)} title="Force it whenever possible (9999)">Always</Button>
+        </Space>
+      </Flex>
+      <Typography.Text type="secondary" className="odds-field-help">{ACTION_HELP[action]}</Typography.Text>
+      <InputNumber min={-ODDS_LIMIT} max={ODDS_LIMIT} step={10} value={value} placeholder="Game default" onChange={onChange} aria-label={actionLabel(action)} className="odds-field-input" />
+      <Typography.Text className="odds-field-effect">{effectText(kind, value)}</Typography.Text>
+    </div>
   );
 }
 
@@ -76,27 +109,17 @@ export function PersonalityModal({ title, initial, original, archetypes, onCance
     return {
       key: group.label,
       label: <Space wrap size={6}><strong>{group.label}</strong><Typography.Text type="secondary">{group.hint}</Typography.Text></Space>,
-      extra: <Space size={6}>{count > 0 && <Badge count={count} color="#1d39c4" />}<Tooltip title={kind.summary}><Tag className={`kind-tag ${group.kind}`}>{kind.label}</Tag></Tooltip></Space>,
+      extra: (
+        <Space size={10}>
+          {count > 0 && <Typography.Text type="secondary" className="odds-count">{count} set</Typography.Text>}
+          <Tooltip title={kind.summary}><Tag bordered={false} className="kind-tag">{kind.label}</Tag></Tooltip>
+        </Space>
+      ),
       children: (
         <>
           <Typography.Paragraph type="secondary" className="odds-group-summary">{kind.summary}</Typography.Paragraph>
           <div className="odds-grid">
-            {actions.map((action) => {
-              const value = odds[action];
-              return (
-                <div key={action} className={`odds-row ${value === undefined ? '' : value < 0 ? 'lowered' : 'raised'}`}>
-                  <div className="odds-row-copy">
-                    <span className="odds-row-name" title={action}>{actionLabel(action)}</span>
-                    <small>{ACTION_HELP[action]}</small>
-                  </div>
-                  <InputNumber size="small" min={-ODDS_LIMIT} max={ODDS_LIMIT} step={10} value={value} placeholder="0" onChange={(next) => setOdd(action, next)} aria-label={actionLabel(action)} />
-                  <Space size={2}>
-                    <Button size="small" type={value === -ODDS_LIMIT ? 'primary' : 'text'} onClick={() => setOdd(action, value === -ODDS_LIMIT ? null : -ODDS_LIMIT)} title="Rule this out (-9999)">Never</Button>
-                    <Button size="small" type={value === ODDS_LIMIT ? 'primary' : 'text'} onClick={() => setOdd(action, value === ODDS_LIMIT ? null : ODDS_LIMIT)} title="Force it whenever possible (9999)">Always</Button>
-                  </Space>
-                </div>
-              );
-            })}
+            {actions.map((action) => <OddsField key={action} action={action} kind={group.kind} value={odds[action]} onChange={(next) => setOdd(action, next)} />)}
           </div>
         </>
       ),

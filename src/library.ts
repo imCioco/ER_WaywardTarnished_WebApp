@@ -1,5 +1,5 @@
 import { parse, stringify } from 'smol-toml';
-import { CLASSES, GEAR_FIELDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
+import { CHANCE_GROUPS, CLASSES, CLASS_STATS, GEAR_FIELDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
 import type { ArmorChoice, Consumable, EquipmentPool, ItemChoice, ItemKind, LibraryDocument, Loadout, Personality, Pick, Tarnished, ValidationResult } from './types';
 
 /** What the item catalog knows about a goods id: whether the AI can use it and its stack limit. */
@@ -149,6 +149,18 @@ export function newEnemy(entries: Tarnished[], mode: 'gear' | 'pool'): Tarnished
   return base;
 }
 
+/** The starting attributes an entry may use: its own, or one per class (library.rs Tarnished::starts). */
+export function startingSets(entry: Tarnished): number[][] {
+  if (entry.attributes) return [STATS.map((stat) => Number(entry.attributes?.[stat] ?? 0))];
+  const classes = Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : [];
+  return classes.filter((name) => CLASS_STATS[name]).map((name) => [...CLASS_STATS[name]]);
+}
+
+/** Level of a set of attributes, as in the game: their sum minus 79, at least 1. */
+export function baseLevel(stats: number[]): number {
+  return Math.max(stats.reduce((sum, value) => sum + value, 0) - 79, 1);
+}
+
 function isWhole(value: unknown, minimum: number, maximum: number): boolean {
   return Number.isInteger(value) && Number(value) >= minimum && Number(value) <= maximum;
 }
@@ -241,7 +253,28 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
     if (!entry.name?.trim()) errors.push(`${label}: name is required.`);
     if ((entry.min_level ?? 0) > (entry.max_level ?? 713)) errors.push(`${label}: minimum level exceeds maximum level.`);
     const classes = Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : [];
-    if (!classes.length || classes.some((value) => !CLASSES.includes(value))) errors.push(`${label}: choose at least one valid starting class.`);
+    if (entry.attributes) {
+      const missing = STATS.filter((stat) => !isWhole(entry.attributes?.[stat], 1, 99));
+      if (missing.length) errors.push(`${label}: custom starting attributes need all eight, each from 1 to 99 (${missing.join(', ')}).`);
+    } else if (!classes.length || classes.some((value) => !CLASSES.includes(value))) errors.push(`${label}: choose at least one valid starting class.`);
+    if (entry.chance !== undefined && !(typeof entry.chance === 'number' && entry.chance >= 0 && entry.chance <= 100)) errors.push(`${label}: fixed chance must be from 0 to 100 percent.`);
+    const lowestStart = startingSets(entry).reduce((lowest, start) => Math.min(lowest, baseLevel(start)), Infinity);
+    (entry.stats ?? []).forEach((plan, planIndex) => {
+      const where = `${label} / stat plan ${planIndex + 1}`;
+      if (typeof plan !== 'object' || plan === null) { errors.push(`${where}: must be a table.`); return; }
+      if (!isWhole(plan.level, 0, 4294967295)) errors.push(`${where}: level must be a whole number.`);
+      for (const [key, value] of Object.entries(plan)) {
+        if (key === 'level') continue;
+        if (!STATS.includes(key)) errors.push(`${where}: unknown attribute “${key}”.`);
+        else if (!isWhole(value, 0, 99)) errors.push(`${where}: ${key} must be from 0 to 99.`);
+      }
+      const start = startingSets(entry)[0];
+      if (start && Number.isFinite(lowestStart) && isWhole(plan.level, 0, 4294967295)) {
+        const needed = STATS.reduce((sum, stat, index) => sum + Math.max(0, Number(plan[stat as keyof typeof plan] ?? 0) - start[index]), 0);
+        const available = Math.max(plan.level - lowestStart, 0);
+        if (needed > available) warnings.push(`${where} (level ${plan.level}) needs ${needed} points but that level gives only ${available}; it is reached as far as the points go.`);
+      }
+    });
     if (entry.roles && (!entry.roles.length || entry.roles.some((value) => !ROLES.includes(value)))) errors.push(`${label}: select at least one valid role.`);
     for (const title of entry.titles ?? []) {
       if ((title.match(/\{name\}/g) ?? []).length > 1) errors.push(`${label}: title “${title}” uses {name} more than once.`);
@@ -320,6 +353,10 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
     for (const gesture of document.gestures?.[field] ?? []) {
       if (validGestures.size && !validGestures.has(gesture)) errors.push(`Shared gestures: unknown ${field} gesture “${gesture}”.`);
     }
+  }
+  for (const [group, percent] of Object.entries(document.chances ?? {})) {
+    if (!CHANCE_GROUPS.some((known) => known.key === group)) errors.push(`Appearance odds: unknown group “${group}”.`);
+    else if (!(typeof percent === 'number' && percent >= 0 && percent <= 100)) errors.push(`Appearance odds: ${group} must be from 0 to 100 percent.`);
   }
   if (document.consumables) {
     const { kinds, pool } = document.consumables;
