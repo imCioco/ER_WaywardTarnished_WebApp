@@ -152,7 +152,9 @@ button, input, textarea { font: inherit; }
 .slot-block.has-options { border-color: #d0d0cc; }
 .slot-block-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 4px 4px 10px; background: #fafaf9; border-bottom: 1px solid #ececea; font-size: 12px; }
 .slot-block-head strong { font-size: 12px; }
-.options-tag { margin-left: 8px; }
+.slot-block-title { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; min-width: 0; }
+.options-note { font-size: 13px; font-weight: 500; color: #3a3a3a; cursor: help; }
+.options-note .anticon { margin-right: 4px; }
 .slot-block .choice-row:last-child { border-bottom: 0; }
 .armor-piece-grid .slot-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .slot-note-text { margin-bottom: 8px !important; font-size: 12.5px; }

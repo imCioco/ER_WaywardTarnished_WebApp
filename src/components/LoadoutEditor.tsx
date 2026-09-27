@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Button, Card, Collapse, Empty, Form, InputNumber, Popconfirm, Segmented, Space, Tag, Tooltip, Typography } from 'antd';
-import { CopyOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { CopyOutlined, DeleteOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { ARMOR_SLOTS, DEFAULT_WEIGHT, GEAR_FIELDS } from '../constants';
 import type { CatalogItem, ItemCatalog } from '../catalog';
 import { pickOptions } from '../library';
@@ -140,7 +140,14 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
           return (
             <div key={slotIndex} className={`slot-block ${options.length > 1 ? 'has-options' : ''}`}>
               <div className="slot-block-head">
-                <span><strong>{slotName}</strong>{options.length > 1 && <Tag className="options-tag">one of {options.length}</Tag>}</span>
+                <span className="slot-block-title">
+                  <strong>{slotName}</strong>
+                  {options.length > 1 && (
+                    <Tooltip title="Each Tarnished from this entry gets only one of these options, drawn by weight among those it can use at its level. The others are not equipped.">
+                      <Typography.Text className="options-note"><SwapOutlined /> Random pick: only 1 of these {options.length} is equipped</Typography.Text>
+                    </Tooltip>
+                  )}
+                </span>
                 <Space size={0}>
                   <Tooltip title="Add another option for this slot; one is picked for each Tarnished">
                     <Button type="text" size="small" icon={<PlusOutlined />} onClick={() => setEdit({ loadout: loadoutIndex, field, slot: slotIndex, option: -1 })}>Option</Button>
