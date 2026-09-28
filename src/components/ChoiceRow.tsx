@@ -11,23 +11,25 @@ type Props = {
   value: ItemChoice | ArmorChoice | Consumable;
   armorSet?: boolean;
   detail?: string;
+  /** The title of -1 here; default "Empty slot". */
+  emptyLabel?: string;
   readOnly?: boolean;
   onEdit: () => void;
   onDuplicate?: () => void;
   onDelete: () => void;
 };
 
-export function ChoiceRow({ catalog, kind, value, armorSet, detail, readOnly, onEdit, onDuplicate, onDelete }: Props) {
+export function ChoiceRow({ catalog, kind, value, armorSet, detail, emptyLabel, readOnly, onEdit, onDuplicate, onDelete }: Props) {
   const set = armorSet ? (Array.isArray(value) ? value as number[] : (value as { set: number[] }).set) : undefined;
   const metadata = !Array.isArray(value) && typeof value === 'object' ? value as WeightedChoice & Consumable & { set?: number[] } : undefined;
   const id = armorSet ? set?.find((piece) => piece >= 0) ?? -1 : choiceId(value as ItemChoice);
-  const title = armorSet ? (set?.map((piece) => catalog.name('armor', piece)).join(' · ') || 'Empty armor set') : catalog.name(kind, id);
+  const title = armorSet ? (set?.map((piece) => catalog.name('armor', piece)).join(' · ') || 'Empty armor set') : id === -1 && emptyLabel ? emptyLabel : catalog.name(kind, id);
   const icon = id >= 0 ? catalog.icon(kind, id) : undefined;
   return (
     <div className={`choice-row ${readOnly ? 'read-only' : ''}`} onDoubleClick={readOnly ? undefined : onEdit}>
       {set ? (
         <div className="armor-icons">{set.map((piece, index) => <ItemIcon key={index} catalog={catalog} kind="armor" id={piece} size={20} />)}</div>
-      ) : <Avatar shape="square" size={42} src={icon} className="item-avatar">{icon ? null : '#'}</Avatar>}
+      ) : <Avatar shape="square" size={42} src={icon} className="item-avatar">{icon ? null : id < 0 ? '–' : '#'}</Avatar>}
       <div className="choice-copy">
         <Typography.Text strong ellipsis={{ tooltip: title }}>{title}</Typography.Text>
         <Space size={4} wrap>

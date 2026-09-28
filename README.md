@@ -4,8 +4,9 @@ A browser-based editor for creating Wayward Tarnished enemy libraries. It runs e
 
 ## What it edits
 
-- Fixed Tarnished builds with level loadouts. Every slot holds one item or a weighted list of options (one is picked per Tarnished); armor is picked per piece or as whole sets; loadouts that share a level are weighted variants; arrows and bolts.
-- Strength-style random class pools, grouped into weapons, catalysts, complete armor presets, talismans, spells and Ashes of War.
+- Fixed Tarnished builds with level loadouts. Every slot holds one item or a weighted list of options (one is picked per Tarnished); armor is picked per piece or as whole sets; loadouts that share a level are weighted variants; arrows and bolts; a great rune (or options, with "No great rune" among them).
+- Strength-style random class pools, grouped into weapons, catalysts, complete armor presets, talismans, spells, Ashes of War and great runes.
+- Great runes: Godrick's, Radahn's, Morgott's, Rykard's, Mohg's and Malenia's, with their effect shown beside each; the mod applies the effect from the Tarnished's arrival, as after a Rune Arc. An option's level is a hard limit: a great rune never comes before it.
 - Per-choice minimum level and selection weight (defaults: level 1, weight 10, as in the mod).
 - Consumables: the shared pool and how many different ones each Tarnished carries (shared or per entry), plus per-entry **Use shared pool**, **Carry none** and **Own list** states. Only goods the player-like AI can use (`EquipParamGoods.aiUseJudgeId`) are offered, with counts capped at the stack size.
 - Item pickers with game icons for weapons, armor, talismans, spells, Ashes of War, ammunition and consumables. Ashes of War are grouped by whether they fit the chosen weapon and affinity; affinity and upgrade limits follow the weapon.
@@ -26,8 +27,7 @@ The app automatically stores an unfinished draft in browser storage. **Open** re
 The test builds need weapon and spell requirements, equip weights, catalyst types, talisman groups and Ash of War compatibility. `public/catalog/rules.json` holds them, exported from the game's `regulation.bin` with the mod's own param reader:
 
 ```text
-python scripts/export_rules.py "../Wayward Tarnished" [path	o
-egulation.bin]
+python scripts/export_rules.py "../Wayward Tarnished" [path\to\regulation.bin]
 ```
 
 ## Development

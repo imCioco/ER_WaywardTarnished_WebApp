@@ -1,5 +1,5 @@
 import { parse, stringify } from 'smol-toml';
-import { CHANCE_GROUPS, CLASSES, CLASS_STATS, GEAR_FIELDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
+import { CHANCE_GROUPS, CLASSES, CLASS_STATS, GEAR_FIELDS, GREAT_RUNE_IDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
 import type { Presets } from './presets';
 import type { ArmorChoice, Consumable, EquipmentPool, ItemChoice, LibraryDocument, Loadout, Personality, Pick, Tarnished, ValidationResult } from './types';
 
@@ -303,6 +303,15 @@ function validateChoice(choice: unknown, path: string, errors: string[], allowEm
   if (!isWhole(choice, allowEmpty ? -1 : 0, 2147483647)) errors.push(`${path}: item ID must be a whole number.`);
 }
 
+/** Great rune options: whole ids, each one of the six great runes or -1 for none (library.rs check_great_rune). */
+function validateGreatRunes(choices: ItemChoice[], path: string, errors: string[]): void {
+  choices.forEach((choice) => {
+    validateChoice(choice, path, errors, true);
+    const id = choiceId(choice);
+    if (Number.isInteger(id) && id !== -1 && !GREAT_RUNE_IDS.includes(id)) errors.push(`${path}: ${id} is not a great rune (${GREAT_RUNE_IDS.join(', ')}, or none).`);
+  });
+}
+
 function validateConsumables(list: unknown, owner: string, errors: string[], goods?: GoodsLookup): void {
   if (!Array.isArray(list)) { errors.push(`${owner}: consumables must be a list.`); return; }
   (list as Consumable[]).forEach((consumable, index) => {
@@ -428,6 +437,10 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
           pickOptions(pick).forEach((choice) => validateChoice(choice, `${where} / ${field.label} ${slotIndex + 1}`, errors, field.key === 'armor' || field.key === 'left'));
         });
       }
+      if (gear.great_rune !== undefined) {
+        if (Array.isArray(gear.great_rune) && !gear.great_rune.length) errors.push(`${where}: Great Rune has an empty list of options.`);
+        validateGreatRunes(pickOptions(gear.great_rune), `${where} / Great Rune`, errors);
+      }
       if (gear.armor?.length && gear.armor_sets?.length) errors.push(`${where}: uses both armor pieces and armor sets; pick one.`);
       gear.armor_sets?.forEach((choice, setIndex) => {
         const set = armorSetPieces(choice);
@@ -453,7 +466,8 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
             if (!Array.isArray(set) || set.length !== 4) errors.push(`${label} / armor set ${choiceIndex + 1}: choose head, chest, arms and legs.`);
             else set.forEach((piece, pieceIndex) => validateChoice(piece, `${label} / armor set ${choiceIndex + 1}.${pieceIndex + 1}`, errors, true));
           });
-        } else values.forEach((choice, choiceIndex) => validateChoice(choice, `${label} / ${field.label} ${choiceIndex + 1}`, errors, ['left', 'catalysts'].includes(field.key)));
+        } else if (field.key === 'great_runes') validateGreatRunes(values as ItemChoice[], `${label} / ${field.label}`, errors);
+        else values.forEach((choice, choiceIndex) => validateChoice(choice, `${label} / ${field.label} ${choiceIndex + 1}`, errors, ['left', 'catalysts'].includes(field.key)));
       }
     }
     // Without the DLC the mod takes its items out of the entry; one left with nothing is left out.

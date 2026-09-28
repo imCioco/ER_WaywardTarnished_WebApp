@@ -109,6 +109,30 @@ describe('paired weapons and the DLC in test builds', () => {
   });
 });
 
+describe('great runes in test builds', () => {
+  it('draws a great rune only within the level, and none when -1 is drawn', () => {
+    const library = mergeLibraries(parseLibrary(baseText), undefined);
+    const entry = { id: 'runes', name: 'Runes', class: 'hero', gear: [{ level: 1, right: [2000000], great_rune: [{ id: -1, weight: 10 }, { id: 193, level: 60 }] }] } as Tarnished;
+    const seen = new Set<number | undefined>();
+    for (let seed = 1; seed < 60; seed += 1) {
+      expect(sampleTarnished(entry, library, rules, { playerLevel: 30, spread: 0, random: seededRandom(seed) }).gear.greatRune).toBeUndefined();
+      seen.add(sampleTarnished(entry, library, rules, { playerLevel: 100, spread: 0, random: seededRandom(seed) }).gear.greatRune);
+    }
+    expect([...seen].sort()).toEqual([193, undefined]);
+    const pool = { id: 'rune-pool', name: 'Rune pool', class: 'hero', pool: { right: [2000000], great_runes: [196] } } as Tarnished;
+    expect(sampleTarnished(pool, library, rules, { playerLevel: 5, random: seededRandom(3) }).gear.greatRune).toBe(196);
+  });
+
+  it('gives shipped Tarnished great runes late in the game and none early', () => {
+    const library = mergeLibraries(parseLibrary(baseText), undefined);
+    const runes = (playerLevel: number) => library.entries.map((entry, index) => sampleTarnished(entry, library, rules, { playerLevel, spread: 0, random: seededRandom(index + 1) }).gear.greatRune);
+    expect(runes(20).every((rune) => rune === undefined)).toBe(true);
+    const late = runes(150);
+    expect(late.filter((rune) => rune !== undefined).length).toBeGreaterThan(library.entries.length / 2);
+    expect(late.every((rune) => rune === undefined || (rune >= 191 && rune <= 196))).toBe(true);
+  });
+});
+
 describe('new library fields', () => {
   it('round-trips chances, fixed chances and stat plans, and validates them', () => {
     const document = parseLibrary(baseText);

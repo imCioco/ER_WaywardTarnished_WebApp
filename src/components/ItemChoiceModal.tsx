@@ -17,6 +17,14 @@ type Props = {
   catalystOnly?: boolean;
   /** Only armor for this slot (head, chest, arms, legs). */
   armorSlot?: string;
+  /** Only these items (the great runes). */
+  onlyIds?: number[];
+  /** What -1 means here; default "Empty slot". */
+  emptyLabel?: string;
+  /** A line about the chosen item (a great rune's effect). */
+  detail?: (id: number) => string | undefined;
+  /** Replaces the note under the level and weight fields. */
+  poolNote?: string;
   title: string;
   onCancel: () => void;
   onSave: (value: ItemChoice | ArmorChoice) => void;
@@ -30,24 +38,29 @@ type ItemFieldProps = {
   allowEmpty?: boolean;
   catalystOnly?: boolean;
   slot?: string;
+  onlyIds?: number[];
+  emptyLabel?: string;
+  detail?: (id: number) => string | undefined;
   onChange: (value: number) => void;
 };
 
-function ItemField({ catalog, kind, value, label, allowEmpty, catalystOnly, slot, onChange }: ItemFieldProps) {
+function ItemField({ catalog, kind, value, label, allowEmpty, catalystOnly, slot, onlyIds, emptyLabel = 'Empty slot', detail, onChange }: ItemFieldProps) {
   const groups = useMemo(() => [{
     label,
     items: catalog.list(kind)
       .filter((item) => !catalystOnly || item.group === 'SpellTools')
-      .filter((item) => !slot || !item.slot || item.slot === slot),
-  }], [catalog, kind, catalystOnly, slot, label]);
+      .filter((item) => !slot || !item.slot || item.slot === slot)
+      .filter((item) => !onlyIds || onlyIds.includes(item.id)),
+  }], [catalog, kind, catalystOnly, slot, onlyIds, label]);
   const baseValue = kind === 'weapon' && value >= 0 ? Math.floor(value / 10000) * 10000 : value;
+  const hint = [value === -1 && allowEmpty ? emptyLabel : catalog.name(kind, value), detail?.(value)].filter(Boolean).join(' · ');
   return (
     <Form.Item label={label} className="choice-field">
       <div className="item-field">
-        {catalog.size > 0 && <ItemSelect catalog={catalog} kind={kind} groups={groups} value={baseValue} emptyLabel={allowEmpty ? 'Empty slot' : undefined} onChange={(next) => onChange(next ?? (allowEmpty ? -1 : 0))} />}
+        {catalog.size > 0 && <ItemSelect catalog={catalog} kind={kind} groups={groups} value={baseValue} emptyLabel={allowEmpty ? emptyLabel : undefined} onChange={(next) => onChange(next ?? (allowEmpty ? -1 : 0))} />}
         <InputNumber min={allowEmpty ? -1 : 0} max={2147483647} value={value} prefix="ID" onChange={(next) => onChange(Number(next ?? (allowEmpty ? -1 : 0)))} className="item-id-input" />
       </div>
-      <Typography.Text type="secondary" className="field-hint">{catalog.name(kind, value)}</Typography.Text>
+      <Typography.Text type="secondary" className="field-hint">{hint}</Typography.Text>
     </Form.Item>
   );
 }
@@ -77,7 +90,7 @@ function AshField({ catalog, weapon, affinity, value, onChange }: AshFieldProps)
 }
 
 export function ItemChoiceModal(props: Props) {
-  const { open, catalog, kind, pool, armorSet, allowEmpty, catalystOnly, armorSlot, title, onCancel, onSave } = props;
+  const { open, catalog, kind, pool, armorSet, allowEmpty, catalystOnly, armorSlot, onlyIds, emptyLabel, detail, poolNote, title, onCancel, onSave } = props;
   const [id, setId] = useState(0);
   const [pieces, setPieces] = useState([-1, -1, -1, -1]);
   const [level, setLevel] = useState(DEFAULT_LEVEL);
@@ -144,7 +157,7 @@ export function ItemChoiceModal(props: Props) {
           </>
         ) : (
           <>
-            <ItemField catalog={catalog} kind={kind} value={id} label="Item" allowEmpty={allowEmpty} catalystOnly={catalystOnly} slot={armorSlot} onChange={setId} />
+            <ItemField catalog={catalog} kind={kind} value={id} label="Item" allowEmpty={allowEmpty} catalystOnly={catalystOnly} slot={armorSlot} onlyIds={onlyIds} emptyLabel={emptyLabel} detail={detail} onChange={setId} />
             {kind === 'weapon' && id >= 0 && (
               <>
                 <div className="two-column-fields">
@@ -167,7 +180,7 @@ export function ItemChoiceModal(props: Props) {
               <Form.Item label="Available from level"><InputNumber min={1} max={713} value={level} onChange={(next) => setLevel(Number(next ?? DEFAULT_LEVEL))} /></Form.Item>
               <Form.Item label="Selection weight"><InputNumber min={0} value={weight} onChange={(next) => setWeight(Number(next ?? DEFAULT_WEIGHT))} /></Form.Item>
             </div>
-            <Typography.Paragraph type="secondary">Level 1 means always available. The default weight is {DEFAULT_WEIGHT}; a choice with weight 20 is twice as likely as one with 10.</Typography.Paragraph>
+            <Typography.Paragraph type="secondary">{poolNote ?? `Level 1 means always available. The default weight is ${DEFAULT_WEIGHT}; a choice with weight 20 is twice as likely as one with 10.`}</Typography.Paragraph>
           </>
         )}
       </Form>

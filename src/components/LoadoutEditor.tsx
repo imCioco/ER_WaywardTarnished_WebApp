@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Button, Card, Collapse, Empty, Form, InputNumber, Popconfirm, Segmented, Space, Tag, Tooltip, Typography } from 'antd';
 import { CopyOutlined, DeleteOutlined, PlusOutlined, SwapOutlined } from '@ant-design/icons';
-import { ARMOR_SLOTS, DEFAULT_WEIGHT, GEAR_FIELDS } from '../constants';
+import { ARMOR_SLOTS, DEFAULT_WEIGHT, GEAR_FIELDS, GREAT_RUNE_IDS, GREAT_RUNE_NOTE, NO_GREAT_RUNE, greatRuneEffect, greatRuneHint } from '../constants';
 import type { CatalogItem, ItemCatalog } from '../catalog';
-import { pickOptions } from '../library';
+import { choiceId, pickOptions } from '../library';
 import type { ArmorChoice, ItemChoice, ItemKind, Loadout, Pick } from '../types';
 import { ChoiceRow } from './ChoiceRow';
 import { ItemChoiceModal } from './ItemChoiceModal';
 import { ItemSelect } from './ItemSelect';
 
-type SlotField = 'right' | 'left' | 'armor' | 'talismans' | 'spells';
+type SlotField = 'right' | 'left' | 'armor' | 'talismans' | 'spells' | 'great_rune';
 
 /** What is being edited: an option of a slot, a new slot (slot -1) or a new option (option -1); or an armor set. */
 type EditState =
@@ -28,13 +28,16 @@ const SLOT_LABELS: Record<SlotField, { label: string; kind: ItemKind; limit: num
   armor: { label: 'Armor', kind: 'armor', limit: 4 },
   talismans: { label: 'Talismans', kind: 'talisman', limit: 4 },
   spells: { label: 'Spells', kind: 'spell', limit: 7 },
+  great_rune: { label: 'Great Rune', kind: 'goods', limit: 1 },
 };
 
 function toPick(options: ItemChoice[]): Pick {
   return options.length === 1 ? options[0] : options;
 }
 
+/** A field's slots; the great rune is a single slot, shown as a list of at most one. */
 function slotsOf(loadout: Loadout, field: SlotField): Pick[] {
+  if (field === 'great_rune') return loadout.great_rune === undefined ? [] : [loadout.great_rune];
   return (loadout[field] as Pick[] | undefined) ?? [];
 }
 
@@ -70,6 +73,10 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
     onChange(next);
   };
   const setSlots = (loadout: Loadout, field: SlotField, slots: Pick[]) => {
+    if (field === 'great_rune') {
+      if (slots.length) loadout.great_rune = slots[0]; else delete loadout.great_rune;
+      return;
+    }
     if (slots.length) (loadout as Record<string, unknown>)[field] = slots; else delete loadout[field];
   };
   const addLoadout = () => {
@@ -136,7 +143,7 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
       <div className="slot-list">
         {slots.length ? slots.map((pick, slotIndex) => {
           const options = pickOptions(pick);
-          const slotName = field === 'armor' ? `${ARMOR_SLOTS[slotIndex][0].toUpperCase()}${ARMOR_SLOTS[slotIndex].slice(1)}` : `Slot ${slotIndex + 1}${(field === 'right' || field === 'left') && slotIndex === 0 ? ' · held' : ''}`;
+          const slotName = field === 'armor' ? `${ARMOR_SLOTS[slotIndex][0].toUpperCase()}${ARMOR_SLOTS[slotIndex].slice(1)}` : field === 'great_rune' ? 'Slot' : `Slot ${slotIndex + 1}${(field === 'right' || field === 'left') && slotIndex === 0 ? ' · held' : ''}`;
           return (
             <div key={slotIndex} className={`slot-block ${options.length > 1 ? 'has-options' : ''}`}>
               <div className="slot-block-head">
@@ -165,14 +172,16 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
                   catalog={catalog}
                   kind={kind}
                   value={option}
+                  emptyLabel={field === 'great_rune' ? NO_GREAT_RUNE : undefined}
+                  detail={field === 'great_rune' ? greatRuneEffect(choiceId(option)) : undefined}
                   onEdit={() => setEdit({ loadout: loadoutIndex, field, slot: slotIndex, option: optionIndex, value: option })}
                   onDelete={() => removeOption(loadoutIndex, field, slotIndex, optionIndex)}
                 />
               ))}
             </div>
           );
-        }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={`No ${label.toLowerCase()}`} />}
-        {canAdd && <Button block type="dashed" icon={<PlusOutlined />} onClick={() => setEdit({ loadout: loadoutIndex, field, slot: -1, option: -1 })}>Add {field === 'right' || field === 'left' ? 'weapon' : field === 'talismans' ? 'talisman' : 'spell'} slot</Button>}
+        }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={field === 'great_rune' ? NO_GREAT_RUNE : `No ${label.toLowerCase()}`} />}
+        {canAdd && <Button block type="dashed" icon={<PlusOutlined />} onClick={() => setEdit({ loadout: loadoutIndex, field, slot: -1, option: -1 })}>{field === 'great_rune' ? 'Add a great rune' : `Add ${field === 'right' || field === 'left' ? 'weapon' : field === 'talismans' ? 'talisman' : 'spell'} slot`}</Button>}
       </div>
     );
   };
@@ -246,8 +255,12 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
             {(['talismans', 'spells'] as const).map((field) => (
               <Card key={field} size="small" className="loadout-group" title={`${SLOT_LABELS[field].label} · ${slotsOf(loadout, field).length}/${SLOT_LABELS[field].limit}`}>{renderSlots(loadout, loadoutIndex, field)}</Card>
             ))}
-            <Card size="small" className="loadout-group span-2" title="Ammunition">
-              <Form layout="vertical" component="div" className="two-column-fields">
+            <Card size="small" className="loadout-group" title="Great Rune">
+              <Typography.Paragraph type="secondary" className="slot-note-text">Worn from its arrival, as after a Rune Arc. An option never comes before its level; add “{NO_GREAT_RUNE}” to leave some without one.</Typography.Paragraph>
+              {renderSlots(loadout, loadoutIndex, 'great_rune')}
+            </Card>
+            <Card size="small" className="loadout-group" title="Ammunition">
+              <Form layout="vertical" component="div">
                 <AmmoField catalog={catalog} label="Arrows" ranges={[50, 51]} value={loadout.arrows} onChange={(arrows) => mutate(loadoutIndex, (target) => { if (arrows) target.arrows = arrows; else delete target.arrows; })} />
                 <AmmoField catalog={catalog} label="Bolts" ranges={[52, 53]} value={loadout.bolts} onChange={(bolts) => mutate(loadoutIndex, (target) => { if (bolts) target.bolts = bolts; else delete target.bolts; })} />
               </Form>
@@ -262,8 +275,9 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
   const optionEdit = edit && edit.field !== 'armor_sets' ? edit : undefined;
   const target = optionEdit ? gear[optionEdit.loadout] : undefined;
   const optionCount = optionEdit && target && optionEdit.slot >= 0 ? pickOptions((optionEdit.field === 'armor' ? armorPieces(target) : slotsOf(target, optionEdit.field))[optionEdit.slot]).length : 0;
-  // Weight and level matter once a slot has several options.
-  const weighted = Boolean(optionEdit && optionEdit.slot >= 0 && (optionEdit.option < 0 || optionCount > 1));
+  // Weight and level matter once a slot has several options; a great rune's level always does.
+  const greatRune = optionEdit?.field === 'great_rune';
+  const weighted = greatRune || Boolean(optionEdit && optionEdit.slot >= 0 && (optionEdit.option < 0 || optionCount > 1));
 
   return (
     <>
@@ -286,8 +300,9 @@ export function LoadoutEditor({ gear, catalog, onChange }: Props) {
           value={optionEdit.value}
           title={optionEdit.slot < 0 ? `Add ${editing.label.toLowerCase()} slot` : optionEdit.option < 0 ? `Add an option · ${editing.label}` : `Edit ${editing.label.toLowerCase()}`}
           pool={weighted}
-          allowEmpty={optionEdit.field === 'left' || optionEdit.field === 'armor'}
+          allowEmpty={optionEdit.field === 'left' || optionEdit.field === 'armor' || greatRune}
           armorSlot={optionEdit.field === 'armor' ? ARMOR_SLOTS[optionEdit.slot] : undefined}
+          {...(greatRune ? { onlyIds: GREAT_RUNE_IDS, emptyLabel: NO_GREAT_RUNE, detail: greatRuneHint, poolNote: GREAT_RUNE_NOTE } : {})}
           onCancel={() => setEdit(null)}
           onSave={(value) => saveChoice(value as ItemChoice)}
         />

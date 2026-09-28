@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { adoptArchetype, archetypes, armed, entryNames, isNamed, newEnemy, parseLibrary, serializeLibrary, stripDlcItems, validateLibrary, withUsedArchetypes } from '../src/library';
+import { GREAT_RUNE_IDS } from '../src/constants';
 import { EMPTY_PRESETS, withoutPreset, withPersonality } from '../src/presets';
 import type { Tarnished } from '../src/types';
 
@@ -207,6 +208,32 @@ describe('Wayward Tarnished library model', () => {
     expect(errors.some((error) => error.includes('unknown action “not_an_action”'))).toBe(true);
     expect(errors.some((error) => error.includes('style “missing-style”'))).toBe(true);
     expect(errors.some((error) => error.includes('legacy'))).toBe(false);
+  });
+
+  it('keeps great runes in loadouts and pools and accepts only the six or none', () => {
+    const document = parseLibrary(baseText);
+    const loadouts = document.tarnished.flatMap((entry) => entry.gear ?? []);
+    expect(loadouts.some((gear) => Array.isArray(gear.great_rune))).toBe(true);
+    expect(document.tarnished.filter((entry) => entry.pool).every((entry) => entry.pool!.great_runes?.length)).toBe(true);
+    // The great runes are goods in the catalog, so the pickers can show their names and icons.
+    for (const id of GREAT_RUNE_IDS) expect(items.some((item) => item.kind === 'goods' && item.id === id)).toBe(true);
+    const entry = newEnemy([], 'gear');
+    entry.gear = [{ level: 1, right: [2000000], great_rune: [{ id: -1, weight: 20 }, { id: 191, level: 30 }, 196] }, { level: 60, right: [2000000], great_rune: 193 }];
+    const pool = newEnemy([], 'pool');
+    pool.id = 'rune-pool';
+    pool.pool!.great_runes = [-1, { id: 195, level: 110, weight: 20 }];
+    document.tarnished = [entry, pool];
+    const saved = parseLibrary(serializeLibrary(document));
+    expect(saved.tarnished[0].gear).toEqual(entry.gear);
+    expect(saved.tarnished[1].pool?.great_runes).toEqual(pool.pool!.great_runes);
+    expect(validateLibrary(saved, { gestures }).errors).toEqual([]);
+    entry.gear[0].great_rune = [10080, -1];
+    entry.gear[1].great_rune = [];
+    pool.pool!.great_runes = [190];
+    const errors = validateLibrary(document, { gestures }).errors.join('\n');
+    expect(errors).toContain('10080 is not a great rune');
+    expect(errors).toContain('Great Rune has an empty list of options');
+    expect(errors).toContain('190 is not a great rune');
   });
 
   it('ships the expected local item catalog without external fetching', () => {

@@ -45,7 +45,7 @@ export function seededRandom(seed: number): Random {
 }
 
 export type Weapon = { id: number; ash?: number; upgrade?: number };
-export type Gear = { level: number; right: Weapon[]; left: Weapon[]; armor: number[]; talismans: number[]; spells: number[]; arrows?: [number, number]; bolts?: [number, number] };
+export type Gear = { level: number; right: Weapon[]; left: Weapon[]; armor: number[]; talismans: number[]; spells: number[]; arrows?: [number, number]; bolts?: [number, number]; greatRune?: number };
 
 type Pooled = ItemChoice | ArmorChoice | Consumable;
 
@@ -127,6 +127,12 @@ function draw<T extends Pooled>(items: T[], target: number, random: Random, acce
   });
 }
 
+/** A great rune among the options within the level (library.rs draw_great_rune); none when -1 is drawn or none is within the level yet. */
+function drawGreatRune(options: ItemChoice[], target: number, random: Random): number | undefined {
+  const rune = draw(options, target, random, () => true);
+  return rune !== undefined && choiceId(rune) > 0 ? choiceId(rune) : undefined;
+}
+
 function weightedIndex(weights: number[], random: Random): number {
   let roll = random.below(weights.reduce((sum, weight) => sum + weight, 0));
   const index = weights.findIndex((weight) => {
@@ -193,6 +199,7 @@ function resolveLoadout(loadout: Loadout, base: number[], target: number, budget
     const spell = draw(options, target, random, (option) => fresh(option) && castable(choiceId(option), gear, rules) && spent(changed(gear, (trial) => trial.spells.push(choiceId(option)))) <= budget) ?? options.find(fresh);
     if (spell !== undefined) gear.spells.push(choiceId(spell));
   }
+  if (loadout.great_rune !== undefined) gear.greatRune = drawGreatRune(pickOptions(loadout.great_rune), target, random);
   return gear;
 }
 
@@ -278,6 +285,7 @@ function generate(pool: EquipmentPool, base: number[], target: number, budget: n
     const ash = draw(pool.ashes ?? [], target, random, (item) => ashFits(choiceId(item), weapon.id, rules));
     if (ash !== undefined) weapon.ash = choiceId(ash);
   }
+  gear.greatRune = drawGreatRune(pool.great_runes ?? [], target, random);
   return gear;
 }
 

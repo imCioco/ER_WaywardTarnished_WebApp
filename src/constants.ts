@@ -62,7 +62,35 @@ export const POOL_FIELDS: { key: string; label: string; kind: ItemKind }[] = [
   { key: 'talismans', label: 'Talismans', kind: 'talisman' },
   { key: 'spells', label: 'Spells', kind: 'spell' },
   { key: 'ashes', label: 'Ashes of War', kind: 'ash' },
+  { key: 'great_runes', label: 'Great Runes', kind: 'goods' },
 ];
+
+/**
+ * The great runes a Tarnished can wear (library.rs GREAT_RUNES): goods ids, the effect the mod applies
+ * on arrival (as after a Rune Arc) and the level players usually hold each one by, used for new options.
+ */
+export const GREAT_RUNES: { id: number; effect: string; level: number }[] = [
+  { id: 191, effect: '+5 to every attribute', level: 30 },
+  { id: 192, effect: '+15% max HP, FP and stamina', level: 60 },
+  { id: 194, effect: 'Restores HP when it defeats a foe', level: 70 },
+  { id: 193, effect: '+25% max HP', level: 80 },
+  { id: 195, effect: 'Blessing of blood, the phantom’s rune', level: 110 },
+  { id: 196, effect: 'HP back on attacks right after taking damage', level: 120 },
+];
+export const GREAT_RUNE_IDS = GREAT_RUNES.map((rune) => rune.id);
+export const NO_GREAT_RUNE = 'No great rune';
+export const GREAT_RUNE_NOTE = `The Tarnished wears it from its arrival, as after a Rune Arc. A great rune never comes before its level: while no option is within the Tarnished's level, it wears none. Weight is the relative chance (default ${DEFAULT_WEIGHT}), and “${NO_GREAT_RUNE}” is an option like the others.`;
+
+/** What a great rune does, for option rows and test builds. */
+export function greatRuneEffect(id: number): string | undefined {
+  return GREAT_RUNES.find((rune) => rune.id === id)?.effect;
+}
+
+/** A great rune's effect and when players usually have it, for choosing its level. */
+export function greatRuneHint(id: number): string | undefined {
+  const rune = GREAT_RUNES.find((known) => known.id === id);
+  return rune && `${rune.effect}; players usually hold it from about level ${rune.level}`;
+}
 
 export const GEAR_FIELDS: { key: string; label: string; kind: ItemKind; limit?: number }[] = [
   { key: 'right', label: 'Right hand', kind: 'weapon', limit: 3 },
@@ -258,5 +286,5 @@ export function actionLabel(action: string): string {
 
 export const HUMAN_LABELS: Record<string, string> = {
   right: 'Right hand', left: 'Left hand', catalysts: 'Catalysts', armor: 'Armor sets',
-  talismans: 'Talismans', spells: 'Spells', ashes: 'Ashes of War', items: 'Items',
+  talismans: 'Talismans', spells: 'Spells', ashes: 'Ashes of War', items: 'Items', great_runes: 'Great Runes',
 };

@@ -268,7 +268,7 @@ function Studio() {
             {command('Open a library .toml file from your computer', <Button icon={<FolderOpenOutlined />} onClick={() => fileInput.current?.click()}>Open</Button>)}
             {command('View and edit the complete TOML source, including templates, faces and fields without a form', <Button icon={<CodeOutlined />} onClick={openRaw}>Advanced TOML</Button>)}
             {command('Check the library for errors and warnings before you install it', <Button icon={<CheckCircleOutlined />} onClick={showValidation}>Validate</Button>)}
-            {command('Validate, then save the library as a .toml file for WaywardTarnished\\library\\ next to the mod', <Button type="primary" icon={<DownloadOutlined />} onClick={download}>Download TOML</Button>)}
+            {command('Validate, then save the library as a .toml file for the library folder next to WaywardTarnished.dll', <Button type="primary" icon={<DownloadOutlined />} onClick={download}>Download TOML</Button>)}
           </Space>
         </header>
         <Layout.Content className="content-shell">

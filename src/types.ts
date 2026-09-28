@@ -30,6 +30,8 @@ export type Loadout = {
   spells?: Pick[];
   arrows?: [number, number];
   bolts?: [number, number];
+  /** One great rune (goods 191-196), or options to pick one from; -1 is none. An option's level is a hard limit. */
+  great_rune?: Pick;
 };
 
 export type EquipmentPool = {
@@ -40,6 +42,8 @@ export type EquipmentPool = {
   talismans?: ItemChoice[];
   spells?: ItemChoice[];
   ashes?: ItemChoice[];
+  /** Great runes to draw one from; -1 is none. */
+  great_runes?: ItemChoice[];
 };
 
 /** An entry's own given names: one list for either sex, or one list per sex (a sex left out uses the shared names). */

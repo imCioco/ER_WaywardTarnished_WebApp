@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Badge, Button, Card, Empty, Space, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { POOL_FIELDS } from '../constants';
+import { GREAT_RUNE_IDS, GREAT_RUNE_NOTE, NO_GREAT_RUNE, POOL_FIELDS, greatRuneEffect, greatRuneHint } from '../constants';
+import { choiceId } from '../library';
 import type { ItemCatalog } from '../catalog';
 import type { ArmorChoice, EquipmentPool, ItemChoice, ItemKind } from '../types';
 import { ChoiceRow } from './ChoiceRow';
@@ -56,6 +57,9 @@ export function PoolEditor({ pool, catalog, onChange }: Props) {
               title={<Space><span>{field.label}</span><Badge count={values.length} showZero color="#171717" /></Space>}
               extra={<Button size="small" icon={<PlusOutlined />} onClick={() => setEdit({ field: field.key, label: field.label, kind: field.kind, index: -1 })}>Add choice</Button>}
             >
+              {field.key === 'great_runes' && (
+                <Typography.Paragraph type="secondary" className="slot-note-text">One is drawn for each Tarnished among those within its level, and worn from its arrival. Add “{NO_GREAT_RUNE}” to leave some without one.</Typography.Paragraph>
+              )}
               {values.length ? values.map((value, index) => (
                 <ChoiceRow
                   key={index}
@@ -63,6 +67,8 @@ export function PoolEditor({ pool, catalog, onChange }: Props) {
                   kind={field.kind}
                   value={value}
                   armorSet={field.key === 'armor'}
+                  emptyLabel={field.key === 'great_runes' ? NO_GREAT_RUNE : undefined}
+                  detail={field.key === 'great_runes' ? greatRuneEffect(choiceId(value as ItemChoice)) : undefined}
                   onEdit={() => setEdit({ field: field.key, label: field.label, kind: field.kind, index, value })}
                   onDuplicate={() => duplicate(field.key, index)}
                   onDelete={() => remove(field.key, index)}
@@ -81,8 +87,9 @@ export function PoolEditor({ pool, catalog, onChange }: Props) {
           title={`${edit.index < 0 ? 'Add' : 'Edit'} ${edit.label.toLowerCase()} choice`}
           pool
           armorSet={edit.field === 'armor'}
-          allowEmpty={edit.field === 'left' || edit.field === 'catalysts'}
+          allowEmpty={edit.field === 'left' || edit.field === 'catalysts' || edit.field === 'great_runes'}
           catalystOnly={edit.field === 'catalysts'}
+          {...(edit.field === 'great_runes' ? { onlyIds: GREAT_RUNE_IDS, emptyLabel: NO_GREAT_RUNE, detail: greatRuneHint, poolNote: GREAT_RUNE_NOTE } : {})}
           onCancel={() => setEdit(null)}
           onSave={saveChoice}
         />

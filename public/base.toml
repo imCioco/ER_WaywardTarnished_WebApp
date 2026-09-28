@@ -7,6 +7,9 @@
 #     Iron Vanguard Knights that look and fight differently.
 #   - "Random Pool: ..." entries: class libraries that draw every piece of gear from item pools.
 #   - Named Tarnished: one person each, with a fixed name and face, who grows with you.
+# Great runes: pool loadouts from level 20 and every class library offer the six at the levels
+# players usually hold them (Godrick's from 30 to Malenia's from 120), weighted by theme, with a
+# "none" option; named Tarnished wear their own. See docs/LIBRARY.md, "Great runes".
 # Shadow of the Erdtree items are used freely: without the DLC they are left out of every entry, and
 # entries with dlc = true (built around DLC gear) are left out whole.
 
@@ -635,6 +638,8 @@ left = [[31130000, 31030000, 31000000, 31330000, 31140000]]
 armor = [[1500000, 1770000, 1790000, 40000], [1500100, 1770100, 1790100, 40100], [1500200, 1770200, 1790200], [1500300, 1770300, 1790300]]
 # talismans: [Crimson Amber Medallion / Dragoncrest Shield Talisman / Green Turtle Talisman / Axe Talisman]
 talismans = [[1000, 4000, 1150, 2130]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Greatsword
 [[tarnished.gear]]
@@ -646,6 +651,8 @@ right = [[{ id = 3180100, ash = 10000 }, { id = 3030100, ash = 10000 }, { id = 3
 armor_sets = [[1500000, 1500100, 1500200, 1500300], [1770000, 1770100, 1770200, 1770300], [50000, 50100, 50200, 50300], [60000, 60100, 60200, 60300]]
 # talismans: [Crimson Amber Medallion / Claw Talisman / Green Turtle Talisman]
 talismans = [[1000, 2180, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Two maces at once
 [[tarnished.gear]]
@@ -659,6 +666,8 @@ left = [[11050100, 11000100, 11010100, 11070100]]
 armor = [[40000, 1100000, 1101000], [1100100, 40100, 1101100], [1100200, 40200], [1100300, 40300]]
 # talismans: [Crimson Amber Medallion / Hammer Talisman]
 talismans = [[1000, 2070]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Knight's sword and heavier shield
 [[tarnished.gear]]
@@ -672,6 +681,8 @@ left = [[31130000, 31030000, 31140000, 31000000, { id = 31510000, weight = 6 }, 
 armor = [[1500000, 1770000, 1790000, 60000, 1101000], [1500100, 1770100, 1790100, 60100, 1101100], [1500200, 1770200, 1790200, 60200], [1500300, 1770300, 1790300, 60300]]
 # talismans: [Crimson Amber Medallion +1 / Erdtree's Favor] + [Dragoncrest Shield Talisman +1 / Green Turtle Talisman / Radagon's Soreseal]
 talismans = [[1001, 1040], [4001, 1150, 1051]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Greatsword
 [[tarnished.gear]]
@@ -683,6 +694,8 @@ right = [[{ id = 3180100, ash = 10000 }, { id = 3080100, ash = 10000 }, { id = 3
 armor_sets = [[200000, 200100, 200200, 200300], [1500000, 1500100, 1500200, 1500300], [1770000, 1770100, 1770200, 1770300], [1800000, 1800100, 1800200, 1800300], [1790000, 1790100, 1790200, 1790300]]
 # talismans: [Crimson Amber Medallion +1 / Claw Talisman] + [Green Turtle Talisman / Radagon's Soreseal]
 talismans = [[1001, 2180], [1150, 1051]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Halberd and shield
 [[tarnished.gear]]
@@ -696,6 +709,8 @@ left = [[31130000, 31030000, 31140000, 31000000, { id = 31510000, weight = 6 }, 
 armor = [[1500000, 1770000, 1790000, 60000, 1101000], [1500100, 1770100, 1790100, 60100, 1101100], [1500200, 1770200, 1790200, 60200], [1500300, 1770300, 1790300, 60300]]
 # talismans: [Crimson Amber Medallion +1 / Erdtree's Favor] + [Dragoncrest Shield Talisman +1 / Spear Talisman]
 talismans = [[1001, 1040], [4001, 2060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Sword and shield in heavy plate
 [[tarnished.gear]]
@@ -709,6 +724,8 @@ left = [[31130000, 31030000, 32090000, 31510000, { id = 32500000, weight = 5 }, 
 armor = [[200000, 280000, 1500000, 1800000], [200100, 280100, 1500100, 1800100], [200200, 280200, 1500200], [200300, 280300, 1500300]]
 # talismans: [Crimson Amber Medallion +1 / Erdtree's Favor +1] + [Dragoncrest Shield Talisman +1 / Great-Jar's Arsenal]
 talismans = [[1001, 1041], [4001, 1032]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Colossal sword
 [[tarnished.gear]]
@@ -720,6 +737,8 @@ right = [[{ id = 4000100, ash = 10000 }, { id = 4040100, ash = 10000 }, { id = 4
 armor_sets = [[200000, 200100, 200200, 200300], [280000, 280100, 280200, 280300], { set = [780000, 780100, 780200, 780300], weight = 5 }, [1800000, 1800100, 1800200, 1800300]]
 # talismans: [Crimson Amber Medallion +1 / Erdtree's Favor +1] + [Claw Talisman / Radagon's Soreseal]
 talismans = [[1001, 1041], [2180, 1051]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Sword and shield
 [[tarnished.gear]]
@@ -733,6 +752,8 @@ left = [[31130000, 31030000, 32090000, 31510000, { id = 32500000, weight = 5 }, 
 armor = [[280000, 270000, 200000, 5150000], [280100, 270100, 200100, 5150100], [280200, 270200, 5150200], [280300, 270300, 5150300]]
 # talismans: Crimson Amber Medallion +2 + [Dragoncrest Shield Talisman +2 / Great-Jar's Arsenal] + [Erdtree's Favor +1 / Green Turtle Talisman / Shard of Alexander]
 talismans = [1002, [4002, 1032], [1041, 1150, 1231]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Colossal or great sword
 [[tarnished.gear]]
@@ -744,6 +765,8 @@ right = [[{ id = 4000100, ash = 10000 }, 4100000, 3060000, { id = 3080100, ash =
 armor_sets = [[280000, 280100, 280200, 280300], [270000, 270100, 270200, 270300], [780000, 780100, 780200, 780300], { set = [5130000, 5130100, 5130200, 5130300], weight = 5 }]
 # talismans: Crimson Amber Medallion +2 + [Claw Talisman / Two-Handed Sword Talisman] + [Shard of Alexander / Radagon's Soreseal]
 talismans = [1002, [2180, 8040], [1231, 1051]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Knight of the Vanguard
 [[tarnished.gear]]
@@ -757,6 +780,8 @@ left = [[31130000, 32090000, 32500000, 31510000]]
 armor = [[270000, 280000, 5150000, 780000], [270100, 280100, 5150100, 780100], [270200, 5150200, 780200], [270300, 5150300, 780300]]
 # talismans: Crimson Amber Medallion +2 + Dragoncrest Shield Talisman +2 + [Shard of Alexander / Great-Jar's Arsenal] + [Erdtree's Favor +2 / Pearldrake Talisman +2]
 talismans = [1002, 4002, [1231, 1032], [1042, 4052]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Colossal blades
 [[tarnished.gear]]
@@ -768,6 +793,8 @@ right = [[4100000, 3550000, 3060000, { id = 4000100, ash = 10000 }, { id = 40200
 armor_sets = [[270000, 270100, 270200, 270300], [5130000, 5130100, 5130200, 5130300], [780000, 780100, 780200, 780300], [5150000, 5150100, 5150200, 5150300]]
 # talismans: Crimson Amber Medallion +2 + Two-Handed Sword Talisman + Shard of Alexander + [Claw Talisman / Radagon's Soreseal]
 talismans = [1002, 8040, 1231, [2180, 1051]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Lords of the Vanguard
 [[tarnished.gear]]
@@ -781,6 +808,8 @@ left = [[32090000, 32500000, 31130000, -1]]
 armor = [[5130000, 5150000, 270000], [5130100, 5150100, 270100], [5130200, 5150200], [5130300, 5150300]]
 # talismans: Crimson Amber Medallion +3 + Shard of Alexander + [Talisman of All Crucibles / Two-Handed Sword Talisman] + [Dragoncrest Greatshield Talisman / Great-Jar's Arsenal]
 talismans = [7000, 1231, [8240, 8040], [4003, 1032]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: dexterity sword-saints of the Land of Reeds. A katana alone or with a parrying dagger,
@@ -859,6 +888,8 @@ left = [[9000200, 7030200, 7140200]]
 armor = [[870000, 150000, 872000, -1], [870100, 150100, 872100], [870200, 150200, 872200], [870300, 150300, 872300]]
 # talismans: [Crimson Amber Medallion / Curved Sword Talisman]
 talismans = [[1000, 2200]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Katana
 [[tarnished.gear]]
@@ -872,6 +903,8 @@ left = [[{ id = -1, weight = 20 }, 1020000, 30000000]]
 armor = [[870000, 150000, 872000, -1, 190000], [870100, 150100, 872100, 190100], [870200, 150200, 872200], [870300, 150300, 872300]]
 # talismans: [Green Turtle Talisman / Claw Talisman / Crimson Amber Medallion +1]
 talismans = [[1150, 2180, 1001]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Twin katanas
 [[tarnished.gear]]
@@ -885,6 +918,8 @@ left = [[9000200, 9010200]]
 armor_sets = [[870000, 870100, 870200, 870300], [150000, 150100, 150200, 150300], [872000, 872100, 872200, 872300]]
 # talismans: [Claw Talisman / Green Turtle Talisman]
 talismans = [[2180, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Keen katanas
 [[tarnished.gear]]
@@ -898,6 +933,8 @@ left = [[{ id = -1, weight = 20 }, 1020000, { id = 1500000, weight = 5 }]]
 armor = [[870000, 872000, 180000, 150000], [870100, 872100, 180100, 150100], [870200, 872200, 180200], [870300, 872300, 180300]]
 # talismans: [Green Turtle Talisman / Crimson Amber Medallion +1] + [Claw Talisman / Winged Sword Insignia]
 talismans = [[1150, 1001], [2180, 2080]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Twin katanas
 [[tarnished.gear]]
@@ -911,6 +948,8 @@ left = [[9000200, 9010200, 9070000]]
 armor_sets = [[870000, 870100, 870200, 870300], [872000, 872100, 872200, 872300], [180000, 180100, 180200, 180300], [150000, 150100, 150200, 150300]]
 # talismans: [Claw Talisman / Green Turtle Talisman] + [Winged Sword Insignia / Millicent's Prosthesis]
 talismans = [[2180, 1150], [2080, 1250]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Great katana
 [[tarnished.gear]]
@@ -922,6 +961,8 @@ right = [[{ id = 66500200, ash = 411000 }, { id = 66500200, ash = 11200 }]]
 armor_sets = [[5160000, 5160100, 5160200, 5160300], [870000, 870100, 870200, 870300], [872000, 872100, 872200, 872300]]
 # talismans: [Crimson Amber Medallion +1 / Green Turtle Talisman] + [Claw Talisman / Two-Handed Sword Talisman]
 talismans = [[1001, 1150], [2180, 8040]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Master's blades
 [[tarnished.gear]]
@@ -935,6 +976,8 @@ left = [[{ id = -1, weight = 20 }, 1020000, 9000200]]
 armor = [[872000, 870000, 180000, { id = 770000, weight = 4 }], [872100, 870100, 180100, 5160100], [872200, 180200, 5160200], [872300, 180300, 5160300]]
 # talismans: Winged Sword Insignia + [Claw Talisman / Millicent's Prosthesis] + [Green Turtle Talisman / Crimson Amber Medallion +2]
 talismans = [2080, [2180, 1250], [1150, 1002]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Great katanas
 [[tarnished.gear]]
@@ -946,6 +989,8 @@ right = [[{ id = 66500200, ash = 411000 }, 66510000, 66520000]]
 armor_sets = [[5160000, 5160100, 5160200, 5160300], [872000, 872100, 872200, 872300], [180000, 180100, 180200, 180300]]
 # talismans: Two-Handed Sword Talisman + [Claw Talisman / Winged Sword Insignia] + Green Turtle Talisman
 talismans = [8040, [2180, 2080], 1150]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Swordsaint
 [[tarnished.gear]]
@@ -959,6 +1004,8 @@ left = [[{ id = -1, weight = 25 }, 1020000, 9010200]]
 armor = [[872000, 770000, 5160000, 180000], [872100, 770100, 5160100, 180100], [872200, 770200, 5160200], [872300, 770300, 5160300]]
 # talismans: Rotten Winged Sword Insignia + Millicent's Prosthesis + [Claw Talisman / Shard of Alexander] + [Green Turtle Talisman / Crimson Amber Medallion +2]
 talismans = [2081, 1250, [2180, 1231], [1150, 1002]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Great katanas
 [[tarnished.gear]]
@@ -970,6 +1017,8 @@ right = [[66520000, 66510000, { id = 66500200, ash = 411000 }]]
 armor_sets = [[5160000, 5160100, 5160200, 5160300], [872000, 872100, 872200, 872300]]
 # talismans: Two-Handed Sword Talisman + Rotten Winged Sword Insignia + Millicent's Prosthesis + Claw Talisman
 talismans = [8040, 2081, 1250, 2180]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 
 # Pool: intelligence knights of Caria. A blade in the right hand, a staff in the left: Carian
@@ -1037,6 +1086,8 @@ armor_sets = [[130000, 130100, 130200, 130300], [990000, 990100, 990200, 990300]
 talismans = [[2000, 1011, 3000]]
 # spells: Glintstone Pebble + [Carian Slicer / Glintblade Phalanx] + [Glintstone Icecrag / Magic Glintblade]
 spells = [4000, [4440, 4300], [4400, 4390]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Moonlit knight
 [[tarnished.gear]]
@@ -1052,6 +1103,8 @@ armor = [[980000, 130000, 830000, -1], [980100, 130100, 830100], [980200, 130200
 talismans = [[2000, 3000], [1150, 3080]]
 # spells: Carian Greatsword + Carian Slicer + Glintblade Phalanx + [Glintstone Pebble / Carian Piercer]
 spells = [4430, 4440, 4300, [4000, 4450]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Thrusting shield and staff
 [[tarnished.gear]]
@@ -1067,6 +1120,8 @@ armor_sets = [[980000, 980100, 980200, 980300], [130000, 130100, 130200, 130300]
 talismans = [[2000, 3000], [1150, 4090]]
 # spells: Carian Greatsword + Carian Slicer + Glintstone Pebble
 spells = [4430, 4440, 4000]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Moonblade knight
 [[tarnished.gear]]
@@ -1082,6 +1137,8 @@ armor = [[980000, 830000, 1010000, -1], [980100, 1010100, 130100], [980200, 1302
 talismans = [2000, [3000, 3080], [1150, 1231]]
 # spells: Adula's Moonblade + Carian Greatsword + Carian Slicer + Carian Piercer + [Glintblade Phalanx / Glintblade Trio]
 spells = [4431, 4430, 4440, 4450, [4300, 2004310]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Knight of the Full Moon
 [[tarnished.gear]]
@@ -1097,6 +1154,8 @@ armor_sets = [[980000, 980100, 980200, 980300], [1010000, 1010100, -1, 1010300],
 talismans = [2000, 3001, [1231, 3080], [1150, 8040]]
 # spells: Adula's Moonblade + Carian Greatsword + Carian Piercer + Carian Slicer + [Glintblade Trio / Carian Phalanx] + [Rellana's Twin Moons / Glintstone Pebble]
 spells = [4431, 4430, 4450, 4440, [2004310, 4301], [{ id = 2004320, weight = 3 }, 4000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: paladins of the Golden Order. Sacred weapons and a seal: Golden Vow and weapon buffs, then
@@ -1172,6 +1231,8 @@ armor_sets = [[1770000, 1770100, 1770200, 1770300], [1790000, 1790100, 1790200, 
 talismans = [[2030, 1001]]
 # spells: Rejection + Flame Grant Me Strength + [Catch Flame / Divine Fortification]
 spells = [6400, 6050, [6000, 6480]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Sacred greatsword or halberd
 [[tarnished.gear]]
@@ -1187,6 +1248,8 @@ armor_sets = [[1790000, 1790100, 1790200, 1790300], [1820000, 1820100, 1820200, 
 talismans = [[2030, 3070], [1150, 1001]]
 # spells: Golden Vow + Flame Grant Me Strength + [Rejection / Wrath of Gold]
 spells = [6600, 6050, [6400, 6410]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Seal and greatshield
 [[tarnished.gear]]
@@ -1202,6 +1265,8 @@ armor_sets = [[1820000, 1820100, 1820200, 1820300], [1790000, 1790100, 1790200, 
 talismans = [[2030, 3040], [4003, 3070]]
 # spells: Wrath of Gold + Golden Vow + [Rejection / Flame Grant Me Strength]
 spells = [6410, 6600, [6400, 6050]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Sword of the Golden Order
 [[tarnished.gear]]
@@ -1217,6 +1282,8 @@ armor_sets = [[1820000, 1820100, 1820200, 1820300], [5000000, 5000100, 5000200, 
 talismans = [2030, [3070, 3040], [1150, 1231]]
 # spells: Golden Vow + Flame Grant Me Strength + Wrath of Gold + [Rejection / Litany of Proper Death]
 spells = [6600, 6050, 6410, [6400, 6750]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Golden Lord
 [[tarnished.gear]]
@@ -1232,6 +1299,8 @@ armor = [[460000, 1820000, 5272000], [460100, 1820100, 5000100], [460200, 182020
 talismans = [2030, 3070, [1231, 3060], [8040, 1002]]
 # spells: Golden Vow + Flame Grant Me Strength + Wrath of Gold + Multilayered Ring of Light + [Litany of Proper Death / Giant Golden Arc]
 spells = [6600, 6050, 6410, 2006710, [6750, 2007710]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: glintstone sorcerers who keep their distance. Staff and sidearm, pebbles and shards early,
@@ -1299,6 +1368,8 @@ armor_sets = [[830000, 830100, 830200, 830300], [1010000, 1010100, -1, 1010300],
 talismans = [[1011, 3000]]
 # spells: Glintstone Pebble + Great Glintstone Shard + [Rock Sling / Glintstone Arc]
 spells = [4000, 4001, [4710, 4070]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 20 }, { id = 194, level = 70, weight = 3 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Gravity or crystal sorcerer
 [[tarnished.gear]]
@@ -1314,6 +1385,8 @@ armor_sets = [[581000, 581100, 581200, 830300], [830000, 830100, 830200, 830300]
 talismans = [[3000, 2000], [1011, 1080]]
 # spells: Rock Sling + Carian Slicer + Great Glintstone Shard + [Crystal Barrage / Ambush Shard / Gravity Well]
 spells = [4710, 4440, 4001, [4060, 4600, 4720]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 20 }, { id = 194, level = 70, weight = 3 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Comet sorcerer
 [[tarnished.gear]]
@@ -1329,6 +1402,8 @@ armor_sets = [[580000, 580100, 580200, 580300], [581000, 581100, 581200, 830300]
 talismans = [3001, [2000, 1080], [1012, 1140]]
 # spells: Stars of Ruin + Rock Sling + Carian Slicer + Night Comet + [Glintstone Cometshard / Gravitational Missile]
 spells = [4220, 4710, 4440, 4620, [4020, 2004710]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 20 }, { id = 194, level = 70, weight = 3 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Primeval
 [[tarnished.gear]]
@@ -1344,6 +1419,8 @@ armor_sets = [[580000, 580100, 580200, 580300], [581000, 581100, 581200, 830300]
 talismans = [3001, 2000, [1080, 1140], [1012, 1150]]
 # spells: Comet + Stars of Ruin + Rock Sling + Night Comet + [Comet Azur / Collapsing Stars] + [Glintstone Nails / Shattering Crystal]
 spells = [4021, 4220, 4710, 4620, [{ id = 4200, weight = 3 }, 4721], [2004510, 4500]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 20 }, { id = 194, level = 70, weight = 3 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 
 # Pool: giants of the strength build. Great hammers, greataxes and colossal weapons, sometimes a
@@ -1404,6 +1481,8 @@ right = [[{ id = 12000100, ash = 50600 }, { id = 12010100, ash = 10700 }, { id =
 armor_sets = [[730000, 730100, 730200, 730300], [1100000, 1100100, 1100200, 1100300], [1830000, 1830100, 1830200, 1830300], [300000, 300100, -1, 300300]]
 # talismans: [Bull-Goat's Talisman / Hammer Talisman / Axe Talisman]
 talismans = [[1210, 2070, 2130]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # A great hammer in each hand
 [[tarnished.gear]]
@@ -1417,6 +1496,8 @@ left = [[12000100, 12010100, 12140100]]
 armor_sets = [[730000, 730100, 730200, 730300], [300000, 300100, -1, 300300]]
 # talismans: [Hammer Talisman / Bull-Goat's Talisman]
 talismans = [[2070, 1210]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Colossal weapon
 [[tarnished.gear]]
@@ -1428,6 +1509,8 @@ right = [[{ id = 12060100, ash = 50600 }, { id = 15000100, ash = 11000 }, { id =
 armor_sets = [[860000, 860100, 860200, 860300], [720000, 720100, 720200, 720300], { set = [970000, 970100, 970200, 970300], weight = 5 }, { set = [780000, 780100, 780200, 780300], weight = 5 }, { set = [440000, 720100, 730200, 730300], weight = 4 }]
 # talismans: [Bull-Goat's Talisman / Great-Jar's Arsenal] + [Hammer Talisman / Axe Talisman / Crimson Amber Medallion +1]
 talismans = [[1210, 1032], [2070, 2130, 1001]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Two great hammers
 [[tarnished.gear]]
@@ -1441,6 +1524,8 @@ left = [[12060100, 12020100, 12190100]]
 armor_sets = [[720000, 720100, 720200, 720300], [860000, 860100, 860200, 860300]]
 # talismans: [Hammer Talisman / Bull-Goat's Talisman] + [Great-Jar's Arsenal / Crimson Amber Medallion +1]
 talismans = [[2070, 1210], [1032, 1001]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Giant-crushing
 [[tarnished.gear]]
@@ -1452,6 +1537,8 @@ right = [[{ id = 23110100, ash = 10000 }, { id = 23000100, ash = 11300 }, 230200
 armor_sets = [[140000, 140100, 140200, 140300], [780000, 780100, 780200, 780300], [970000, 970100, 970200, 970300], { set = [3010000, 3010100, 3010200, 3010300], weight = 5 }]
 # talismans: Great-Jar's Arsenal + [Bull-Goat's Talisman / Hammer Talisman] + [Shard of Alexander / Crimson Amber Medallion +2]
 talismans = [1032, [1210, 2070], [1231, 1002]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Colossus
 [[tarnished.gear]]
@@ -1463,6 +1550,8 @@ right = [[{ id = 23110100, ash = 10000 }, 23050000, 23500000, 23020000, 12510000
 armor_sets = [[140000, 140100, 140200, 140300], { set = [5010000, 5010100, 5010200, 5010300], weight = 6 }, [3010000, 3010100, 3010200, 3010300], [780000, 780100, 780200, 780300]]
 # talismans: Great-Jar's Arsenal + Shard of Alexander + [Two-Handed Sword Talisman / Hammer Talisman] + [Bull-Goat's Talisman / Crimson Amber Medallion +2]
 talismans = [1032, 1231, [8040, 2070], [1210, 1002]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: arcane bleed hunters of the Mohg vow. Reduvia and blood daggers, blood katanas two at a
@@ -1526,6 +1615,8 @@ left = [[{ id = -1, weight = 20 }, 1141100]]
 armor_sets = [[680000, 680100, 680200, 680300], [320000, 320100, -1, 320300], [930000, 930100, 930200, 930300], [1400000, 1400100, 1400200, 1400300]]
 # talismans: [Lord of Blood's Exultation / Crimson Amber Medallion]
 talismans = [[2160, 1000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 # Two blood katanas
 [[tarnished.gear]]
@@ -1539,6 +1630,8 @@ left = [[9001100, 7141100]]
 armor_sets = [[680000, 680100, 680200, 680300], [930000, 930100, 930200, 930300]]
 # talismans: [Lord of Blood's Exultation / Curved Sword Talisman]
 talismans = [[2160, 2200]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 # Bloodhound
 [[tarnished.gear]]
@@ -1552,6 +1645,8 @@ left = [[{ id = -1, weight = 20 }, 1040000, 1021100]]
 armor = [[790000, 680000, 1401000], [790100, 680100, 320100], [790200, 680200], [790300, 680300]]
 # talismans: [Lord of Blood's Exultation / Crimson Amber Medallion +1] + [Winged Sword Insignia / Green Turtle Talisman]
 talismans = [[2160, 1001], [2080, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 # Twin blood katanas
 [[tarnished.gear]]
@@ -1565,6 +1660,8 @@ left = [[9001100, 9011100]]
 armor_sets = [[790000, 790100, 790200, 790300], [680000, 680100, 680200, 680300]]
 # talismans: [Lord of Blood's Exultation / Winged Sword Insignia] + [Claw Talisman / Green Turtle Talisman]
 talismans = [[2160, 2080], [2180, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 # Rivers of blood
 [[tarnished.gear]]
@@ -1578,6 +1675,8 @@ left = [[{ id = -1, weight = 20 }, 1040000, 9001100]]
 armor_sets = [[790000, 790100, 790200, 790300], [680000, 680100, 680200, 680300], [963000, 963100, 963200, -1], [650000, 650100, 650200, 650300], [5190000, 5190100, 5190200, 5190300]]
 # talismans: Lord of Blood's Exultation + [Rotten Winged Sword Insignia / Winged Sword Insignia] + [Millicent's Prosthesis / Shard of Alexander]
 talismans = [2160, [2081, 2080], [1250, 1231]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 # Lord of blood
 [[tarnished.gear]]
@@ -1591,6 +1690,8 @@ left = [[{ id = -1, weight = 20 }, 1040000, 9001100]]
 armor = [[790000, 963000, 680000, 650000], [480100, 790100, 963100, 650100], [790200, 963200, 650200], [790300, 680300, 650300]]
 # talismans: Lord of Blood's Exultation + Rotten Winged Sword Insignia + Millicent's Prosthesis + [Shard of Alexander / Green Turtle Talisman]
 talismans = [2160, 2081, 1250, [1231, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 25 }, { id = 196, level = 120 }]
 
 
 # Pool: faith warriors of the ancient dragons. Lightning spears and halberds with a seal:
@@ -1659,6 +1760,8 @@ armor_sets = [[60000, 60100, 60200, 60300], [61000, 61100, 60200, 60300]]
 talismans = [[2010, 1000]]
 # spells: Lightning Spear + [Electrify Armament / Catch Flame]
 spells = [6900, [6960, 6000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Dragon halberd
 [[tarnished.gear]]
@@ -1674,6 +1777,8 @@ armor_sets = [[80000, 80100, 80200, 80300], [60000, 60100, 60200, 60300], [95000
 talismans = [[2010, 3050], [4031, 1150]]
 # spells: Lightning Spear + Honed Bolt + [Dragonbolt Blessing / Dragonclaw] + [Lightning Strike / Dragonfire]
 spells = [6900, 6930, [6971, 7060], [6920, 7000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Ancient dragon
 [[tarnished.gear]]
@@ -1689,6 +1794,8 @@ armor_sets = [[80000, 80100, 80200, 80300], [950000, 950100, 950200, 950300], { 
 talismans = [2010, [3050, 4032], [1150, 1231]]
 # spells: Ancient Dragons' Lightning Spear + Lightning Spear + Honed Bolt + [Dragonbolt Blessing / Dragonclaw] + [Frozen Lightning Spear / Agheel's Flame]
 spells = [6940, 6900, 6930, [6971, 7060], [6921, 7001]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Stormlord
 [[tarnished.gear]]
@@ -1704,6 +1811,8 @@ armor_sets = [[80000, 80100, 80200, 80300], [950000, 950100, 950200, 950300], { 
 talismans = [2010, 3050, [7110, 1231], [1150, 1002]]
 # spells: Fortissax's Lightning Spear + Ancient Dragons' Lightning Spear + Lansseax's Glaive + Honed Bolt + [Dragonbolt Blessing / Electrocharge] + [Knight's Lightning Spear / Dragonmaw]
 spells = [6941, 6940, 6950, 6930, [6971, 2006920], [2006900, 7080]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: apostles of the Godskins and the Deathbirds. Twinblades and black flame: Godskin Peelers,
@@ -1772,6 +1881,8 @@ armor_sets = [[520000, 520100, 520200, 520300], [290000, 290100, 290200, 290300]
 talismans = [[2120, 2020]]
 # spells: Black Flame + [Catch Flame / Black Flame Blade]
 spells = [6210, [6000, 6250]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Godskin peeler
 [[tarnished.gear]]
@@ -1787,6 +1898,8 @@ armor_sets = [[520000, 520100, 520200, 520300], [530000, 530100, 530200, 530300]
 talismans = [[2120, 2020], [5040, 1150]]
 # spells: Black Flame + Black Flame Blade + [Scouring Black Flame / Flame Grant Me Strength]
 spells = [6210, 6250, [6230, 6050]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Death knight
 [[tarnished.gear]]
@@ -1802,6 +1915,8 @@ armor_sets = [[5200000, 5200100, 5200200, 5200300], [5230000, 5230100, 5230200, 
 talismans = [[2020, 2130], [1150, 1001]]
 # spells: Black Flame + [Flame Grant Me Strength / Black Flame Blade]
 spells = [6210, [6050, 6250]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Black flame
 [[tarnished.gear]]
@@ -1817,6 +1932,8 @@ armor_sets = [[520000, 520100, 520200, 520300], [530000, 530100, 530200, 530300]
 talismans = [2020, [2120, 5040], [3050, 1150]]
 # spells: Black Flame + Scouring Black Flame + Black Flame Blade + [Noble Presence / Black Flame's Protection] + [Flame Grant Me Strength / Ghostflame Breath]
 spells = [6210, 6230, 6250, [6270, 6260], [6050, 2007020]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Apostle of the Night
 [[tarnished.gear]]
@@ -1832,6 +1949,8 @@ armor_sets = [[520000, 520100, 520200, 520300], [530000, 530100, 530200, 530300]
 talismans = [2020, 3050, [5040, 1231], [2120, 1150]]
 # spells: Black Flame Ritual + Black Flame + Scouring Black Flame + Black Flame Blade + [Noble Presence / Black Flame's Protection] + [Flame Grant Me Strength / Ghostflame Breath]
 spells = [6240, 6210, 6230, 6250, [6270, 6260], [6050, 2007020]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: the perfumer's craft. Early on a curved sword or scimitar, the Perfumer's Shield and a bag of
@@ -1912,6 +2031,8 @@ left = [[30010000, { id = 7140300, weight = 5 }]]
 armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300], [540000, 540100, 540200, 540300]]
 # talismans: Perfumer's Talisman
 talismans = [2220]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Perfume bottles in both hands
 [[tarnished.gear]]
@@ -1925,6 +2046,8 @@ left = [[30010000, 61500000, 61510000]]
 armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300], [540000, 540100, 540200, 540300]]
 # talismans: Perfumer's Talisman + [Green Turtle Talisman / Crimson Amber Medallion +1]
 talismans = [2220, [1150, 1001]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Curved sword and shield
 [[tarnished.gear]]
@@ -1938,6 +2061,8 @@ left = [30010000]
 armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300], [540000, 540100, 540200, 540300]]
 # talismans: Perfumer's Talisman + [Curved Sword Talisman / Green Turtle Talisman]
 talismans = [2220, [2200, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Master perfumer
 [[tarnished.gear]]
@@ -1951,6 +2076,8 @@ left = [[30010000, 61510000, 61530000]]
 armor = [[540000, 90000, 100000], [540100, 90100, 100100], [540200, 90200, 100200], [540300, 90300, 100300]]
 # talismans: Perfumer's Talisman + [Green Turtle Talisman / Crimson Amber Medallion +2] + [Ailment Talisman / Shard of Alexander]
 talismans = [2220, [1150, 1002], [8120, 1231]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Master perfumer
 [[tarnished.gear]]
@@ -1964,6 +2091,8 @@ left = [[30010000, 61530000, 61500000]]
 armor_sets = [[90000, 90100, 90200, 90300], [100000, 100100, 100200, 100300], [540000, 540100, 540200, 540300]]
 # talismans: Perfumer's Talisman + Green Turtle Talisman + [Ailment Talisman / Shard of Alexander] + [Crimson Amber Medallion +2 / Dried Bouquet]
 talismans = [2220, 1150, [8120, 1231], [1002, 8100]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: followers of the Three Fingers, who would burn the world and every distinction in it. The
@@ -2045,6 +2174,8 @@ armor = [[620000, 160000, 1083000, 1130000, 1940000], [622100, 160100, 812000, 1
 talismans = [[2020, 1000]]
 # spells: The Flame of Frenzy + [Frenzied Burst @35 / Catch Flame] + [Flame Sling / Surge O Flame!]
 spells = [7310, [{ id = 7320, level = 35 }, 6000], [6010, 6220]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Heralds of the Frenzy
 [[tarnished.gear]]
@@ -2060,6 +2191,8 @@ armor = [[620000, 160000, 1083000, 1130000, 1940000, 1085000], [622100, 160100, 
 talismans = [[2020, 3050], [1001, 1150]]
 # spells: The Flame of Frenzy + Frenzied Burst + [Howl of Shabriri / Inescapable Frenzy] + [Flame Grant Me Strength / Catch Flame]
 spells = [7310, 7320, [7330, 7300], [6050, 6000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Frenzyflame bottles
 [[tarnished.gear]]
@@ -2075,6 +2208,8 @@ armor = [[620000, 160000, 1083000, 1130000, 1940000], [622100, 160100, 812000, 1
 talismans = [[2020, 2220], [1001, 1150]]
 # spells: The Flame of Frenzy + Frenzied Burst
 spells = [7310, 7320]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Lords of the Frenzied Flame
 [[tarnished.gear]]
@@ -2090,6 +2225,8 @@ armor = [[620000, 160000, 1083000, 1130000, 1940000, 1085000], [622100, 160100, 
 talismans = [2020, [3050, 1002], [1231, 1150]]
 # spells: Unendurable Frenzy + The Flame of Frenzy + Frenzied Burst + Howl of Shabriri + [Inescapable Frenzy / Flame Grant Me Strength]
 spells = [7311, 7310, 7320, 7330, [7300, 6050]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Lords of the Frenzied Flame
 [[tarnished.gear]]
@@ -2105,6 +2242,8 @@ armor = [[620000, 160000, 1083000, 1130000, 1940000, 1085000], [622100, 160100, 
 talismans = [2020, 3050, 1231, [1150, 1002]]
 # spells: Unendurable Frenzy + Midra's Flame of Frenzy + Frenzied Burst + Howl of Shabriri + The Flame of Frenzy + [Inescapable Frenzy / Flame Grant Me Strength]
 spells = [7311, 2007300, 7320, 7330, 7310, [7300, 6050]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: fist and claw fighters. Caestus, katars and hookclaws early, star fists, grafted dragons and
@@ -2166,6 +2305,8 @@ right = [[{ id = 21080100, ash = 70000 }, { id = 21070100, ash = 50600 }, { id =
 armor = [[730000, 5190000, 5021000], [730100, 5190100, 5191100], [730200, 5190200], [730300, 5190300]]
 # talismans: [Claw Talisman / Crimson Amber Medallion / Green Turtle Talisman]
 talismans = [[2180, 1000, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Heavy hands
 [[tarnished.gear]]
@@ -2177,6 +2318,8 @@ right = [[21060000, 21120000, { id = 21080100, ash = 70000 }, 22021100, { id = 2
 armor = [[860000, 730000, 5020000, 5191000], [860100, 730100, 5020100, 5191100], [860200, 5020200], [860300, 5020300, 730300]]
 # talismans: [Claw Talisman / Crimson Amber Medallion +1] + [Green Turtle Talisman / Roar Medallion]
 talismans = [[2180, 1001], [1150, 2190]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Master of the unarmed arts
 [[tarnished.gear]]
@@ -2188,6 +2331,8 @@ right = [[21060000, 60500100, 60510200, { id = 21130000, weight = 4 }, 68510000,
 armor = [[3000000, 860000, 5020000], [3000100, 860100, 5020100], [3000200, 860200], [3000300, 860300]]
 # talismans: Claw Talisman + [Crimson Amber Medallion +2 / Shard of Alexander] + [Green Turtle Talisman / Roar Medallion]
 talismans = [2180, [1002, 1231], [1150, 2190]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 # Grandmaster
 [[tarnished.gear]]
@@ -2199,6 +2344,8 @@ right = [[21060000, 60500100, 68510000, 22500000, 21540100]]
 armor = [[3000000, 860000, 5021000], [3000100, 860100], [3000200, 860200], [3000300, 860300]]
 # talismans: Claw Talisman + Shard of Alexander + [Crimson Amber Medallion +2 / Roar Medallion] + [Green Turtle Talisman / Aged One's Exultation]
 talismans = [2180, 1231, [1002, 2190], [1150, 8060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 
 # Pool: turtles behind greatshields. A spear, lance or halberd poking over a wall of steel, guard
@@ -2260,6 +2407,8 @@ left = [[32050000, 32300000, 32290000, 32170000]]
 armor_sets = [[1500000, 1500100, 1500200, 1500300], [1770000, 1770100, 1770200, 1770300], [210000, 210100, 210200, 210300], [50000, 50100, 50200, 50300]]
 # talismans: [Dragoncrest Shield Talisman / Greatshield Talisman / Green Turtle Talisman]
 talismans = [[4000, 4100, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 20 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Lance and towershield
 [[tarnished.gear]]
@@ -2273,6 +2422,8 @@ left = [[32090000, 32230000, 32190000, 32200000, 32210000]]
 armor_sets = [[200000, 200100, 200200, 200300], [280000, 280100, 280200, 280300], [340000, 340100, 340200, 340300], [1800000, 1800100, 1800200, 1800300]]
 # talismans: [Dragoncrest Shield Talisman +1 / Greatshield Talisman] + [Green Turtle Talisman / Erdtree's Favor]
 talismans = [[4001, 4100], [1150, 1040]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 20 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Halberd and greatshield
 [[tarnished.gear]]
@@ -2286,6 +2437,8 @@ left = [[32090000, 32230000, 32240000]]
 armor_sets = [[200000, 200100, 200200, 200300], { set = [780000, 780100, 780200, 780300], weight = 4 }]
 # talismans: [Dragoncrest Shield Talisman +1 / Greatshield Talisman] + [Green Turtle Talisman / Spear Talisman]
 talismans = [[4001, 4100], [1150, 2060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 20 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Fortress
 [[tarnished.gear]]
@@ -2299,6 +2452,8 @@ left = [[32280000, 32270000, 32000000, 32500000, { id = 32130000, weight = 3 }]]
 armor_sets = [[270000, 270100, 270200, 270300], [640000, 640100, 640200, 640300], [5150000, 5150100, 5150200, 5150300], [780000, 780100, 780200, 780300]]
 # talismans: Dragoncrest Greatshield Talisman + [Greatshield Talisman / Pearl Shield Talisman] + [Green Turtle Talisman / Erdtree's Favor +1]
 talismans = [4003, [4100, 8090], [1150, 1041]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 20 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 # Living fortress
 [[tarnished.gear]]
@@ -2312,6 +2467,8 @@ left = [[32500000, 32280000, { id = 32130000, weight = 4 }, { id = 32520000, wei
 armor_sets = [[640000, 640100, 640200, 640300], [5150000, 5150100, 5150200, 5150300], [270000, 270100, 270200, 270300], { set = [5010000, 5010100, 5010200, 5010300], weight = 4 }]
 # talismans: Dragoncrest Greatshield Talisman + Greatshield Talisman + [Shard of Alexander / Pearl Shield Talisman] + [Erdtree's Favor +2 / Green Turtle Talisman]
 talismans = [4003, 4100, [1231, 8090], [1042, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 20 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 3 }]
 
 
 # Pool: pilgrims of the scarlet rot and the poison moth. Poison and rot weapons, Pest Threads,
@@ -2391,6 +2548,8 @@ armor = [[2000000, 341000, 160000], [2000100, 341100, 5070100], [340200, -1], [2
 talismans = [[1170, 1000]]
 # spells: Poison Mist + [Pest Threads / Poison Armament]
 spells = [7220, [7200, 7230]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 5 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110 }, { id = 196, level = 120, weight = 25 }]
 
 # Kindred of rot
 [[tarnished.gear]]
@@ -2406,6 +2565,8 @@ armor = [[2000000, 341000, 1130000, 5070000], [2000100, 340100, 1130100], [34020
 talismans = [[2170, 1171], [1001, 1150]]
 # spells: Poison Mist + Pest Threads + [Swarm of Flies / Poison Armament]
 spells = [7220, 7200, [7210, 7230]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 5 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110 }, { id = 196, level = 120, weight = 25 }]
 
 # Scarlet bloom
 [[tarnished.gear]]
@@ -2421,6 +2582,8 @@ armor_sets = [[2000000, 2000100, 340200, 2000300], [340000, 340100, 340200, 3403
 talismans = [2170, [1171, 8120], [1150, 1231]]
 # spells: Swarm of Flies + Pest Threads + Poison Mist + [Pest-Thread Spears / Poison Armament]
 spells = [7210, 7200, 7220, [2007210, 7230]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 5 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110 }, { id = 196, level = 120, weight = 25 }]
 
 # The Aeonia
 [[tarnished.gear]]
@@ -2436,6 +2599,8 @@ armor_sets = [[2000000, 2000100, 340200, 2000300], [340000, 340100, 340200, 3403
 talismans = [2170, 8120, [1231, 3050], [1150, 1171]]
 # spells: Scarlet Aeonia + Rotten Butterflies + Swarm of Flies + Pest Threads + [Pest-Thread Spears / Poison Mist]
 spells = [7240, 2007200, 7210, 7200, [2007210, 7220]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 5 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110 }, { id = 196, level = 120, weight = 25 }]
 
 
 # Pool: northern hunters who fight with frost. Cold axes and swords, the Icerind Hatchet, Zamor
@@ -2507,6 +2672,8 @@ left = [[{ id = -1, weight = 20 }, 30140000, 14080000]]
 armor_sets = [[1010000, 1010100, -1, 1010300], [300000, 300100, -1, 300300], [240000, 240100, 240200, 240300]]
 # talismans: [Crimson Amber Medallion / Green Turtle Talisman / Axe Talisman]
 talismans = [[1000, 1150, 2130]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Frost sorcerer
 [[tarnished.gear]]
@@ -2522,6 +2689,8 @@ armor_sets = [[1010000, 1010100, -1, 1010300]]
 talismans = [[2000, 1010]]
 # spells: Glintstone Icecrag + [Freezing Mist / Glintstone Pebble]
 spells = [4400, [4420, 4000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Zamor's heirs
 [[tarnished.gear]]
@@ -2535,6 +2704,8 @@ left = [[{ id = -1, weight = 20 }, 30140000]]
 armor_sets = [[1070000, 1070100, 1070200, 1070300], [1010000, 1010100, -1, 1010300], [240000, 240100, 240200, 240300], [5020000, 5020100, 5020200, 5020300]]
 # talismans: [Crimson Amber Medallion +1 / Green Turtle Talisman] + [Curved Sword Talisman / Winged Sword Insignia]
 talismans = [[1001, 1150], [2200, 2080]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Borealis's breath
 [[tarnished.gear]]
@@ -2550,6 +2721,8 @@ armor_sets = [[1070000, 1070100, 1070200, 1070300]]
 talismans = [[1001, 3050], [1150, 2200]]
 # spells: Dragonice + [Frozen Lightning Spear / Dragonclaw]
 spells = [7020, [6921, 7060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Frost blades
 [[tarnished.gear]]
@@ -2563,6 +2736,8 @@ left = [[{ id = -1, weight = 20 }, 30140000, { id = 5050000, weight = 5 }]]
 armor_sets = [[1070000, 1070100, 1070200, 1070300], [5020000, 5020100, 5020200, 5020300], [240000, 240100, 240200, 240300]]
 # talismans: Winged Sword Insignia + [Curved Sword Talisman / Crimson Amber Medallion +2] + [Green Turtle Talisman / Shard of Alexander]
 talismans = [2080, [2200, 1002], [1150, 1231]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Ice storm sorcerer
 [[tarnished.gear]]
@@ -2578,6 +2753,8 @@ armor_sets = [[1070000, 1070100, 1070200, 1070300], [1010000, 1010100, -1, 10103
 talismans = [2000, [3000, 1150], 1002]
 # spells: Zamor Ice Storm + Glintstone Icecrag + Frozen Armament + [Freezing Mist / Carian Slicer]
 spells = [4410, 4400, 4490, [4420, 4440]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Borealis's breath
 [[tarnished.gear]]
@@ -2593,6 +2770,8 @@ armor_sets = [[1070000, 1070100, 1070200, 1070300]]
 talismans = [3050, [2200, 1150], 1002]
 # spells: Borealis's Mist + Dragonice + [Frozen Lightning Spear / Dragonclaw]
 spells = [7021, 7020, [6921, 7060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Winter's end
 [[tarnished.gear]]
@@ -2606,6 +2785,8 @@ left = [[{ id = -1, weight = 20 }, { id = 9070000, weight = 8 }]]
 armor_sets = [[1070000, 1070100, 1070200, 1070300], [5020000, 5020100, 5020200, 5020300]]
 # talismans: Rotten Winged Sword Insignia + Millicent's Prosthesis + [Curved Sword Talisman / Shard of Alexander] + [Green Turtle Talisman / Crimson Amber Medallion +2]
 talismans = [2081, 1250, [2200, 1231], [1150, 1002]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: cutpurses and road bandits. Daggers, curved swords and a shortbow on the back, throwing
@@ -2678,6 +2859,8 @@ armor_sets = [[1980000, 1980100, 1980200, 930300], [930000, 930100, 930200, 9303
 # talismans: [Dagger Talisman / Crimson Amber Medallion / Assassin's Crimson Dagger]
 talismans = [[2090, 1000, 5050]]
 arrows = [50160000, 30]   # Arrow - Poisonbone
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 35 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 5 }]
 
 # Master thief
 [[tarnished.gear]]
@@ -2692,6 +2875,8 @@ armor_sets = [{ set = [180000, 180100, 180200, 180300], weight = 5 }, [1980000, 
 # talismans: [Dagger Talisman / Assassin's Crimson Dagger] + [Crimson Amber Medallion +1 / Longtail Cat Talisman]
 talismans = [[2090, 5050], [1001, 6040]]
 arrows = [50030000, 40]   # Arrow - Bone (Fletched)
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 35 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 5 }]
 
 # King of the road
 [[tarnished.gear]]
@@ -2706,6 +2891,8 @@ armor_sets = [[180000, 180100, 180200, 180300], [1890000, 1890100, 1890200, 1890
 # talismans: Dagger Talisman + [Assassin's Crimson Dagger / Crimson Amber Medallion +2] + [Shard of Alexander / Green Turtle Talisman]
 talismans = [2090, [5050, 1002], [1231, 1150]]
 arrows = [50030000, 40]   # Arrow - Bone (Fletched)
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 35 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 5 }]
 
 # King of the road
 [[tarnished.gear]]
@@ -2720,6 +2907,8 @@ armor_sets = [[180000, 180100, 180200, 180300], [5090000, 5090100, 5090200, 5090
 # talismans: Dagger Talisman + Assassin's Crimson Dagger + [Shard of Alexander / Millicent's Prosthesis] + [Green Turtle Talisman / Crimson Amber Medallion +2]
 talismans = [2090, 5050, [1231, 1250], [1150, 1002]]
 arrows = [50030000, 40]   # Arrow - Bone (Fletched)
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 35 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Pool: the online meta, from level 60. Rivers of Blood, Moonveil, Blasphemous Blade, Bloodhound's
@@ -2785,6 +2974,8 @@ left = [[{ id = -1, weight = 20 }, 9001100, 1021100]]
 armor = [[680000, 872000, 180000, 870000], [180100, 872100, 860100, 870100], [180200, 872200, 860200], [180300, 872300, 860300]]
 # talismans: [Lord of Blood's Exultation / Shard of Alexander] + [Winged Sword Insignia / Green Turtle Talisman]
 talismans = [[2160, 1231], [2080, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 # Big swords
 [[tarnished.gear]]
@@ -2796,6 +2987,8 @@ right = [[8030000, 3140000, 3090000, { id = 23110100, ash = 10000 }, { id = 4000
 armor = [[200000, 140000, 860000, 780000], [200100, 140100, 860100, 780100], [200200, 860200, 780200], [200300, 860300, 780300]]
 # talismans: [Shard of Alexander / Great-Jar's Arsenal] + [Two-Handed Sword Talisman / Green Turtle Talisman]
 talismans = [[1231, 1032], [8040, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 # Shadow of the Erdtree meta
 [[tarnished.gear]]
@@ -2809,6 +3002,8 @@ left = [[{ id = -1, weight = 20 }, 67500200, 62500100]]
 armor_sets = [[5160000, 5160100, 5160200, 5160300], [5090000, 5090100, 5090200, 5090300], [5180000, 5180100, 5180200, 5180300], [5150000, 5150100, 5150200, 5150300]]
 # talismans: [Shard of Alexander / Two-Handed Sword Talisman] + [Green Turtle Talisman / Rellana's Cameo]
 talismans = [[1231, 8040], [1150, 8220]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 # Meta at its height
 [[tarnished.gear]]
@@ -2822,6 +3017,8 @@ left = [[{ id = -1, weight = 20 }, 9001100, { id = 62510800, weight = 4 }]]
 armor = [[680000, 770000, 140000, 180000, 5160000], [180100, 140100, 770100, 5160100], [180200, 140200, 5160200], [180300, 140300, 5160300]]
 # talismans: Shard of Alexander + [Lord of Blood's Exultation / Rotten Winged Sword Insignia] + [Millicent's Prosthesis / Green Turtle Talisman]
 talismans = [1231, [2160, 2081], [1250, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 # Shadow of the Erdtree meta
 [[tarnished.gear]]
@@ -2835,6 +3032,8 @@ left = [[{ id = -1, weight = 20 }, 67500200, 62500100]]
 armor_sets = [[5160000, 5160100, 5160200, 5160300], [5090000, 5090100, 5090200, 5090300], [5150000, 5150100, 5150200, 5150300], [5000000, 5000100, 5000200, 5000300]]
 # talismans: Shard of Alexander + [Two-Handed Sword Talisman / Rellana's Cameo] + [Green Turtle Talisman / Crimson Amber Medallion +3]
 talismans = [1231, [8040, 8220], [1150, 7000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 # Meta at its height
 [[tarnished.gear]]
@@ -2848,6 +3047,8 @@ left = [[{ id = -1, weight = 20 }, 9001100, 67500200]]
 armor_sets = [[140000, 140100, 140200, 140300], [5160000, 5160100, 5160200, 5160300], [180000, 180100, 180200, 180300], [770000, 770100, 770200, 770300], [5090000, 5090100, 5090200, 5090300]]
 # talismans: Shard of Alexander + Two-Handed Sword Talisman + [Rotten Winged Sword Insignia / Lord of Blood's Exultation] + [Millicent's Prosthesis / Green Turtle Talisman]
 talismans = [1231, 8040, [2081, 2160], [1250, 1150]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 8 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 15 }, { id = 196, level = 120, weight = 15 }]
 
 
 # Pool (Shadow of the Erdtree): Messmer's fire knights and soldiers. Fire Knight's greatswords and
@@ -2915,6 +3116,8 @@ armor_sets = [[5180000, 5180100, 5180200, 5180300], [5140000, 5140100, 5140200, 
 talismans = [[2020, 4020]]
 # spells: [Fire Serpent / Catch Flame]
 spells = [[2007800, 6000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Fire knight's greatsword
 [[tarnished.gear]]
@@ -2930,6 +3133,8 @@ armor_sets = [[5180000, 5180100, 5180200, 5180300], [5183000, 5180100, 5180200, 
 talismans = [[2020, 4021], [1150, 1001]]
 # spells: Fire Serpent + [Flame Grant Me Strength / Catch Flame]
 spells = [2007800, [6050, 6000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Messmer's chosen
 [[tarnished.gear]]
@@ -2945,6 +3150,8 @@ armor_sets = [[5180000, 5180100, 5180200, 5180300], [5183000, 5180100, 5180200, 
 talismans = [2020, [4022, 1231], [1150, 1002]]
 # spells: Rain of Fire + Fire Serpent + Flame Grant Me Strength + [Catch Flame / Flame Protect Me]
 spells = [2007810, 2007800, 6050, [6000, 6060]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # Messmer's chosen
 [[tarnished.gear]]
@@ -2960,6 +3167,8 @@ armor_sets = [{ set = [5220000, 5220100, 5220200, 5220300], weight = 4 }, [51800
 talismans = [2020, 7100, [1231, 3050], [1150, 7000]]
 # spells: Messmer's Orb + Rain of Fire + Fire Serpent + Flame Grant Me Strength + [Flame Protect Me / Catch Flame]
 spells = [2007820, 2007810, 2007800, 6050, [6060, 6000]]
+# great rune: [none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120]
+great_rune = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 15 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # ==================================================================================================
 # Random pools: class libraries that draw every piece of gear per Tarnished.
@@ -3104,6 +3313,8 @@ ashes = [
     { id = 415000, level = 100 },   # Savage Lion's Claw @100
     { id = 400000, level = 100 },   # Spinning Gravity Thrust @100
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Random pool: dexterity builds. Katanas, curved swords, thrusting swords, twinblades, claws, whips,
@@ -3227,6 +3438,8 @@ ashes = [
     { id = 410000, level = 40 },   # Swift Slash @40
     { id = 409000, level = 60 },   # Blind Spot @60
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 15 }]
 
 
 # Random pool: quality builds, strength and dexterity alike. Quality-affinity swords, greatswords,
@@ -3334,6 +3547,8 @@ ashes = [
     { id = 60100, level = 60 },     # Royal Knight's Resolve @60
     { id = 415000, level = 100 },   # Savage Lion's Claw @100
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30, weight = 15 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120 }]
 
 
 # Random pool: sorcerers. A magic sidearm, a staff and sorceries for its level: glintstone, carian,
@@ -3468,6 +3683,8 @@ ashes = [
     80000,                          # Quickstep
     { id = 418000, level = 110 },   # Carian Sovereignty @110
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 20 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 3 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Random pool: faith casters. A sacred or flame weapon, a seal and incantations for its level: flame,
@@ -3601,6 +3818,8 @@ ashes = [
     { id = 20800, level = 30 },   # Prayerful Strike @30
     { id = 22200, level = 50 },   # Sacred Ring of Light @50
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80, weight = 15 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Random pool: arcane and bleed. Blood-affinity blades, claws, spears and scythes, the Mohg and Marais
@@ -3697,6 +3916,8 @@ ashes = [
     { id = 419000, level = 110 },   # Shriek of Sorrow @110
     { id = 505000, level = 110 },   # The Poison Flower Blooms Twice @110
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 5 }, { id = 194, level = 70, weight = 5 }, { id = 193, level = 80, weight = 5 }, { id = 195, level = 110, weight = 20 }, { id = 196, level = 120 }]
 
 
 # Random pool: hybrid spellswords. A blade from the int and faith uniques or an infused weapon, then a
@@ -3817,6 +4038,8 @@ ashes = [
     { id = 21700, level = 40 },   # Lightning Slash @40
     { id = 21800, level = 80 },   # Carian Grandeur @80
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60, weight = 15 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 
 # Random pool: fresh Tarnished of the early game, up to player level 70. Whatever they found on the road:
@@ -3908,6 +4131,8 @@ ashes = [
     { id = 65100, level = 20 },   # War Cry @20
     { id = 70000, level = 20 },   # Endure @20
 ]
+# great runes: none / Godrick's @30 / Radahn's @60
+great_runes = [{ id = -1, weight = 40 }, { id = 191, level = 30 }, { id = 192, level = 60 }]
 
 
 # Random pool (Shadow of the Erdtree): Tarnished who crossed into the Land of Shadow. Only the DLC's
@@ -4038,6 +4263,8 @@ ashes = [
     { id = 505000, level = 90 },    # The Poison Flower Blooms Twice @90
     { id = 200100, level = 80 },    # Aspects of the Crucible: Wings @80
 ]
+# great runes: none / Godrick's @30 / Radahn's @60 / Rykard's @70 / Morgott's @80 / Mohg's @110 / Malenia's @120
+great_runes = [{ id = -1, weight = 25 }, { id = 191, level = 30 }, { id = 192, level = 60 }, { id = 194, level = 70 }, { id = 193, level = 80 }, { id = 195, level = 110, weight = 5 }, { id = 196, level = 120, weight = 5 }]
 
 # ==================================================================================================
 # Named Tarnished: one person each, with one name and face, who grows with you.
@@ -4076,6 +4303,8 @@ left = [30000000]
 armor = [180000, 180100, 180200, 180300]
 # talismans: Dagger Talisman + Assassin's Crimson Dagger + Green Turtle Talisman
 talismans = [2090, 5050, 1150]
+# great rune: Morgott's Great Rune from level 60
+great_rune = { id = 193, level = 60 }
 
 [[tarnished.gear]]
 level = 120
@@ -4087,6 +4316,8 @@ left = [30000000]
 armor = [180000, 180100, 180200, 180300]
 # talismans: Dagger Talisman + Assassin's Crimson Dagger + Green Turtle Talisman + Shard of Alexander
 talismans = [2090, 5050, 1150, 1231]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 
 # Named: Let Me Solo Me. Jar on the head, nothing else, Uchigatana with Seppuku. Walks up and uses
@@ -4202,6 +4433,8 @@ left = [[31070000, 31270000, 30070000, { id = 14100100, weight = 6 }]]
 armor_sets = [[301000, 730100, 730200, 730300], [730000, 730100, 730200, 730300], [300000, 730100, 730200, 730300]]
 # talismans: Axe Talisman + [Crimson Amber Medallion / Roar Medallion]
 talismans = [2130, [1000, 2190]]
+# great rune: Godrick's Great Rune from level 40
+great_rune = { id = 191, level = 40 }
 
 [[tarnished.gear]]
 level = 60
@@ -4211,6 +4444,8 @@ right = [[{ id = 15000100, ash = 65000 }, { id = 15030100, ash = 65100 }, { id =
 armor_sets = [[300000, 730100, 730200, 730300], [730000, 730100, 730200, 730300], [720000, 720100, 720200, 720300], [5020000, 5020100, 5020200, 5020300]]
 # talismans: Axe Talisman + [Roar Medallion / Warrior Jar Shard] + Crimson Amber Medallion +1
 talismans = [2130, [2190, 1230], 1001]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -4220,6 +4455,8 @@ right = [[{ id = 15080100, ash = 65000 }, 15110000, { id = 15130100, ash = 65100
 armor_sets = [[720000, 720100, 720200, 720300], [300000, 720100, 720200, 720300], [5020000, 5020100, 5020200, 5020300]]
 # talismans: Axe Talisman + Roar Medallion + [Shard of Alexander / Warrior Jar Shard] + [Bull-Goat's Talisman / Erdtree's Favor +1]
 talismans = [2130, 2190, [1231, 1230], [1210, 1041]]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 150
@@ -4229,6 +4466,8 @@ right = [[15040000, 23050000, { id = 15080100, ash = 65400 }]]
 armor_sets = [[720000, 720100, 720200, 720300], [300000, 720100, 720200, 720300]]
 # talismans: Axe Talisman + Roar Medallion + Shard of Alexander + [Bull-Goat's Talisman / Erdtree's Favor +2]
 talismans = [2130, 2190, 1231, [1210, 1042]]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 
 # Named: Mother Cinder, the pyromancer. Torch or fire mace in rags, then the Monk's Flameblade and
@@ -4292,6 +4531,8 @@ armor_sets = [[350000, 350100, 350200, 350300], [351000, 351100, 351200, 351300]
 talismans = [2020]
 # spells: Catch Flame + Flame Sling + [Whirl O Flame! / Flame Grant Me Strength]
 spells = [6000, 6010, [6030, 6050]]
+# great rune: Rykard's Great Rune from level 50
+great_rune = { id = 194, level = 50 }
 
 [[tarnished.gear]]
 level = 70
@@ -4305,6 +4546,8 @@ armor_sets = [[360000, 360100, 360200, 360300], [350000, 350100, 350200, 350300]
 talismans = [2020, [3050, 1040]]
 # spells: [Giantsflame Take Thee / Flame Fall Upon Them] + Flame Sling + Flame Grant Me Strength + Flame Protect Me + Fire Serpent
 spells = [[6100, 6020], 6010, 6050, 6060, 2007800]
+# great rune: Rykard's Great Rune
+great_rune = 194
 
 [[tarnished.gear]]
 level = 120
@@ -4318,6 +4561,8 @@ armor_sets = [[360000, 360100, 360200, 360300], [350000, 350100, 350200, 350300]
 talismans = [2020, 3050, [1041, 1231], 4022]
 # spells: Flame of the Fell God + Giantsflame Take Thee + Burn O Flame! + Flame Grant Me Strength + Rain of Fire + [Messmer's Orb / Fire Serpent]
 spells = [6110, 6100, 6120, 6050, 2007810, [{ id = 2007820, weight = 4 }, 2007800]]
+# great rune: Rykard's Great Rune
+great_rune = 194
 
 
 # Named: Ser Brannoch of the Crucible. Knight's sword and shield, then greatswords and the Aspects of
@@ -4375,6 +4620,8 @@ left = [[31000000, 31290000]]
 armor_sets = [[1770000, 1770100, 1770200, 1770300], [1500000, 1500100, 1500200, 1500300]]
 # talismans: [Green Turtle Talisman / Dragoncrest Shield Talisman]
 talismans = [[1150, 4000]]
+# great rune: Godrick's Great Rune from level 40
+great_rune = { id = 191, level = 40 }
 
 [[tarnished.gear]]
 level = 60
@@ -4388,6 +4635,8 @@ armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300]
 talismans = [[1150, 4001], 1001]
 # spells: [Aspects of the Crucible: Tail / Aspects of the Crucible: Horns]
 spells = [[7500, 7510]]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 110
@@ -4401,6 +4650,8 @@ armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300]
 talismans = [1041, 1231, [4002, 1150]]
 # spells: Aspects of the Crucible: Tail + Aspects of the Crucible: Horns + Aspects of the Crucible: Breath + Aspects of the Crucible: Thorns
 spells = [7500, 7510, 7520, 2006650]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 [[tarnished.gear]]
 level = 150
@@ -4414,6 +4665,8 @@ armor_sets = [[570000, 570100, 570200, 570300], [571000, 571100, 570200, 570300]
 talismans = [1042, 1231, [8240, 4060], [4070, 4002]]
 # spells: Aspects of the Crucible: Tail + Aspects of the Crucible: Horns + Aspects of the Crucible: Breath + Aspects of the Crucible: Thorns + Aspects of the Crucible: Bloom
 spells = [7500, 7510, 7520, 2006650, 2006660]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 
 # Named: Try Finger But Hole, the message made flesh. The Ringed Finger hammer, the Fingerprint Stone
@@ -4622,6 +4875,8 @@ left = [[9000200, 9080000]]
 armor = [[872000, 870000], [872100, 870100], [872200], [872300]]
 # talismans: Winged Sword Insignia + Green Turtle Talisman
 talismans = [2080, 1150]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -4633,6 +4888,8 @@ left = [[9010200, 9000200]]
 armor = [[872000, -1], [872100], [872200], [872300]]
 # talismans: Winged Sword Insignia + Millicent's Prosthesis + Green Turtle Talisman
 talismans = [2080, 1250, 1150]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 120
@@ -4644,6 +4901,8 @@ left = [[9070000, 9010200]]
 armor = [[872000, 5160000], [872100, 5160100], [872200], [872300]]
 # talismans: Rotten Winged Sword Insignia + Millicent's Prosthesis + Shard of Alexander + Green Turtle Talisman
 talismans = [2081, 1250, 1231, 1150]
+# great rune: Malenia's Great Rune
+great_rune = 196
 
 
 # Named helper: Warden Aldous of the Blue Cipher. Answers when invaders come for you and can be
@@ -4701,6 +4960,8 @@ left = [[31100000, 32300000]]
 armor_sets = [[240000, 240100, 240200, 240300], [1780000, 1780100, 1780200, 1780300]]
 # talismans: [Dragoncrest Shield Talisman / Blue Dancer Charm]
 talismans = [[4000, 2110]]
+# great rune: Godrick's Great Rune from level 40
+great_rune = { id = 191, level = 40 }
 
 [[tarnished.gear]]
 level = 60
@@ -4712,6 +4973,8 @@ left = [[32250000, 32200000]]
 armor_sets = [[1780000, 1780100, 1780200, 1780300], [240000, 240100, 240200, 240300]]
 # talismans: Dragoncrest Shield Talisman +1 + [Greatshield Talisman / Green Turtle Talisman]
 talismans = [4001, [4100, 1150]]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -4723,6 +4986,8 @@ left = [[32250000, 32280000]]
 armor_sets = [[1780000, 1780100, 1780200, 1780300], [270000, 270100, 270200, 270300]]
 # talismans: Dragoncrest Greatshield Talisman + Greatshield Talisman + Pearl Shield Talisman
 talismans = [4003, 4100, 8090]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 [[tarnished.gear]]
 level = 120
@@ -4734,6 +4999,8 @@ left = [[32280000, 32250000]]
 armor_sets = [[1780000, 1780100, 1780200, 1780300], [270000, 270100, 270200, 270300]]
 # talismans: Dragoncrest Greatshield Talisman + Greatshield Talisman + Pearl Shield Talisman + Erdtree's Favor +2
 talismans = [4003, 4100, 8090, 1042]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 
 # Named: Brother Varro of the Three Fingers, herald of the Frenzied Flame. A torch and seal in rags,
@@ -4909,6 +5176,8 @@ left = [[1020200, 1500200]]
 armor_sets = [[180000, 180100, 180200, 180300]]
 # talismans: Dagger Talisman + Assassin's Crimson Dagger
 talismans = [2090, 5050]
+# great rune: Rykard's Great Rune
+great_rune = 194
 
 [[tarnished.gear]]
 level = 100
@@ -4920,6 +5189,8 @@ left = [[1500200, 1020200]]
 armor_sets = [[180000, 180100, 180200, 180300], [5090000, 5090100, 5090200, 5090300]]
 # talismans: Dagger Talisman + Assassin's Crimson Dagger + [Concealing Veil / Millicent's Prosthesis]
 talismans = [2090, 5050, [6010, 1250]]
+# great rune: Mohg's Great Rune
+great_rune = 195
 
 [[tarnished.gear]]
 level = 120
@@ -4931,6 +5202,8 @@ left = [[1500200, { id = 1010000, weight = 4 }]]
 armor_sets = [[180000, 180100, 180200, 180300], [5090000, 5090100, 5090200, 5090300]]
 # talismans: Dagger Talisman + Assassin's Crimson Dagger + Millicent's Prosthesis + Shard of Alexander
 talismans = [2090, 5050, 1250, 1231]
+# great rune: Mohg's Great Rune
+great_rune = 195
 
 
 # Named: Brynja Frostborn of the Giants' peaks. Cold hand axes and the Icerind Hatchet two at a time,
@@ -4996,6 +5269,8 @@ right = [[8050000, { id = 15000900, ash = 50100 }]]
 armor_sets = [[1070000, 1070100, 1070200, 1070300]]
 # talismans: Crimson Amber Medallion +1 + [Curved Sword Talisman / Axe Talisman]
 talismans = [1001, [2200, 2130]]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 100
@@ -5005,6 +5280,8 @@ right = [[{ id = 8510900, ash = 50100 }, 8050000]]
 armor_sets = [[5120000, 5120100, 5120200, 5120300], [1070000, 1070100, 1070200, 1070300]]
 # talismans: Crimson Amber Medallion +2 + Curved Sword Talisman + Green Turtle Talisman
 talismans = [1002, 2200, 1150]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 120
@@ -5014,6 +5291,8 @@ right = [[{ id = 8510900, ash = 416000 }, 8050000]]
 armor_sets = [[5120000, 5120100, 5120200, 5120300], [1070000, 1070100, 1070200, 1070300]]
 # talismans: Crimson Amber Medallion +2 + Curved Sword Talisman + Shard of Alexander + Green Turtle Talisman
 talismans = [1002, 2200, 1231, 1150]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 
 # Named: the Pale Pilgrim of the scarlet rot. A poisoned scythe and seal, Pest's Glaive and a rotten
@@ -5092,6 +5371,8 @@ armor_sets = [[2000000, 2000100, 340200, 2000300]]
 talismans = [2170, 1171]
 # spells: Pest Threads + Swarm of Flies + Poison Mist
 spells = [7200, 7210, 7220]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -5105,6 +5386,8 @@ armor_sets = [[2010000, 1130100, 1130200, 1130300], [2000000, 2000100, 340200, 2
 talismans = [2170, 8120, 3050]
 # spells: Rotten Butterflies + Swarm of Flies + Pest Threads + Poison Mist
 spells = [2007200, 7210, 7200, 7220]
+# great rune: Malenia's Great Rune
+great_rune = 196
 
 [[tarnished.gear]]
 level = 120
@@ -5118,6 +5401,8 @@ armor_sets = [[2010000, 1130100, 1130200, 1130300]]
 talismans = [2170, 8120, 3050, 1231]
 # spells: Scarlet Aeonia + Rotten Butterflies + Swarm of Flies + Pest-Thread Spears + Pest Threads
 spells = [7240, 2007200, 7210, 2007210, 7200]
+# great rune: Malenia's Great Rune
+great_rune = 196
 
 
 # Named helper: Dame Aurelia of the Golden Vow. Answers when invaders come for you and can be summoned;
@@ -5181,6 +5466,8 @@ armor_sets = [[1790000, 1790100, 1790200, 1790300]]
 talismans = [2030]
 # spells: Rejection + Flame Grant Me Strength + Divine Fortification
 spells = [6400, 6050, 6480]
+# great rune: Godrick's Great Rune from level 40
+great_rune = { id = 191, level = 40 }
 
 [[tarnished.gear]]
 level = 60
@@ -5194,6 +5481,8 @@ armor_sets = [[1820000, 1820100, 1820200, 1820300]]
 talismans = [2030, 3040]
 # spells: Golden Vow + Flame Grant Me Strength + Wrath of Gold + Barrier of Gold
 spells = [6600, 6050, 6410, 6330]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -5207,6 +5496,8 @@ armor_sets = [[5000000, 5000100, 5000200, 5000300], [1820000, 1820100, 1820200, 
 talismans = [2030, 3040, 3070]
 # spells: Golden Vow + Flame Grant Me Strength + Wrath of Gold + Protection of the Erdtree + Litany of Proper Death
 spells = [6600, 6050, 6410, 6340, 6750]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 [[tarnished.gear]]
 level = 120
@@ -5220,6 +5511,8 @@ armor_sets = [[5272000, 5000100, 5000200, 5000300], [5000000, 5000100, 5000200, 
 talismans = [2030, 3040, 3070, 1231]
 # spells: Golden Vow + Flame Grant Me Strength + Wrath of Gold + Protection of the Erdtree + Multilayered Ring of Light + Golden Lightning Fortification
 spells = [6600, 6050, 6410, 6340, 2006710, 7903]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 
 # Named: Gorm the Bonebreaker. One answer to every problem, and it gets bigger: large club, great mace,
@@ -5281,6 +5574,8 @@ right = [[23020000, { id = 12190100, ash = 10600 }]]
 armor_sets = [[720000, 720100, 720200, 720300]]
 # talismans: Bull-Goat's Talisman + Hammer Talisman
 talismans = [1210, 2070]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -5290,6 +5585,8 @@ right = [{ id = 23110100, ash = 10000 }]
 armor_sets = [[140000, 140100, 140200, 140300]]
 # talismans: Bull-Goat's Talisman + Hammer Talisman + Great-Jar's Arsenal
 talismans = [1210, 2070, 1032]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 [[tarnished.gear]]
 level = 120
@@ -5299,6 +5596,8 @@ right = [{ id = 23110100, ash = 50900 }]
 armor_sets = [[140000, 140100, 140200, 140300]]
 # talismans: Bull-Goat's Talisman + Hammer Talisman + Great-Jar's Arsenal + Shard of Alexander
 talismans = [1210, 2070, 1032, 1231]
+# great rune: Morgott's Great Rune
+great_rune = 193
 
 
 # Named: Selene of the Full Moon, a carian sorceress. A staff and a carian blade, pebbles and slicers,
@@ -5380,6 +5679,8 @@ armor_sets = [[1010000, 1010100, -1, 1010300]]
 talismans = [3000, 2000]
 # spells: Carian Greatsword + Carian Slicer + Carian Piercer + Glintblade Phalanx
 spells = [4430, 4440, 4450, 4300]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 100
@@ -5393,6 +5694,8 @@ armor_sets = [[510000, 510100, 510200, 510300], [1010000, 1010100, -1, 1010300]]
 talismans = [3001, 2000, 3080]
 # spells: Adula's Moonblade + Carian Greatsword + Carian Slicer + Carian Piercer + Carian Phalanx
 spells = [4431, 4430, 4440, 4450, 4301]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 150
@@ -5406,6 +5709,8 @@ armor_sets = [[510000, 510100, 510200, 510300]]
 talismans = [3001, 2000, 3080, 1231]
 # spells: Rennala's Full Moon + Adula's Moonblade + Carian Greatsword + Carian Slicer + Carian Piercer + Carian Phalanx
 spells = [4360, 4431, 4430, 4440, 4450, 4301]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 
 # Named (Shadow of the Erdtree): Hrolf the Horned, a hornsent warrior. Curved swords two at a time, then
@@ -5469,6 +5774,8 @@ right = [[7530000, 8520000]]
 armor_sets = [[5250000, 5250100, 5250200, 5250300], [5253000, 5253100, 5253200, 5253300]]
 # talismans: Curved Sword Talisman + Green Turtle Talisman
 talismans = [2200, 1150]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -5478,6 +5785,8 @@ right = [[8520000, 7530000]]
 armor_sets = [[5252000, 5252100, 5250200, 5250300], [5250000, 5250100, 5250200, 5250300]]
 # talismans: Curved Sword Talisman + Green Turtle Talisman + Enraged Divine Beast
 talismans = [2200, 1150, 8180]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 [[tarnished.gear]]
 level = 120
@@ -5487,6 +5796,8 @@ right = [[8520000, 7530000]]
 armor_sets = [[5252000, 5252100, 5250200, 5250300], [5250000, 5250100, 5250200, 5250300]]
 # talismans: Curved Sword Talisman + Green Turtle Talisman + Enraged Divine Beast + Shard of Alexander
 talismans = [2200, 1150, 8180, 1231]
+# great rune: Radahn's Great Rune
+great_rune = 192
 
 
 # Named: Old Gammon the Potter, a grandfather who never met a problem a pot could not solve. Eight kinds
@@ -5564,6 +5875,8 @@ left = [30030000]
 armor_sets = [[390000, 390100, -1, 390300], [250000, 250100, -1, 250300]]
 # talismans: Arrow's Reach Talisman + Green Turtle Talisman
 talismans = [2100, 1150]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 100
@@ -5575,6 +5888,8 @@ left = [30030000]
 armor_sets = [[390000, 390100, -1, 390300]]
 # talismans: Arrow's Reach Talisman + Green Turtle Talisman + Crimson Amber Medallion +2
 talismans = [2100, 1150, 1002]
+# great rune: Godrick's Great Rune
+great_rune = 191
 
 [[tarnished.gear]]
 level = 120
@@ -5586,3 +5901,5 @@ left = [30030000]
 armor_sets = [[390000, 390100, -1, 390300]]
 # talismans: Arrow's Reach Talisman + Green Turtle Talisman + Crimson Amber Medallion +2 + Shard of Alexander
 talismans = [2100, 1150, 1002, 1231]
+# great rune: Godrick's Great Rune
+great_rune = 191

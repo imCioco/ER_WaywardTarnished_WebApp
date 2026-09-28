@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Alert, Avatar, Button, Card, Descriptions, Divider, Drawer, Empty, Flex, Form, InputNumber, Listy, Select, Slider, Space, Switch, Tag, Tooltip, Typography } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import type { ItemCatalog } from '../catalog';
-import { LEVEL_SPREAD, STATS } from '../constants';
+import { LEVEL_SPREAD, STATS, greatRuneEffect } from '../constants';
 import type { Archetype } from '../library';
 import { planValues, sampleTarnished, seededRandom, type MergedLibrary, type Rules } from '../simulate';
 import type { ItemKind, Tarnished } from '../types';
@@ -59,6 +59,7 @@ export function SampleDrawer({ open, entry, library, rules, catalog, archetypes,
     ['Head', 'Chest', 'Arms', 'Legs'].forEach((slot, index) => rows.push({ key: `a${index}`, slot, kind: 'armor', id: sample.gear.armor[index] ?? -1 }));
     sample.gear.talismans.forEach((id, index) => rows.push({ key: `t${index}`, slot: `Talisman ${index + 1}`, kind: 'talisman', id }));
     sample.gear.spells.forEach((id, index) => rows.push({ key: `s${index}`, slot: `Spell ${index + 1}`, kind: 'spell', id }));
+    if (sample.gear.greatRune !== undefined) rows.push({ key: 'rune', slot: 'Great Rune, worn from its arrival', kind: 'goods', id: sample.gear.greatRune, detail: greatRuneEffect(sample.gear.greatRune) });
     if (sample.gear.arrows) rows.push({ key: 'arrows', slot: 'Arrows', kind: 'weapon', id: sample.gear.arrows[0], detail: `×${sample.gear.arrows[1]}` });
     if (sample.gear.bolts) rows.push({ key: 'bolts', slot: 'Bolts', kind: 'weapon', id: sample.gear.bolts[0], detail: `×${sample.gear.bolts[1]}` });
   }
