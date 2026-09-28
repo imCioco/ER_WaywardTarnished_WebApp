@@ -6,6 +6,11 @@ export function kindLabel(archetype: Archetype): string {
   return archetype.kind === 'style' ? 'Vanilla style' : 'Custom personality';
 }
 
+/** Where an archetype comes from, as a short tag. */
+export function sourceLabel(archetype: Archetype): string {
+  return archetype.source === 'base' ? 'base.toml preset' : archetype.source === 'saved' ? 'Saved preset' : 'In this file';
+}
+
 export function archetypeDetail(archetype: Archetype): string {
   if (archetype.kind === 'style') return `NPC personality SpEffect ${archetype.effect}`;
   const changed = Object.keys(archetype.personality?.odds ?? {}).length;
@@ -17,7 +22,7 @@ export function ArchetypeSummary({ archetype }: { archetype: Archetype }) {
     <div className="archetype-popover">
       <Space size={4} wrap>
         <Tag>{kindLabel(archetype)}</Tag>
-        {archetype.inherited && <Tag>from base.toml</Tag>}
+        <Tag>{sourceLabel(archetype)}</Tag>
       </Space>
       <Typography.Paragraph className="archetype-description">{archetype.description || <Typography.Text type="secondary">No description yet.</Typography.Text>}</Typography.Paragraph>
       <Typography.Text type="secondary" className="archetype-meta">{archetypeDetail(archetype)}</Typography.Text>

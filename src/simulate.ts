@@ -1,12 +1,12 @@
 import { CHANCE_GROUPS, LEVEL_SPREAD, MAXIMUM_LEVEL, SOFT_CAPS, STATS } from './constants';
-import { baseLevel, choiceId, pickOptions, startingSets } from './library';
+import { baseLevel, choiceId, entryNames, isDlcGoods, isNamed, pickOptions, startingSets, stripDlcItems } from './library';
 import type { ArmorChoice, Chances, Consumable, EquipmentPool, ItemChoice, LibraryDocument, Loadout, Pick, StatPlan, Tarnished } from './types';
 
 // A browser mirror of how the mod builds one Tarnished (src/library.rs: Build::resolve, choose_loadout,
 // generate, allocate_planned) and picks entries (Library::choose, shares). Item rules come from
 // public/catalog/rules.json, exported from regulation.bin by scripts/export_rules.py.
 
-/** weapons: [str, dex, int, faith, arcane, weight, wepType, gemMountType, maximum upgrade]; spells: [int, faith, arcane, kind (0 sorcery, 1 incantation), heals]; gems: [weapon types, affinity bits]. */
+/** weapons: [str, dex, int, faith, arcane, weight, wepType, gemMountType, maximum upgrade, paired (isDualBlade, 1 or 0)]; spells: [int, faith, arcane, kind (0 sorcery, 1 incantation), heals]; gems: [weapon types, affinity bits]. */
 export type Rules = {
   weapons: Record<string, number[]>;
   spells: Record<string, number[]>;
@@ -374,7 +374,7 @@ export function allows(entry: Tarnished, role: Role): boolean {
 }
 
 export function chanceGroup(entry: Tarnished): 'named' | 'loadouts' | 'class_libraries' {
-  if ((entry.names ?? []).length === 1) return 'named';
+  if (isNamed(entry)) return 'named';
   return entry.pool ? 'class_libraries' : 'loadouts';
 }
 
@@ -439,21 +439,41 @@ export type Sample = {
   plan?: StatPlan;
   allocation: Allocation;
   style?: string;
+  /** Holds a paired weapon in the right hand: the mod makes it two-hand it (library.rs wields_both). */
+  twoHanded: boolean;
   greeting?: string;
   victory?: string;
   items: [number, number][];
   consumableIds: number[];
+  /** Shadow of the Erdtree items taken out because the preview runs without the DLC. */
+  dlcRemoved: number;
 };
 
 function pickOne<T>(list: T[], random: Random): T | undefined {
   return list.length ? list[random.below(list.length)] : undefined;
 }
 
-export type SampleOptions = { playerLevel: number; spread?: number; weaponProgress?: number; className?: string; random: Random };
+export type SampleOptions = { playerLevel: number; spread?: number; weaponProgress?: number; className?: string; random: Random; dlcInstalled?: boolean };
+
+/**
+ * Whether the mod makes the Tarnished two-hand its right weapon (library.rs wields_both): the held right
+ * weapon is a paired weapon, and the left hand holds no catalyst and no weapon of the same type.
+ */
+export function wieldsBoth(gear: Gear, rules: Rules): boolean {
+  const held = (hand: Weapon[]) => (hand[0] && hand[0].id > 0 ? rules.weapons[baseRow(hand[0].id)] : undefined);
+  const right = held(gear.right);
+  if (!right || !right[9]) return false;
+  const left = held(gear.left);
+  return !left || (left[6] !== STAFF && left[6] !== SEAL && left[6] !== right[6]);
+}
 
 /** One Tarnished of an entry, as the mod would build it for a player of this level. */
-export function sampleTarnished(entry: Tarnished, library: MergedLibrary, rules: Rules, options: SampleOptions): Sample {
+export function sampleTarnished(original: Tarnished, library: MergedLibrary, rules: Rules, options: SampleOptions): Sample {
   const { random } = options;
+  // Without the DLC the mod takes its items out of the entry, the shared pool and the templates' items.
+  const dlcInstalled = options.dlcInstalled ?? true;
+  const stripped = dlcInstalled ? { entry: original, removed: 0 } : stripDlcItems(original);
+  const entry = stripped.entry;
   const spread = options.spread ?? LEVEL_SPREAD;
   const classes = entry.attributes ? [] : Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : [];
   const starts = startingSets(entry);
@@ -470,15 +490,16 @@ export function sampleTarnished(entry: Tarnished, library: MergedLibrary, rules:
   const plan = planFor(entry, target);
   const allocation = allocate(start, growthValues(entry), needed, planValues(plan), budget);
   const sex = entry.sex === 'male' || entry.sex === 'female' ? entry.sex : random.below(2) === 0 ? 'male' : 'female';
-  const names = entry.names?.length ? entry.names : library.names[sex];
+  const own = entryNames(entry, sex);
+  const names = own.length ? own : library.names[sex];
   const given = pickOne(names, random);
   const name = given ? (pickOne(entry.titles ?? [], random) ?? '{name}').replace('{name}', given) : entry.name;
   const style = pickOne(entry.styles ?? [], random);
   const greeting = pickOne(entry.greetings ?? library.gestures.greetings, random);
   const victory = pickOne(entry.victories ?? library.gestures.victories, random);
-  const items: [number, number][] = [...(entry.items ?? library.templateItems)].map(([id, count]) => [id, count]);
+  const items: [number, number][] = [...(entry.items ?? library.templateItems)].filter(([id]) => dlcInstalled || !isDlcGoods(id)).map(([id, count]) => [id, count]);
   const consumableIds: number[] = [];
-  const pool = entry.consumables ?? library.consumables.pool;
+  const pool = (entry.consumables ?? library.consumables.pool).filter((consumable) => dlcInstalled || !isDlcGoods(consumable.id));
   const kinds = entry.consumable_kinds ?? library.consumables.kinds;
   for (let kind = 0; kind < kinds && items.length < ITEM_SLOTS; kind += 1) {
     const consumable = draw(pool, target, random, (candidate) => items.every(([id]) => id !== candidate.id));
@@ -496,8 +517,9 @@ export function sampleTarnished(entry: Tarnished, library: MergedLibrary, rules:
     weapon.upgrade = Math.max(0, Math.min(maximum, Math.round(progress * maximum) + random.below(reach * 2 + 1) - reach));
   }
   return {
-    entry, name, sex, className: entry.attributes ? undefined : classes[startIndex], start, startLevel, playerLevel: options.playerLevel, target,
-    level: levelOfStats(allocation.stats), budget, gear, needed, weight: gearWeight(gear, rules), plan, allocation, style, greeting, victory, items, consumableIds,
+    entry: original, name, sex, className: entry.attributes ? undefined : classes[startIndex], start, startLevel, playerLevel: options.playerLevel, target,
+    level: levelOfStats(allocation.stats), budget, gear, needed, weight: gearWeight(gear, rules), plan, allocation, style, twoHanded: wieldsBoth(gear, rules),
+    greeting, victory, items, consumableIds, dlcRemoved: stripped.removed,
   };
 }
 

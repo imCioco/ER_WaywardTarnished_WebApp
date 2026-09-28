@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Avatar, Button, Card, Descriptions, Divider, Drawer, Empty, Flex, Form, InputNumber, Listy, Select, Slider, Space, Tag, Tooltip, Typography } from 'antd';
+import { Alert, Avatar, Button, Card, Descriptions, Divider, Drawer, Empty, Flex, Form, InputNumber, Listy, Select, Slider, Space, Switch, Tag, Tooltip, Typography } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import type { ItemCatalog } from '../catalog';
 import { LEVEL_SPREAD, STATS } from '../constants';
@@ -36,18 +36,20 @@ export function SampleDrawer({ open, entry, library, rules, catalog, archetypes,
   const [spread, setSpread] = useState(LEVEL_SPREAD);
   const [upgrade, setUpgrade] = useState(10);
   const [className, setClassName] = useState<string>('any');
+  const [dlcInstalled, setDlcInstalled] = useState(true);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
   const classes = entry && !entry.attributes ? (Array.isArray(entry.class) ? entry.class : entry.class ? [entry.class] : []) : [];
 
   const sample = useMemo(() => {
     if (!entry || !rules) return undefined;
     try {
-      return sampleTarnished(entry, library, rules, { playerLevel, spread, weaponProgress: upgrade / 25, className: className === 'any' ? undefined : className, random: seededRandom(seed) });
+      if (!dlcInstalled && entry.dlc) return undefined;
+      return sampleTarnished(entry, library, rules, { playerLevel, spread, weaponProgress: upgrade / 25, className: className === 'any' ? undefined : className, random: seededRandom(seed), dlcInstalled });
     } catch (error) {
       console.error(error);
       return undefined;
     }
-  }, [entry, library, rules, playerLevel, spread, upgrade, className, seed]);
+  }, [entry, library, rules, playerLevel, spread, upgrade, className, seed, dlcInstalled]);
 
   const rows: Row[] = [];
   if (sample) {
@@ -83,6 +85,9 @@ export function SampleDrawer({ open, entry, library, rules, catalog, archetypes,
           <Form.Item label="Your best weapon" tooltip="Tarnished follow your best weapon's upgrade: within two levels on the +25 scale, one on the +10 scale.">
             <InputNumber min={0} max={25} value={upgrade} onChange={(value) => setUpgrade(Number(value ?? 0))} prefix="+" suffix="of 25" />
           </Form.Item>
+          <Form.Item label="Shadow of the Erdtree" tooltip="Off: built as for a player without the DLC. The mod leaves the DLC's items out of every entry, and entries built around the DLC out whole.">
+            <Switch checked={dlcInstalled} onChange={setDlcInstalled} checkedChildren="Installed" unCheckedChildren="Not installed" />
+          </Form.Item>
           {classes.length > 1 && (
             <Form.Item label="Class">
               <Select value={className} onChange={setClassName} style={{ width: 150 }} options={[{ value: 'any', label: 'Any (random)' }, ...classes.map((name) => ({ value: name, label: name }))]} />
@@ -91,7 +96,9 @@ export function SampleDrawer({ open, entry, library, rules, catalog, archetypes,
         </Flex>
       </Form>
       {!rules && <Alert type="warning" showIcon message="Item rules are still loading" description="The preview needs weapon and spell requirements; try again in a moment." />}
-      {rules && !sample && <Empty description="This entry cannot be built yet: give it a class and a loadout or pool." />}
+      {rules && !sample && (!dlcInstalled && entry?.dlc
+        ? <Empty description="Built around Shadow of the Erdtree: players without the DLC never meet it." />
+        : <Empty description="This entry cannot be built yet: give it a class and a loadout or pool." />)}
       {sample && (
         <>
           <Card size="small" className="sample-card">
@@ -103,6 +110,8 @@ export function SampleDrawer({ open, entry, library, rules, catalog, archetypes,
                   <Tag>{sample.className ?? 'custom attributes'}</Tag>
                   <Tag>{sample.sex}</Tag>
                   {sample.style ? <ArchetypePopover archetype={style}><Tag>style: {sample.style}</Tag></ArchetypePopover> : <Tag>plain player-like AI</Tag>}
+                  {sample.twoHanded && <Tooltip title="Its right hand holds a paired weapon (fists, claws, perfume bottles, backhand blades, ...): the mod gives it a personality row that makes the AI two-hand it and keep it that way, on top of its style."><Tag color="gold">two-handed</Tag></Tooltip>}
+                  {sample.dlcRemoved > 0 && <Tooltip title="Shadow of the Erdtree items the mod leaves out without the DLC."><Tag>{sample.dlcRemoved} DLC items left out</Tag></Tooltip>}
                 </Space>
               </div>
               <div className="sample-level-badge"><Typography.Text type="secondary">Level</Typography.Text><strong>{sample.level}</strong></div>

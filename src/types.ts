@@ -42,11 +42,14 @@ export type EquipmentPool = {
   ashes?: ItemChoice[];
 };
 
+/** An entry's own given names: one list for either sex, or one list per sex (a sex left out uses the shared names). */
+export type EntryNames = string[] | { male?: string[]; female?: string[] };
+
 export type Tarnished = {
   id: string;
   name: string;
   titles?: string[];
-  names?: string[];
+  names?: EntryNames;
   class?: string | string[];
   roles?: string[];
   weight?: number;

@@ -3,9 +3,9 @@ import { Alert, Button, Card, Checkbox, Flex, Form, Input, InputNumber, Popconfi
 import { CopyOutlined, DeleteOutlined, ExperimentOutlined, SwapOutlined } from '@ant-design/icons';
 import { CLASSES, ROLES, ROLE_HELP } from '../constants';
 import type { ItemCatalog } from '../catalog';
-import type { Archetype } from '../library';
+import { isNamed, type Archetype } from '../library';
 import type { MergedLibrary, Rules } from '../simulate';
-import type { Consumable, EquipmentPool, Loadout, Tarnished } from '../types';
+import type { Consumable, EntryNames, EquipmentPool, Loadout, Tarnished } from '../types';
 import { EntryOdds } from './AppearanceOdds';
 import { AttributesCard } from './AttributesCard';
 import { ConsumablesEditor } from './ConsumablesEditor';
@@ -31,12 +31,73 @@ type Props = {
   onDelete: () => void;
 };
 
+type NamesMode = 'shared' | 'list' | 'sex';
+
+/** An entry's own given names: none (the shared names), one list for either sex, or a list per sex. */
+function NamesField({ value, onChange }: { value?: EntryNames; onChange: (names?: EntryNames) => void }) {
+  const mode: NamesMode = value === undefined ? 'shared' : Array.isArray(value) ? 'list' : 'sex';
+  const all = value === undefined ? [] : Array.isArray(value) ? value : [...new Set([...(value.male ?? []), ...(value.female ?? [])])];
+  const switchTo = (next: NamesMode) => {
+    if (next === 'shared') onChange(undefined);
+    else if (next === 'list') onChange(all);
+    else onChange(Array.isArray(value) ? { male: [...value], female: [...value] } : value ?? { male: [], female: [] });
+  };
+  const bySex = !Array.isArray(value) && value ? value : { male: [], female: [] };
+  const setSex = (sex: 'male' | 'female', names: string[]) => onChange({ ...bySex, [sex]: names });
+  const tags = (names: string[], change: (names: string[]) => void, placeholder: string) => <Select mode="tags" value={names} onChange={change} tokenSeparators={[',']} placeholder={placeholder} />;
+  return (
+    <>
+      <Form.Item label="Given names" help={mode === 'shared' ? 'Uses the library’s shared male and female names.' : mode === 'list' ? 'Used for either sex. Exactly one name makes a named Tarnished: a single person who is not chosen again while present.' : 'Each sex draws from its own list; a sex left empty uses the shared names.'}>
+        <Segmented value={mode} onChange={(next) => switchTo(next as NamesMode)} options={[{ value: 'shared', label: 'Shared names' }, { value: 'list', label: 'Own names' }, { value: 'sex', label: 'Own names by sex' }]} />
+      </Form.Item>
+      {mode === 'list' && <Form.Item label="Names">{tags(all, (names) => onChange(names), 'Type a name and press Enter')}</Form.Item>}
+      {mode === 'sex' && (
+        <div className="two-column-fields">
+          <Form.Item label="Male names">{tags(bySex.male ?? [], (names) => setSex('male', names), 'Type a name and press Enter')}</Form.Item>
+          <Form.Item label="Female names">{tags(bySex.female ?? [], (names) => setSex('female', names), 'Type a name and press Enter')}</Form.Item>
+        </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * Title patterns: the mod picks one of the list at random, so a title listed twice comes twice as often
+ * (a plain {name} listed several times makes bare names common). Each title is shown once, with its count.
+ */
+function TitlesField({ value, onChange }: { value?: string[]; onChange: (titles: string[]) => void }) {
+  const counts = new Map<string, number>();
+  for (const title of value ?? []) counts.set(title, (counts.get(title) ?? 0) + 1);
+  const unique = [...counts.keys()];
+  const expand = (next: Map<string, number>) => onChange([...next].flatMap(([title, count]) => Array<string>(count).fill(title)));
+  const setUnique = (titles: string[]) => expand(new Map(titles.map((title) => [title, counts.get(title) ?? 1])));
+  const setCount = (title: string, count: number) => expand(new Map([...counts].map(([known, current]) => [known, known === title ? count : current])));
+  const total = value?.length ?? 0;
+  return (
+    <Form.Item label="Title patterns" help="One is picked per Tarnished; {name} is the given name, and a plain {name} gives the bare name. A title’s count makes it that many times as likely. Titles are shared by both sexes, so keep them neutral.">
+      <Select mode="tags" value={unique} onChange={setUnique} tokenSeparators={[',']} placeholder="Example: Knight {name}" />
+      {unique.length > 0 && (
+        <Flex wrap gap={6} className="title-counts">
+          {unique.map((title) => (
+            <Tooltip key={title} title={`${Math.round((100 * (counts.get(title) ?? 1)) / total)}% of this entry’s Tarnished`}>
+              <Space.Compact size="small">
+                <Button size="small" disabled className="title-count-label">{title}</Button>
+                <InputNumber size="small" min={1} max={20} value={counts.get(title)} prefix="×" onChange={(count) => setCount(title, Math.max(1, Number(count ?? 1)))} style={{ width: 70 }} />
+              </Space.Compact>
+            </Tooltip>
+          ))}
+        </Flex>
+      )}
+    </Form.Item>
+  );
+}
+
 export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumables, sharedKinds, library, rules, archetypes, onChange, onDuplicate, onDelete }: Props) {
   const [testing, setTesting] = useState(false);
   const patch = (values: Partial<Tarnished>) => onChange({ ...entry, ...values });
   const testButton = <Tooltip title="Build one complete, random Tarnished from this entry to see how it turns out"><Button icon={<ExperimentOutlined />} onClick={() => setTesting(true)}>Test build</Button></Tooltip>;
   const drawer = <SampleDrawer open={testing} entry={entry} library={library} rules={rules} catalog={catalog} archetypes={archetypes} onClose={() => setTesting(false)} />;
-  const setOptional = (field: 'greetings' | 'victories' | 'consumables' | 'consumable_kinds' | 'pvp_damage' | 'dlc' | 'chance', value: unknown) => {
+  const setOptional = (field: 'greetings' | 'victories' | 'consumables' | 'consumable_kinds' | 'pvp_damage' | 'dlc' | 'chance' | 'names', value: unknown) => {
     const next = structuredClone(entry);
     if (value === undefined) delete next[field]; else (next as Record<string, unknown>)[field] = value;
     onChange(next);
@@ -90,8 +151,8 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumab
         <div className="form-grid">
           <Card title="Names and titles" className="form-card span-2">
             <Form layout="vertical">
-              <Form.Item label="Possible given names"><Select mode="tags" value={entry.names ?? []} onChange={(names) => patch({ names })} tokenSeparators={[',']} placeholder="Type a name and press Enter" /></Form.Item>
-              <Form.Item label="Title patterns"><Select mode="tags" value={entry.titles ?? []} onChange={(titles) => patch({ titles })} tokenSeparators={[',']} placeholder="Example: Knight {name}" /></Form.Item>
+              <NamesField value={entry.names} onChange={(names) => setOptional('names', names)} />
+              <TitlesField value={entry.titles} onChange={(titles) => patch({ titles })} />
             </Form>
           </Card>
           <Card title="Greeting gesture" className="form-card"><GestureField label="When this Tarnished approaches" value={entry.greetings} choices={gestureNames} onChange={(value) => setOptional('greetings', value)} /></Card>
@@ -147,10 +208,10 @@ export function EnemyEditor({ entry, view, catalog, gestureNames, sharedConsumab
             <Form.Item label="PvP damage rules" help="On: damage is scaled as between players. Off: full, uncorrected damage. INI default follows pvp_damage in WaywardTarnished.ini.">
               <Segmented value={entry.pvp_damage === undefined ? 'ini' : entry.pvp_damage ? 'on' : 'off'} options={[{ value: 'ini', label: 'INI default' }, { value: 'on', label: 'On' }, { value: 'off', label: 'Off' }]} onChange={(value) => setOptional('pvp_damage', value === 'ini' ? undefined : value === 'on')} />
             </Form.Item>
-            <Form.Item label="Uses Shadow of the Erdtree items" help="Left out for players without the DLC. Validate warns when an entry uses DLC items without this.">
+            <Form.Item label="Built around Shadow of the Erdtree" help="On: left out whole for players without the DLC. Off: they meet it without its DLC items (the mod leaves those out); Validate warns when nothing would be left to fight with.">
               <Switch checked={entry.dlc === true} onChange={(dlc) => setOptional('dlc', dlc ? true : undefined)} checkedChildren="DLC" unCheckedChildren="Base game" />
             </Form.Item>
-            {(entry.names ?? []).length === 1 && <Alert type="info" showIcon message="Named Tarnished" description="It has one given name, so it is a single person: while it is in your world or the host’s, it is not chosen again. It counts in the “Named Tarnished” appearance group." />}
+            {isNamed(entry) && <Alert type="info" showIcon message="Named Tarnished" description="It has one given name, so it is a single person: while it is in your world or the host’s, it is not chosen again. It counts in the “Named Tarnished” appearance group." />}
           </Form>
         </Card>
         <AttributesCard entry={entry} rules={rules} onChange={onChange} onTest={() => setTesting(true)} />

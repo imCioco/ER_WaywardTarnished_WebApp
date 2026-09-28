@@ -289,3 +289,10 @@ button, input, textarea { font: inherit; }
 .odds-id { font-size: 11px; }
 .growth-steps { margin: 12px 0 0; }
 .growth-steps .ant-timeline-item-content, .growth-steps .ant-timeline-item { font-size: 13px; }
+
+/* Title patterns with their counts (a title listed twice comes twice as often). */
+.title-counts { margin-top: 8px; }
+.title-count-label.ant-btn:disabled { color: inherit; cursor: default; background: #fafaf9; }
+
+/* A personality also kept as a preset in this browser. */
+.preset-star { color: #b8860b; }

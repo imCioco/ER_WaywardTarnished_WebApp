@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { newEnemy, parseLibrary, serializeLibrary, validateLibrary } from '../src/library';
+import { adoptArchetype, archetypes, armed, entryNames, isNamed, newEnemy, parseLibrary, serializeLibrary, stripDlcItems, validateLibrary, withUsedArchetypes } from '../src/library';
+import { EMPTY_PRESETS, withoutPreset, withPersonality } from '../src/presets';
+import type { Tarnished } from '../src/types';
 
 const baseText = readFileSync(new URL('../public/base.toml', import.meta.url), 'utf8');
 const gestures = readFileSync(new URL('../public/gestures.txt', import.meta.url), 'utf8').trim().split(/\r?\n/);
@@ -9,8 +11,8 @@ const items = JSON.parse(readFileSync(new URL('../public/catalog/items.json', im
 describe('Wayward Tarnished library model', () => {
   it('loads and re-exports the current base library', () => {
     const document = parseLibrary(baseText);
-    expect(document.tarnished.length).toBeGreaterThanOrEqual(17);
-    expect(document.tarnished.filter((entry) => entry.pool)).toHaveLength(6);
+    expect(document.tarnished.length).toBeGreaterThanOrEqual(45);
+    expect(document.tarnished.filter((entry) => entry.pool)).toHaveLength(9);
     const roundTrip = parseLibrary(serializeLibrary(document));
     expect(roundTrip.tarnished).toEqual(document.tarnished);
     expect(validateLibrary(roundTrip, { gestures }).errors).toEqual([]);
@@ -44,16 +46,81 @@ describe('Wayward Tarnished library model', () => {
     expect(errors.some((error) => error.includes('at most 3 slots'))).toBe(true);
   });
 
-  it('warns about Shadow of the Erdtree items in an entry without dlc', () => {
+  it('warns only when an entry without dlc has nothing left without the DLC', () => {
     const document = parseLibrary(baseText);
     const dlcWeapon = items.find((item) => item.kind === 'weapon' && item.dlc)!;
     const entry = newEnemy([], 'gear');
     entry.gear = [{ level: 1, right: [[2000000, dlcWeapon.id]] }];
     document.tarnished = [entry];
-    const isDlcItem = (kind: string, id: number) => items.some((item) => item.kind === kind && item.id === id && item.dlc);
-    expect(validateLibrary(document, { gestures, isDlcItem }).warnings.some((warning) => warning.includes('Shadow of the Erdtree'))).toBe(true);
+    const dlcWarning = () => validateLibrary(document, { gestures }).warnings.some((warning) => warning.includes('Shadow of the Erdtree'));
+    expect(dlcWarning()).toBe(false);
+    entry.gear = [{ level: 1, right: [dlcWeapon.id] }];
+    expect(dlcWarning()).toBe(true);
     entry.dlc = true;
-    expect(validateLibrary(document, { gestures, isDlcItem }).warnings.some((warning) => warning.includes('Shadow of the Erdtree'))).toBe(false);
+    expect(dlcWarning()).toBe(false);
+  });
+
+  it('leaves Shadow of the Erdtree items out as the mod does', () => {
+    // The same entry as the test without_the_dlc_its_items_are_left_out in the mod.
+    const entry = {
+      id: 'mixed', name: 'Mixed', class: 'hero', consumables: [{ id: 300, count: 3 }, { id: 2000300, count: 2 }],
+      gear: [
+        { level: 1, right: [[9000200, 9500000], { id: 2000100, ash: 400000 }], left: [67520000], armor: [[3000000, 40000], 3000100, 40200, 40300], talismans: [[1000, 7000], 7010], spells: [[6000, 2004000]] },
+        { level: 30, right: [[9500000, 67520000]] },
+        { level: 60, right: [3000000], armor_sets: [[3000000, 3000100, 3000200, 3000300]] },
+      ],
+    } as Tarnished;
+    const { entry: stripped, removed } = stripDlcItems(entry);
+    expect(removed).toBe(12);
+    expect(stripped.gear).toEqual([{ level: 1, right: [[9000200], 2000100], left: [], armor: [[40000], -1, 40200, 40300], talismans: [[1000]], spells: [[6000]] }]);
+    expect(stripped.consumables).toEqual([{ id: 300, count: 3 }]);
+    expect(armed(stripped)).toBe(true);
+    const pool = stripDlcItems({ id: 'dlc-pool', name: 'DLC pool', class: 'hero', pool: { right: [61500000, { id: 61510000, level: 60 }], left: [-1, 30010000], ashes: [10000, 400000] } } as Tarnished).entry;
+    expect(armed(pool)).toBe(false);
+    expect(pool.pool?.left).toEqual([-1, 30010000]);
+    expect(pool.pool?.ashes).toEqual([10000]);
+    // Every shipped entry without dlc = true stays usable without the DLC.
+    for (const shipped of parseLibrary(baseText).tarnished.filter((candidate) => !candidate.dlc)) expect(armed(stripDlcItems(shipped).entry), shipped.id).toBe(true);
+  });
+
+  it('reads names as one list or one per sex', () => {
+    const document = parseLibrary(baseText);
+    const duelists = document.tarnished.find((entry) => entry.id === 'pool-keen-duelists')!;
+    expect(Array.isArray(duelists.names)).toBe(false);
+    expect(entryNames(duelists, 'female')).toContain('Tomoe');
+    expect(isNamed(duelists)).toBe(false);
+    expect(isNamed(document.tarnished.find((entry) => entry.id === 'let-me-solo-me')!)).toBe(true);
+    const saved = parseLibrary(serializeLibrary(document));
+    expect(saved.tarnished.find((entry) => entry.id === 'pool-keen-duelists')!.names).toEqual(duelists.names);
+    duelists.names = { male: ['Hayato'], elder: ['Oldman'] } as never;
+    expect(validateLibrary(document, { gestures }).errors.some((error) => error.includes('only male and female'))).toBe(true);
+    duelists.names = { female: ['Tomoe'] };
+    expect(entryNames(duelists, 'male')).toEqual([]);
+    expect(validateLibrary(document, { gestures }).errors).toEqual([]);
+  });
+
+  it('offers presets in every file and copies the ones a build uses', () => {
+    const base = parseLibrary(baseText);
+    const empty = { ...parseLibrary(baseText), tarnished: [newEnemy([], 'gear')] };
+    delete empty.styles;
+    delete empty.personalities;
+    delete empty.__descriptions;
+    const presets = withPersonality(EMPTY_PRESETS, 'counter-puncher', { odds: { hit_r1_combo: 80 } }, 'Hits back.');
+    const listed = archetypes(empty, base, presets);
+    expect(listed.find((archetype) => archetype.name === 'berserker')?.source).toBe('base');
+    expect(listed.find((archetype) => archetype.name === 'counter-puncher')).toMatchObject({ source: 'saved', inherited: true, saved: true, description: 'Hits back.' });
+    empty.tarnished[0].styles = ['counter-puncher', 'berserker', 'reckless'];
+    expect(validateLibrary(empty, { gestures, base, presets }).errors).toEqual([]);
+    expect(validateLibrary(empty, { gestures, base }).errors.some((error) => error.includes('counter-puncher'))).toBe(true);
+    const exported = withUsedArchetypes(empty, listed);
+    expect(exported.personalities).toEqual({ 'counter-puncher': { odds: { hit_r1_combo: 80 } }, berserker: base.personalities!.berserker });
+    expect(exported.styles).toEqual({ reckless: base.styles!.reckless });
+    expect(exported.__descriptions?.['counter-puncher']).toBe('Hits back.');
+    expect(withUsedArchetypes(exported, archetypes(exported, base, presets))).toBe(exported);
+    const file = structuredClone(empty);
+    adoptArchetype(file, listed.find((archetype) => archetype.name === 'sentinel')!);
+    expect(archetypes(file, base, presets).find((archetype) => archetype.name === 'sentinel')?.source).toBe('file');
+    expect(archetypes(file, undefined, withoutPreset(presets, 'counter-puncher')).some((archetype) => archetype.name === 'counter-puncher')).toBe(false);
   });
 
   it('creates a valid random pool directly', () => {
@@ -87,7 +154,7 @@ describe('Wayward Tarnished library model', () => {
 
   it('keeps shared and per-entry consumables, including an explicit empty list', () => {
     const document = parseLibrary(baseText);
-    expect(document.consumables?.kinds).toBe(2);
+    expect(document.consumables?.kinds).toBe(3);
     expect(document.consumables?.pool?.length).toBeGreaterThan(0);
     const solo = document.tarnished.find((entry) => entry.id === 'let-me-solo-me');
     expect(solo?.consumables).toEqual([]);

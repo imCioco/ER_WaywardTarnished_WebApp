@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseLibrary, serializeLibrary, validateLibrary } from '../src/library';
-import { allocate, appearanceOdds, mergeLibraries, planFor, sampleTarnished, seededRandom, shares, type Rules } from '../src/simulate';
+import { allocate, appearanceOdds, mergeLibraries, planFor, sampleTarnished, seededRandom, shares, wieldsBoth, type Rules } from '../src/simulate';
 import type { Tarnished } from '../src/types';
 
 const baseText = readFileSync(new URL('../public/base.toml', import.meta.url), 'utf8');
@@ -81,6 +81,30 @@ describe('test builds', () => {
         expect(sample.gear.talismans.length).toBeLessThanOrEqual(4);
         expect(sample.items.length).toBeLessThanOrEqual(10);
       }
+    }
+  });
+});
+
+describe('paired weapons and the DLC in test builds', () => {
+  it('marks paired weapons two-handed unless the left hand casts or powerstances', () => {
+    const gear = (right: number, left?: number) => ({ level: 1, right: [{ id: right }], left: left === undefined ? [] : [{ id: left }], armor: [], talismans: [], spells: [] });
+    expect(wieldsBoth(gear(22000200), rules)).toBe(true); // Keen Hookclaws
+    expect(wieldsBoth(gear(22000200, 30000000), rules)).toBe(true); // and a Buckler
+    expect(wieldsBoth(gear(22000200, 22020000), rules)).toBe(false); // two claws: a powerstance
+    expect(wieldsBoth(gear(61500000, 34000000), rules)).toBe(false); // a perfume bottle and a seal
+    expect(wieldsBoth(gear(9000200), rules)).toBe(false); // a katana
+  });
+
+  it('builds the brawlers two-handed and leaves DLC items out without the DLC', () => {
+    const library = mergeLibraries(parseLibrary(baseText), undefined);
+    const brawlers = library.entries.find((entry) => entry.id === 'pool-bare-knuckle-brawlers')!;
+    for (const playerLevel of [1, 60, 150]) expect(sampleTarnished(brawlers, library, rules, { playerLevel, random: seededRandom(playerLevel) }).twoHanded).toBe(true);
+    const perfumers = library.entries.find((entry) => entry.id === 'pool-perfumers-and-alchemists')!;
+    for (let seed = 1; seed < 20; seed += 1) {
+      const sample = sampleTarnished(perfumers, library, rules, { playerLevel: 120, random: seededRandom(seed), dlcInstalled: false });
+      expect(sample.gear.right.every((weapon) => Math.floor(weapon.id / 10000) % 100 < 50)).toBe(true);
+      expect(sample.items.every(([id]) => id < 2000000)).toBe(true);
+      expect(sample.dlcRemoved).toBeGreaterThan(0);
     }
   });
 });

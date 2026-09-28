@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Button, Collapse, Flex, Form, Input, InputNumber, Modal, Select, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import { Alert, Button, Checkbox, Collapse, Flex, Form, Input, InputNumber, Modal, Select, Space, Switch, Tag, Tooltip, Typography } from 'antd';
 import { ACTION_HELP, ODDS_GROUPS, ODDS_KINDS, ODDS_LIMIT, PERSONALITIES_AT_ONCE, actionLabel, type OddsKind } from '../constants';
 import type { Archetype } from '../library';
 import type { Personality } from '../types';
@@ -12,8 +12,10 @@ type Props = {
   /** The name it is saved under now; undefined for a new personality or a copy of an inherited one. */
   original?: string;
   archetypes: Archetype[];
+  /** Whether it is (or should be) kept as a preset in this browser. */
+  saved: boolean;
   onCancel: () => void;
-  onSave: (draft: PersonalityDraft) => void;
+  onSave: (draft: PersonalityDraft, keepAsPreset: boolean) => void;
 };
 
 const NAME = /^[A-Za-z0-9_-]+$/;
@@ -83,8 +85,9 @@ function OddsField({ action, kind, value, onChange }: { action: string; kind: Od
   );
 }
 
-export function PersonalityModal({ title, initial, original, archetypes, onCancel, onSave }: Props) {
+export function PersonalityModal({ title, initial, original, archetypes, saved, onCancel, onSave }: Props) {
   const [name, setName] = useState(initial.name);
+  const [keep, setKeep] = useState(saved);
   const [description, setDescription] = useState(initial.description);
   const [suppress, setSuppress] = useState<number[]>(initial.personality.suppress ?? []);
   const [odds, setOdds] = useState<Record<string, number>>({ ...initial.personality.odds });
@@ -92,7 +95,7 @@ export function PersonalityModal({ title, initial, original, archetypes, onCance
   const [open, setOpen] = useState<string[]>(() => ODDS_GROUPS.filter((group) => group.actions.some((action) => initial.personality.odds[action] !== undefined)).map((group) => group.label).slice(0, 3));
 
   const clash = archetypes.find((archetype) => archetype.name === name && archetype.name !== original && !archetype.inherited);
-  const overridesBase = archetypes.find((archetype) => archetype.name === name && archetype.inherited);
+  const overridesBase = archetypes.find((archetype) => archetype.name === name && archetype.source === 'base');
   const nameError = !name ? 'Give the personality a name.' : !NAME.test(name) ? 'Use only letters, digits, - and _.' : clash ? `“${name}” is already a ${clash.kind === 'style' ? 'style' : 'personality'} in this library.` : undefined;
   const changed = Object.keys(odds).length;
   const sources = archetypes.filter((archetype) => archetype.personality && archetype.name !== original);
@@ -130,7 +133,7 @@ export function PersonalityModal({ title, initial, original, archetypes, onCance
     if (nameError) return;
     // Older files named a slot; the mod ignores it now, so it is kept only if it was there.
     const { effect, row } = initial.personality;
-    onSave({ name, description: description.trim(), personality: { ...(effect !== undefined ? { effect } : {}), ...(row !== undefined ? { row } : {}), ...(suppress.length ? { suppress } : {}), odds } });
+    onSave({ name, description: description.trim(), personality: { ...(effect !== undefined ? { effect } : {}), ...(row !== undefined ? { row } : {}), ...(suppress.length ? { suppress } : {}), odds } }, keep);
   };
 
   return (
@@ -144,6 +147,9 @@ export function PersonalityModal({ title, initial, original, archetypes, onCance
         </Form.Item>
         <Form.Item label="Suppressed SpEffects (optional)" help="Removed from the Tarnished while it lives, for example a skill’s buff that stops the AI from using the skill again (Seppuku: 1755).">
           <Select mode="tags" value={suppress.map(String)} onChange={(values: string[]) => setSuppress(values.map(Number).filter((value) => Number.isInteger(value) && value >= 0))} tokenSeparators={[',', ' ']} placeholder="Type an SpEffect ID and press Enter" />
+        </Form.Item>
+        <Form.Item help="A preset is offered in every library you open or start in this browser, and goes into a file only when one of its Tarnished uses it.">
+          <Checkbox checked={keep} onChange={(event) => setKeep(event.target.checked)}>Also keep it as a preset in this browser</Checkbox>
         </Form.Item>
       </Form>
       <Typography.Paragraph type="secondary" className="personality-note">A library can define any number of personalities. Up to {PERSONALITIES_AT_ONCE} different ones can be in play at once, and any number of Tarnished can share one; a Tarnished that arrives while {PERSONALITIES_AT_ONCE} other custom personalities are in play fights without its own.</Typography.Paragraph>
@@ -174,17 +180,18 @@ export function PersonalityModal({ title, initial, original, archetypes, onCance
 
 type StyleDraft = { name: string; description: string; effect: number };
 
-type StyleProps = { title: string; initial: StyleDraft; original?: string; archetypes: Archetype[]; onCancel: () => void; onSave: (draft: StyleDraft) => void };
+type StyleProps = { title: string; initial: StyleDraft; original?: string; archetypes: Archetype[]; saved: boolean; onCancel: () => void; onSave: (draft: StyleDraft, keepAsPreset: boolean) => void };
 
 /** A vanilla NPC personality: an SpEffect that makes battle goal 29999 add its personality row. */
-export function StyleModal({ title, initial, original, archetypes, onCancel, onSave }: StyleProps) {
+export function StyleModal({ title, initial, original, archetypes, saved, onCancel, onSave }: StyleProps) {
   const [name, setName] = useState(initial.name);
+  const [keep, setKeep] = useState(saved);
   const [description, setDescription] = useState(initial.description);
   const [effect, setEffect] = useState<number | null>(initial.effect || null);
   const clash = archetypes.find((archetype) => archetype.name === name && archetype.name !== original && !archetype.inherited);
   const nameError = !name ? 'Give the style a name.' : !NAME.test(name) ? 'Use only letters, digits, - and _.' : clash ? `“${name}” is already used in this library.` : undefined;
   return (
-    <Modal open title={title} onCancel={onCancel} onOk={() => !nameError && effect !== null && onSave({ name, description: description.trim(), effect })} okText="Save style" okButtonProps={{ disabled: Boolean(nameError) || effect === null }} width={640} destroyOnHidden>
+    <Modal open title={title} onCancel={onCancel} onOk={() => !nameError && effect !== null && onSave({ name, description: description.trim(), effect }, keep)} okText="Save style" okButtonProps={{ disabled: Boolean(nameError) || effect === null }} width={640} destroyOnHidden>
       <Form layout="vertical" component="div">
         <Form.Item label="Name" required validateStatus={nameError && name ? 'error' : undefined} help={nameError}>
           <Input value={name} onChange={(event) => setName(event.target.value.trim())} placeholder="patient" />
@@ -194,6 +201,9 @@ export function StyleModal({ title, initial, original, archetypes, onCancel, onS
         </Form.Item>
         <Form.Item label="Description" help="Shown when you hover over this style. Saved as a comment on its line in the TOML file.">
           <Input.TextArea value={description} onChange={(event) => setDescription(event.target.value)} autoSize={{ minRows: 2, maxRows: 4 }} placeholder="Who it comes from and how it fights" />
+        </Form.Item>
+        <Form.Item help="A preset is offered in every library you open or start in this browser.">
+          <Checkbox checked={keep} onChange={(event) => setKeep(event.target.checked)}>Also keep it as a preset in this browser</Checkbox>
         </Form.Item>
       </Form>
     </Modal>

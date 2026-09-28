@@ -1,8 +1,8 @@
 """Export the item rules the build preview needs from regulation.bin into public/catalog/rules.json.
 
 The preview mirrors the mod's build resolution (src/library.rs), which reads these params:
-weapon and spell requirements, equip weights, catalyst types, talisman groups and which
-Ashes of War fit which weapons.
+weapon and spell requirements, equip weights, catalyst types, paired weapons (two-handed by the mod),
+talisman groups and which Ashes of War fit which weapons.
 
 Usage: python scripts/export_rules.py <Wayward Tarnished repo> [regulation.bin]
 """
@@ -31,7 +31,8 @@ def main():
         if row_id <= 0 or row_id % 100:
             continue
         weapons[row_id] = [row["properStrength"], row["properAgility"], row["properMagic"], row["properFaith"],
-                           row["properLuck"], round(row["weight"], 2), row["wepType"], row["gemMountType"], maximum(row)]
+                           row["properLuck"], round(row["weight"], 2), row["wepType"], row["gemMountType"], maximum(row),
+                           1 if row["isDualBlade"] else 0]
     spells = {}
     for row_id, row in read("Magic").items():
         if row_id <= 0:

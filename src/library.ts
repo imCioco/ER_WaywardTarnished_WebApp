@@ -1,6 +1,7 @@
 import { parse, stringify } from 'smol-toml';
 import { CHANCE_GROUPS, CLASSES, CLASS_STATS, GEAR_FIELDS, MOST_CONSUMABLES, ODDS_ACTIONS, ODDS_LIMIT, POOL_FIELDS, ROLES, STATS } from './constants';
-import type { ArmorChoice, Consumable, EquipmentPool, ItemChoice, ItemKind, LibraryDocument, Loadout, Personality, Pick, Tarnished, ValidationResult } from './types';
+import type { Presets } from './presets';
+import type { ArmorChoice, Consumable, EquipmentPool, ItemChoice, LibraryDocument, Loadout, Personality, Pick, Tarnished, ValidationResult } from './types';
 
 /** What the item catalog knows about a goods id: whether the AI can use it and its stack limit. */
 export type GoodsLookup = (id: number) => { name: string; usable: boolean; limit: number } | undefined;
@@ -76,7 +77,10 @@ export function serializeLibrary(document: LibraryDocument): string {
   return heading + writeDescriptions(stringify(library as never), descriptions ?? {});
 }
 
-/** A style or personality the library can use, from this file or from the mod's base.toml. */
+/** Where a style or personality comes from: this file, the mod's base.toml, or the presets saved in this browser. */
+export type ArchetypeSource = 'file' | 'base' | 'saved';
+
+/** A style or personality the library can use. */
 export type Archetype = {
   name: string;
   kind: 'style' | 'personality';
@@ -84,22 +88,145 @@ export type Archetype = {
   /** A vanilla style's SpEffect. */
   effect?: number;
   personality?: Personality;
-  /** Defined only in base.toml, which the mod loads before this file. */
+  /** Not defined in this file: a preset from base.toml or this browser, copied into the file when a Tarnished uses it. */
   inherited: boolean;
+  source: ArchetypeSource;
+  /** Also kept as a preset in this browser. */
+  saved?: boolean;
 };
 
-export function archetypes(document: LibraryDocument, base?: LibraryDocument): Archetype[] {
+/**
+ * Every style and personality a file can use: its own, the mod's base.toml presets and the presets saved
+ * in this browser. A name defined in several places takes this file's definition, else the saved preset's
+ * (your own version), else base.toml's.
+ */
+export function archetypes(document: LibraryDocument, base?: LibraryDocument, presets?: Presets): Archetype[] {
   const result = new Map<string, Archetype>();
-  for (const [source, inherited] of [[base, true], [document, false]] as const) {
-    if (!source) continue;
-    for (const [name, effect] of Object.entries(source.styles ?? {})) {
-      result.set(name, { name, kind: 'style', effect, description: source.__descriptions?.[name] ?? result.get(name)?.description, inherited });
-    }
-    for (const [name, personality] of Object.entries(source.personalities ?? {})) {
-      result.set(name, { name, kind: 'personality', personality, description: source.__descriptions?.[name] ?? result.get(name)?.description, inherited });
-    }
+  const add = (archetype: Omit<Archetype, 'inherited' | 'description'> & { description?: string }) => {
+    const earlier = result.get(archetype.name);
+    result.set(archetype.name, { ...archetype, description: archetype.description ?? earlier?.description, inherited: archetype.source !== 'file' });
+  };
+  for (const [name, effect] of Object.entries(base?.styles ?? {})) add({ name, kind: 'style', effect, description: base?.__descriptions?.[name], source: 'base' });
+  for (const [name, personality] of Object.entries(base?.personalities ?? {})) add({ name, kind: 'personality', personality, description: base?.__descriptions?.[name], source: 'base' });
+  for (const [name, preset] of Object.entries(presets?.styles ?? {})) add({ name, kind: 'style', effect: preset.effect, description: preset.description, source: 'saved' });
+  for (const [name, preset] of Object.entries(presets?.personalities ?? {})) add({ name, kind: 'personality', personality: preset.personality, description: preset.description, source: 'saved' });
+  for (const [name, effect] of Object.entries(document.styles ?? {})) add({ name, kind: 'style', effect, description: document.__descriptions?.[name], source: 'file' });
+  for (const [name, personality] of Object.entries(document.personalities ?? {})) add({ name, kind: 'personality', personality, description: document.__descriptions?.[name], source: 'file' });
+  for (const archetype of result.values()) {
+    archetype.saved = Boolean(presets?.personalities[archetype.name] ?? presets?.styles[archetype.name]);
   }
   return [...result.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Copies a preset's definition (and description) into the file, so the file carries what its Tarnished use. */
+export function adoptArchetype(document: LibraryDocument, archetype: Archetype): void {
+  if (archetype.source === 'file') return;
+  if (archetype.kind === 'personality' && archetype.personality) {
+    document.personalities = { ...(document.personalities ?? {}), [archetype.name]: structuredClone(archetype.personality) };
+  } else if (archetype.kind === 'style' && archetype.effect !== undefined) {
+    document.styles = { ...(document.styles ?? {}), [archetype.name]: archetype.effect };
+  } else return;
+  if (archetype.description) document.__descriptions = { ...(document.__descriptions ?? {}), [archetype.name]: archetype.description };
+}
+
+/** The file with a definition for every style its Tarnished use that it does not define yet (from base.toml or the saved presets). */
+export function withUsedArchetypes(document: LibraryDocument, available: Archetype[]): LibraryDocument {
+  const byName = new Map(available.map((archetype) => [archetype.name, archetype]));
+  const missing = [...new Set(document.tarnished.flatMap((entry) => entry.styles ?? []))]
+    .map((name) => byName.get(name))
+    .filter((archetype): archetype is Archetype => Boolean(archetype && archetype.source !== 'file'));
+  if (!missing.length) return document;
+  const next = structuredClone(document);
+  for (const archetype of missing) adoptArchetype(next, archetype);
+  return next;
+}
+
+/** One fixed name for either sex (library.rs Names::single): the entry is a single person. */
+export function isNamed(entry: Tarnished): boolean {
+  return Array.isArray(entry.names) && entry.names.length === 1;
+}
+
+/** The entry's own given names for a sex; empty means the shared [names]. */
+export function entryNames(entry: Tarnished, sex: 'male' | 'female'): string[] {
+  const names = entry.names;
+  if (!names) return [];
+  return Array.isArray(names) ? names : names[sex] ?? [];
+}
+
+// Shadow of the Erdtree's items by id range (src/library.rs dlc_weapon and the others): weapons numbered
+// x5xx0000 in any affinity, armor from 3000000, talismans from 7000, spells and goods from 2000000, Ashes
+// of War from 200000. Without the DLC the mod takes them out of every entry.
+export const isDlcWeapon = (id: number) => id > 0 && Math.floor(id / 10000) % 100 >= 50;
+export const isDlcArmor = (id: number) => id >= 3000000;
+export const isDlcTalisman = (id: number) => id >= 7000;
+export const isDlcGoods = (id: number) => id >= 2000000;
+export const isDlcAsh = (id: number) => id >= 200000;
+
+/**
+ * The entry as the mod uses it without Shadow of the Erdtree (library.rs strip_dlc_items), and how many
+ * items were taken out: a weapon whose ash alone is from the DLC keeps its place without the ash, an armor
+ * piece left without options is empty, an armor set with a DLC piece goes, and a loadout left without its
+ * right-hand weapons or armor sets goes.
+ */
+export function stripDlcItems(entry: Tarnished): { entry: Tarnished; removed: number } {
+  const next = structuredClone(entry);
+  let removed = 0;
+  const keepWeapon = (choice: ItemChoice): ItemChoice | undefined => {
+    if (isDlcWeapon(choiceId(choice))) { removed += 1; return undefined; }
+    if (typeof choice === 'object' && choice.ash !== undefined && isDlcAsh(choice.ash)) {
+      removed += 1;
+      const { ash: _ash, ...rest } = choice;
+      return Object.keys(rest).length === 1 ? rest.id : rest;
+    }
+    return choice;
+  };
+  const keep = (dlc: (id: number) => boolean) => (choice: ItemChoice): ItemChoice | undefined => {
+    if (dlc(choiceId(choice))) { removed += 1; return undefined; }
+    return choice;
+  };
+  const slot = (pick: Pick, accept: (choice: ItemChoice) => ItemChoice | undefined): Pick | undefined => {
+    const kept = pickOptions(pick).map(accept).filter((choice): choice is ItemChoice => choice !== undefined);
+    if (Array.isArray(pick)) return kept.length ? kept : undefined;
+    return kept[0];
+  };
+  const baseSets = (sets: ArmorChoice[]) => sets.filter((set) => {
+    const dlc = (armorSetPieces(set) ?? []).some(isDlcArmor);
+    if (dlc) removed += 1;
+    return !dlc;
+  });
+  if (next.gear) {
+    next.gear = next.gear.filter((gear) => {
+      const hadRight = Boolean(gear.right?.length);
+      const hadSets = Boolean(gear.armor_sets?.length);
+      for (const hand of ['right', 'left'] as const) {
+        if (gear[hand]) gear[hand] = gear[hand]!.map((pick) => slot(pick, keepWeapon)).filter((pick): pick is Pick => pick !== undefined);
+      }
+      if (gear.armor) gear.armor = gear.armor.map((pick) => slot(pick, keep(isDlcArmor)) ?? -1);
+      if (gear.armor_sets) gear.armor_sets = baseSets(gear.armor_sets);
+      for (const [key, dlc] of [['talismans', isDlcTalisman], ['spells', isDlcGoods]] as const) {
+        if (gear[key]) gear[key] = gear[key]!.map((pick) => slot(pick, keep(dlc))).filter((pick): pick is Pick => pick !== undefined);
+      }
+      return !(hadRight && !gear.right?.length) && !(hadSets && !gear.armor_sets?.length);
+    });
+  }
+  if (next.pool) {
+    const pool = next.pool;
+    for (const hand of ['right', 'left', 'catalysts'] as const) {
+      if (pool[hand]) pool[hand] = pool[hand]!.map(keepWeapon).filter((choice): choice is ItemChoice => choice !== undefined) as ItemChoice[];
+    }
+    if (pool.armor) pool.armor = baseSets(pool.armor);
+    for (const [key, dlc] of [['talismans', isDlcTalisman], ['spells', isDlcGoods], ['ashes', isDlcAsh]] as const) {
+      if (pool[key]) pool[key] = pool[key]!.map(keep(dlc)).filter((choice): choice is ItemChoice => choice !== undefined);
+    }
+  }
+  if (next.consumables) next.consumables = next.consumables.filter((consumable) => { const dlc = isDlcGoods(consumable.id); if (dlc) removed += 1; return !dlc; });
+  if (next.items) next.items = next.items.filter(([id]) => { const dlc = isDlcGoods(id); if (dlc) removed += 1; return !dlc; });
+  return { entry: next, removed };
+}
+
+/** Whether an entry has something to fight with (library.rs armed): a loadout, or a pool with right-hand weapons. */
+export function armed(entry: Tarnished): boolean {
+  return entry.pool ? Boolean(entry.pool.right?.length) : Boolean(entry.gear?.length);
 }
 
 function validatePersonalities(document: LibraryDocument, errors: string[]): void {
@@ -195,8 +322,8 @@ export type ValidateOptions = {
   goods?: GoodsLookup;
   /** The mod's base.toml, loaded before this file: its styles, personalities and templates apply here too. */
   base?: LibraryDocument;
-  /** Whether an item is from Shadow of the Erdtree, from the item catalog. */
-  isDlcItem?: (kind: ItemKind, id: number) => boolean;
+  /** Styles and personalities saved in this browser; a file that uses one gets its definition on download. */
+  presets?: Presets;
 };
 
 /** The options of a loadout slot: one item or a list of options. */
@@ -208,38 +335,23 @@ function armorSetPieces(choice: ArmorChoice): number[] | undefined {
   return Array.isArray(choice) ? choice : choice?.set;
 }
 
-/** Every item an entry can equip, for the DLC check. */
-function entryItems(entry: Tarnished): [ItemKind, number][] {
-  const items: [ItemKind, number][] = [];
-  const add = (kind: ItemKind, choices: ItemChoice[] | undefined) => {
-    for (const choice of choices ?? []) {
-      const id = choiceId(choice);
-      if (id >= 0) items.push([kind, id]);
-      if (typeof choice === 'object' && choice.ash !== undefined) items.push(['ash', choice.ash]);
-    }
-  };
-  for (const gear of entry.gear ?? []) {
-    for (const field of GEAR_FIELDS) add(field.kind, ((gear[field.key as keyof Loadout] as Pick[] | undefined) ?? []).flatMap(pickOptions));
-    for (const set of gear.armor_sets ?? []) add('armor', armorSetPieces(set));
-  }
-  if (entry.pool) {
-    for (const field of POOL_FIELDS) {
-      const values = entry.pool[field.key as keyof EquipmentPool] as unknown[] | undefined;
-      if (field.key === 'armor') for (const set of (values ?? []) as ArmorChoice[]) add('armor', armorSetPieces(set));
-      else add(field.kind, values as ItemChoice[] | undefined);
-    }
-  }
-  return items;
+function validateNames(entry: Tarnished, label: string, errors: string[]): void {
+  const names = entry.names;
+  if (names === undefined) return;
+  const lists = Array.isArray(names) ? [names] : typeof names === 'object' && names !== null ? Object.values(names) : null;
+  if (!lists) { errors.push(`${label}: names must be a list, or male and female lists.`); return; }
+  if (!Array.isArray(names) && Object.keys(names).some((sex) => sex !== 'male' && sex !== 'female')) errors.push(`${label}: names by sex take only male and female lists.`);
+  if (lists.some((list) => !Array.isArray(list) || list.some((name) => typeof name !== 'string' || !name.trim()))) errors.push(`${label}: every given name must be text.`);
 }
 
 export function validateLibrary(document: LibraryDocument, options: ValidateOptions = {}): ValidationResult {
-  const { gestures: gestureNames = [], goods, base, isDlcItem } = options;
+  const { gestures: gestureNames = [], goods, base, presets } = options;
   const errors: string[] = [];
   const warnings: string[] = [];
   const entries = document.tarnished ?? [];
   const ids = new Set<string>();
   const validGestures = new Set(gestureNames);
-  const knownStyles = new Set(archetypes(document, base).map((archetype) => archetype.name));
+  const knownStyles = new Set(archetypes(document, base, presets).map((archetype) => archetype.name));
   // Each Ash of War in a loadout borrows one custom weapon row; the mod allows as many as the smallest template has.
   const templates = { ...(base?.templates ?? {}), ...(document.templates ?? {}) } as Record<string, { custom_weapons?: unknown[] }>;
   const customRows = Object.values(templates).length ? Math.min(...Object.values(templates).map((template) => template?.custom_weapons?.length ?? 0)) : undefined;
@@ -276,6 +388,7 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
       }
     });
     if (entry.roles && (!entry.roles.length || entry.roles.some((value) => !ROLES.includes(value)))) errors.push(`${label}: select at least one valid role.`);
+    validateNames(entry, label, errors);
     for (const title of entry.titles ?? []) {
       if ((title.match(/\{name\}/g) ?? []).length > 1) errors.push(`${label}: title “${title}” uses {name} more than once.`);
     }
@@ -343,9 +456,9 @@ export function validateLibrary(document: LibraryDocument, options: ValidateOpti
         } else values.forEach((choice, choiceIndex) => validateChoice(choice, `${label} / ${field.label} ${choiceIndex + 1}`, errors, ['left', 'catalysts'].includes(field.key)));
       }
     }
-    if (isDlcItem && !entry.dlc) {
-      const dlcItems = entryItems(entry).filter(([kind, id]) => isDlcItem(kind, id));
-      if (dlcItems.length) warnings.push(`${label}: uses ${dlcItems.length} Shadow of the Erdtree item${dlcItems.length === 1 ? '' : 's'}; turn on “Uses Shadow of the Erdtree” so it is left out for players without the DLC.`);
+    // Without the DLC the mod takes its items out of the entry; one left with nothing is left out.
+    if (!entry.dlc && (hasGear || hasPool) && !armed(stripDlcItems(entry).entry)) {
+      warnings.push(`${label}: without Shadow of the Erdtree it has nothing left to fight with, so players without the DLC never meet it; turn on “Uses Shadow of the Erdtree” to say so, or add base-game weapons.`);
     }
   });
 

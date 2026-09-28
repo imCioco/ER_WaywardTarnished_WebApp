@@ -50,6 +50,7 @@ export const MOST_CONSUMABLES = 99;
 // EquipParamGoods.aiUseJudgeId: how the player-like AI uses a consumable (docs/LIBRARY.md).
 export const CONSUMABLE_USES: Record<number, string> = {
   10000000: 'Thrown pots', 10000001: 'Knives and darts', 10000002: 'Stones and sprays',
+  10000003: 'Other thrown items', 10000004: 'Other thrown items', 10000010: 'Other thrown items', 10200000: 'Other thrown items',
   20070000: 'Flasks', 30000000: 'Self-buffs', 30010000: 'Greases', 31000000: 'Drawstring greases',
 };
 

@@ -9,9 +9,10 @@ import {
   MenuOutlined, RobotOutlined, SettingOutlined, TeamOutlined, ThunderboltOutlined, ToolOutlined, UndoOutlined,
 } from '@ant-design/icons';
 import { ItemCatalog, loadBundledCatalog } from './catalog';
-import { archetypes as listArchetypes, copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary, type GoodsLookup } from './library';
+import { archetypes as listArchetypes, copyLibrary, newEnemy, parseLibrary, poolChoiceCount, serializeLibrary, validateLibrary, withUsedArchetypes, type GoodsLookup } from './library';
+import { loadPresets, storePresets, type Presets } from './presets';
 import { loadRules, mergeLibraries, type Rules } from './simulate';
-import type { Consumable, ItemKind, LibraryDocument, Tarnished, ValidationResult } from './types';
+import type { Consumable, LibraryDocument, Tarnished, ValidationResult } from './types';
 import { EnemyEditor } from './components/EnemyEditor';
 import { SharedSettings } from './components/SharedSettings';
 import { PersonalitiesEditor } from './components/PersonalitiesEditor';
@@ -38,6 +39,9 @@ function Studio() {
   const [rawText, setRawText] = useState('');
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [includeBaseChoice, setIncludeBaseChoice] = useState<boolean>();
+  // Styles and personalities kept in this browser: offered in every file, written into one when it uses them.
+  const [presets, setPresets] = useState<Presets>(() => loadPresets());
+  const updatePresets = useCallback((next: Presets) => { setPresets(next); storePresets(next); }, []);
   const past = useRef<LibraryDocument[]>([]);
   const future = useRef<LibraryDocument[]>([]);
   const documentRef = useRef<LibraryDocument | null>(null);
@@ -109,14 +113,14 @@ function Studio() {
   const validationOptions = () => ({
     gestures,
     base: baseDocument,
+    presets,
     goods: catalog.size ? goodsLookup : undefined,
-    isDlcItem: catalog.size ? (kind: ItemKind, id: number) => Boolean(catalog.get(kind, id)?.dlc) : undefined,
   });
   // A file that holds every base.toml entry is a replacement for it, so its odds leave base.toml's Tarnished out.
   const replacesBase = Boolean(baseDocument && document && baseDocument.tarnished.every((base) => document.tarnished.some((entry) => entry.id === base.id)));
   const includeBase = includeBaseChoice ?? !replacesBase;
   const library = useMemo(() => mergeLibraries(document ?? { tarnished: [] }, baseDocument, includeBase), [document, baseDocument, includeBase]);
-  const archetypes = useMemo(() => (document ? listArchetypes(document, baseDocument) : []), [document, baseDocument]);
+  const archetypes = useMemo(() => (document ? listArchetypes(document, baseDocument, presets) : []), [document, baseDocument, presets]);
 
   const updateEntry = (entry: Tarnished) => {
     if (!document) return;
@@ -156,10 +160,14 @@ function Studio() {
   const newLibrary = async () => {
     const base = parseLibrary(await fetch(`${import.meta.env.BASE_URL}base.toml`, { cache: 'no-cache' }).then((response) => response.text()));
     base.tarnished = [];
+    // The styles and personalities stay available as presets; one is copied into the file when a Tarnished uses it.
+    delete base.styles;
+    delete base.personalities;
+    delete base.__descriptions;
     resetHistory(base);
     setFilename('my-tarnished-library.toml');
     setSavedText('');
-    message.success('New library created with the current shared settings.');
+    message.success('New library created with the mod’s shared settings. Every AI style and personality is still offered as a preset.');
   };
   const openLibrary = async (file: File) => {
     try {
@@ -174,14 +182,18 @@ function Studio() {
     if (!document) return;
     const result = validateLibrary(document, validationOptions());
     if (result.errors.length) { setValidation(result); return; }
-    const blob = new Blob([serialized], { type: 'application/toml;charset=utf-8' });
+    // Styles its Tarnished use from base.toml or the saved presets go into the file with it.
+    const exported = withUsedArchetypes(document, archetypes);
+    if (exported !== document) commit(exported);
+    const text = exported === document ? serialized : serializeLibrary(exported);
+    const blob = new Blob([text], { type: 'application/toml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const anchor = window.document.createElement('a');
     anchor.href = url;
     anchor.download = filename.toLowerCase().endsWith('.toml') ? filename : `${filename}.toml`;
     anchor.click();
     URL.revokeObjectURL(url);
-    setSavedText(serialized);
+    setSavedText(text);
     localStorage.removeItem(DRAFT_KEY);
     message.success('Library downloaded.');
   };
@@ -210,7 +222,7 @@ function Studio() {
     { label: 'Fixed builds', value: fixedBuilds, icon: <ToolOutlined />, help: 'Entries with hand-made loadouts by level: the gear you pick, with options per slot, that changes as the player levels up.' },
     { label: 'Class libraries', value: classLibraries, icon: <ThunderboltOutlined />, help: 'Entries that draw random gear from item pools each time one appears, like the Strength or Faith classes. Shown as “Random pool” in the list.' },
     { label: 'Pool items', value: poolItems, icon: <AppstoreOutlined />, help: 'All weapons, catalysts, armor sets, talismans, spells and Ashes of War the class libraries can draw from, added up.' },
-    { label: 'AI styles', value: archetypes.length, icon: <RobotOutlined />, help: 'Vanilla styles and custom personalities this file can give its Tarnished, including those it inherits from the mod’s base.toml.' },
+    { label: 'AI styles', value: archetypes.length, icon: <RobotOutlined />, help: 'Vanilla styles and custom personalities this file can give its Tarnished: its own, the presets from the mod’s base.toml and those saved in this browser.' },
   ];
   const command = (title: string, button: ReactNode) => <Tooltip title={title} placement="bottom">{button}</Tooltip>;
   return (
@@ -283,7 +295,7 @@ function Studio() {
             tabList={viewItems.map((item) => ({ key: item.key, label: <Tooltip title={item.hint} mouseEnterDelay={0.4}><span>{item.icon}<span className="tab-label">{item.label}</span></span></Tooltip> }))}
             styles={{ body: { padding: 0 } }}
           >
-            {view === 'personalities' ? <PersonalitiesEditor document={document} base={baseDocument} selected={selectedEntry ? selected : undefined} onChange={commit} />
+            {view === 'personalities' ? <PersonalitiesEditor document={document} base={baseDocument} presets={presets} onPresets={updatePresets} selected={selectedEntry ? selected : undefined} onChange={commit} />
               : view === 'shared' ? <SharedSettings document={document} catalog={catalog} gestures={gestures} basePool={basePool} library={library} includeBase={includeBase} onIncludeBase={setIncludeBaseChoice} rules={rules} archetypes={archetypes} onChange={commit} />
               : selectedEntry ? <EnemyEditor entry={selectedEntry} view={view} catalog={catalog} gestureNames={gestures} sharedConsumables={document.consumables?.pool?.length ? document.consumables.pool : basePool} sharedKinds={document.consumables?.kinds ?? baseDocument?.consumables?.kinds} library={library} rules={rules} archetypes={archetypes} onChange={updateEntry} onDuplicate={duplicateEntry} onDelete={deleteEntry} />
               : <div className="empty-editor"><Empty description="Create a fixed build or random pool to begin" /><Space><Button onClick={() => createEntry('gear')}>Create fixed build</Button><Button type="primary" onClick={() => createEntry('pool')}>Create random pool</Button></Space></div>}
