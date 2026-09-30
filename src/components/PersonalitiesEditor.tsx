@@ -140,7 +140,7 @@ export function PersonalitiesEditor({ document, base, presets, onPresets, select
 
       {entry && (
         <Card title={`${entry.name}’s AI styles`} className="form-card build-styles">
-          <Typography.Paragraph type="secondary">Each time this Tarnished appears it draws one of these. With none, it fights with the plain player-like AI, like the Nameless White Mask. Hover over a style to see what it does. Picking a preset copies it into this file.</Typography.Paragraph>
+          <Typography.Paragraph type="secondary">Each time this Tarnished appears it gets one of these, picked at random with equal odds; it never uses several at once. With none, it fights with the plain player-like AI, like the Nameless White Mask. Hover over a style to see what it does. Picking a preset copies it into this file.</Typography.Paragraph>
           <StyleSelect archetypes={archetypes} value={chosen} onChange={setStyles} />
           {missing.length > 0 && <Alert type="error" showIcon message={`Not defined in this file, base.toml or your presets: ${missing.join(', ')}`} />}
           {chosen.length > 0 && (
@@ -178,7 +178,22 @@ export function PersonalitiesEditor({ document, base, presets, onPresets, select
         />
       </div>
 
-      <Alert type="info" showIcon className="slot-note" message={`Define as many personalities as you like; up to ${PERSONALITIES_AT_ONCE} different custom ones can be in play at once.`} description={`Any number of Tarnished can share a personality. A Tarnished that arrives while ${PERSONALITIES_AT_ONCE} other custom personalities are in use fights without its own. Vanilla styles have no limit. ${savedCount ? `${savedCount} preset${savedCount === 1 ? ' is' : 's are'} saved in this browser.` : 'Save a personality as a preset (the star) to have it in every file you open or start.'}`} />
+      <Alert
+        type="info"
+        showIcon
+        className="slot-note"
+        message="How personalities work in the game"
+        description={(
+          <ul className="slot-note-list">
+            <li><strong>Make as many as you like.</strong> There is no limit on how many personalities a file holds, or on how many you give one Tarnished.</li>
+            <li><strong>A Tarnished uses one at a time.</strong> Each time it appears, it gets one style or personality from its list, picked at random with equal odds; it never mixes them. A build with berserker, sentinel and steady shows up as a berserker, a sentinel or a steady fighter, a new pick every time.</li>
+            <li><strong>“{PERSONALITIES_AT_ONCE} at once” counts the Tarnished in your world right now, not the ones you make.</strong> The game has {PERSONALITIES_AT_ONCE} spare slots for custom personalities. Every different custom personality used by a Tarnished that is present takes one slot, Tarnished with the same personality share it, and the slot frees up as soon as its Tarnished dies or leaves. An invader, two hunters and a summon that are a berserker, a sentinel, a parrier and another berserker use 3 slots.</li>
+            <li><strong>With all {PERSONALITIES_AT_ONCE} slots taken</strong>, a Tarnished that arrives with a sixth, different custom personality fights with the plain player-like AI instead (it does not pick another one from its list). It takes that many different Tarnished at once, so it rarely happens.</li>
+            <li><strong>Vanilla styles never run out</strong>: they are the game’s own and use no slot.</li>
+            <li>{savedCount ? `${savedCount} preset${savedCount === 1 ? ' is' : 's are'} saved in this browser. ` : ''}Save a personality as a preset (the star) to have it in every file you open or start.</li>
+          </ul>
+        )}
+      />
 
       {shown.length ? (
         <div className="archetype-grid">

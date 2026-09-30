@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { adoptArchetype, archetypes, armed, entryNames, isNamed, newEnemy, parseLibrary, serializeLibrary, stripDlcItems, validateLibrary, withUsedArchetypes } from '../src/library';
+import { ItemCatalog } from '../src/catalog';
+import { consumableGroups } from '../src/components/ConsumablesEditor';
 import { GREAT_RUNE_IDS } from '../src/constants';
 import { EMPTY_PRESETS, withoutPreset, withPersonality } from '../src/presets';
 import type { Tarnished } from '../src/types';
@@ -238,5 +240,18 @@ describe('Wayward Tarnished library model', () => {
 
   it('ships the expected local item catalog without external fetching', () => {
     expect(items).toHaveLength(2797);
+  });
+});
+
+describe('consumable picker', () => {
+  it('lists every usable consumable once, so the virtual list can scroll through them', () => {
+    const catalog = new ItemCatalog();
+    for (const item of items) catalog.items.set(catalog.key(item.kind as never, Number(item.id)), { ...item, id: Number(item.id) } as never);
+    const groups = consumableGroups(catalog);
+    const ids = groups.flatMap((group) => group.items.map((item) => item.id));
+    expect(new Set(groups.map((group) => group.label)).size).toBe(groups.length);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids.length).toBe(catalog.consumables().length);
+    expect(groups.find((group) => group.label === 'Other thrown items')?.items.map((item) => item.name)).toContain('Frenzyflame Stone');
   });
 });

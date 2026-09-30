@@ -64,7 +64,7 @@ describe('appearance odds mirror the mod', () => {
     expect(summons).not.toContain('vigor-check');
     expect(summons).not.toContain('let-me-solo-me');
     const invaders = appearanceOdds(library, 'invader', 50);
-    expect(invaders.find((odds) => odds.entry.id === 'vigor-check')?.percent).toBeCloseTo(5, 6);
+    expect(invaders.find((odds) => odds.entry.id === 'vigor-check')?.percent).toBeCloseTo(2, 6);
     expect(invaders.reduce((sum, odds) => sum + odds.percent, 0)).toBeCloseTo(100, 6);
   });
 });

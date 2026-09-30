@@ -152,7 +152,7 @@ export function PersonalityModal({ title, initial, original, archetypes, saved, 
           <Checkbox checked={keep} onChange={(event) => setKeep(event.target.checked)}>Also keep it as a preset in this browser</Checkbox>
         </Form.Item>
       </Form>
-      <Typography.Paragraph type="secondary" className="personality-note">A library can define any number of personalities. Up to {PERSONALITIES_AT_ONCE} different ones can be in play at once, and any number of Tarnished can share one; a Tarnished that arrives while {PERSONALITIES_AT_ONCE} other custom personalities are in play fights without its own.</Typography.Paragraph>
+      <Typography.Paragraph type="secondary" className="personality-note">A library can hold any number of personalities, and any number of Tarnished can use this one. The only limit is in the game: the Tarnished present in your world at the same moment can use at most {PERSONALITIES_AT_ONCE} different custom personalities between them; one that arrives while {PERSONALITIES_AT_ONCE} others are in use fights with the plain player-like AI.</Typography.Paragraph>
       <OddsGuide />
       <div className="odds-toolbar">
         <div>

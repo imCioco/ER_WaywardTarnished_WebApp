@@ -100,6 +100,8 @@ button, input, textarea { font: inherit; }
 .slot-chip.used strong { color: #191919; }
 .slot-chip.free strong { color: #389e0d; }
 .slot-note { margin-bottom: 14px; }
+.slot-note-list { margin: 4px 0 0; padding-left: 18px; }
+.slot-note-list li + li { margin-top: 4px; }
 .archetype-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
 .archetype-card { display: flex; flex-direction: column; }
 .archetype-card.in-build { border-color: #171717; }

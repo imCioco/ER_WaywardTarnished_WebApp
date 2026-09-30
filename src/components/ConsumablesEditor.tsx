@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Divider, Empty, Form, InputNumber, Modal, Segmented, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { CONSUMABLE_USES, DEFAULT_LEVEL, DEFAULT_WEIGHT } from '../constants';
-import type { ItemCatalog } from '../catalog';
+import type { CatalogItem, ItemCatalog } from '../catalog';
 import type { Consumable } from '../types';
 import { ChoiceRow } from './ChoiceRow';
 import { ItemSelect } from './ItemSelect';
@@ -16,20 +16,25 @@ export function consumableUse(catalog: ItemCatalog, id: number): string | undefi
   return judge > 0 ? CONSUMABLE_USES[judge] ?? 'Other AI use' : undefined;
 }
 
+/** The consumables the picker offers, grouped by how the AI uses them; every item is in one group. */
+export function consumableGroups(catalog: ItemCatalog): { label: string; items: CatalogItem[] }[] {
+  const byUse = new Map<string, CatalogItem[]>();
+  for (const item of catalog.consumables()) {
+    const use = consumableUse(catalog, item.id) ?? (catalog.hasAiUse ? 'Other AI use' : 'Consumables');
+    byUse.set(use, [...(byUse.get(use) ?? []), item]);
+  }
+  // Several AI uses share a label ("Other thrown items"): list each group once, or its items come
+  // up several times with the same keys and the virtual list stops scrolling past them.
+  const order = [...new Set([...Object.values(CONSUMABLE_USES), 'Other AI use', 'Consumables'])];
+  return order.filter((use) => byUse.has(use)).map((use) => ({ label: use, items: byUse.get(use)! }));
+}
+
 function ConsumableModal({ catalog, value, title, onCancel, onSave }: ModalProps) {
   const [id, setId] = useState<number | undefined>(value?.id);
   const [count, setCount] = useState(value?.count ?? 1);
   const [level, setLevel] = useState(value?.level ?? DEFAULT_LEVEL);
   const [weight, setWeight] = useState(value?.weight ?? DEFAULT_WEIGHT);
-  const groups = useMemo(() => {
-    const byUse = new Map<string, ReturnType<ItemCatalog['consumables']>>();
-    for (const item of catalog.consumables()) {
-      const use = consumableUse(catalog, item.id) ?? (catalog.hasAiUse ? 'Other AI use' : 'Consumables');
-      byUse.set(use, [...(byUse.get(use) ?? []), item]);
-    }
-    const order = [...Object.values(CONSUMABLE_USES), 'Other AI use', 'Consumables'];
-    return order.filter((use) => byUse.has(use)).map((use) => ({ label: use, items: byUse.get(use)! }));
-  }, [catalog]);
+  const groups = useMemo(() => consumableGroups(catalog), [catalog]);
   const limit = id === undefined ? 99 : catalog.stackLimit(id);
   const known = id !== undefined && Boolean(catalog.get('goods', id));
   const usable = id !== undefined && (!catalog.hasAiUse || consumableUse(catalog, id) !== undefined);
